@@ -612,3 +612,5 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 VaultFlow server running on port ${PORT}`);
 });
+// At the very end of server.js, ADD this line:
+module.exports = app;
