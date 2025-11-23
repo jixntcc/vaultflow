@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultFlow - Personal Finance Manager</title>
+    <style>
+        /* Your original theme colors and design */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --text: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item {
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-info {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 32px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .card-change {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-change.positive {
+            color: var(--secondary);
+        }
+
+        .card-change.negative {
+            color: var(--danger);
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 220px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-select {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 24px;
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: var(--bg);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.income {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge.expense {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-right: 6px;
+            transition: all 0.2s;
+        }
+
+        .edit-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Button */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-secondary);
+            color: white;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 999;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            max-width: 540px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea.form-input {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--secondary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Auth Page */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+        }
+
+        .auth-box {
+            background: var(--surface);
+            padding: 48px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-width: 440px;
+            width: 100%;
+        }
+
+        .auth-logo {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .demo-btn {
+            width: 100%;
+            margin-top: 16px;
+            background: var(--secondary);
+        }
+
+        .demo-btn:hover {
+            background: #059669;
+        }
+
+        /* Vault/Wallet Cards */
+        .vault-card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .vault-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .vault-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .vault-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .vault-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .vault-percentage {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .vault-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .vault-stat {
+            text-align: center;
+        }
+
+        .vault-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .vault-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .vault-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        /* Goal Card */
+        .goal-card {
+            background: var(--surface);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .goal-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .goal-amount {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .goal-progress {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 64px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .empty-text {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+
+            .fab {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .auth-box {
+                padding: 32px 24px;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">💰 VaultFlow</div>
+            <div class="auth-subtitle">Your Personal Finance Vault Manager</div>
+            
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                <button type="button" class="btn demo-btn" id="demoBtn">Try Demo Mode</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password (min 6 characters)</label>
+                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">💰 VaultFlow</div>
+            
+            <nav>
+                <div class="nav-item active" data-page="dashboard">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="transactions">
+                    <span>💳</span>
+                    <span>Transactions</span>
+                </div>
+                <div class="nav-item" data-page="vaults">
+                    <span>🏦</span>
+                    <span>Vaults</span>
+                </div>
+                <div class="nav-item" data-page="wallets">
+                    <span>👛</span>
+                    <span>Wallets</span>
+                </div>
+                <div class="nav-item" data-page="goals">
+                    <span>🎯</span>
+                    <span>Future Goals</span>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <span>📈</span>
+                    <span>Reports</span>
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-name" id="userName">User</div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back! Here's your financial overview.</p>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-label">HR Wallet Balance</div>
+                        <div class="card-value" id="hrWalletBalance">₹0</div>
+                        <div class="card-change">Wallet 1</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">HL Wallet Balance</div>
+                        <div class="card-value" id="hlWalletBalance">₹0</div>
+                        <div class="card-change">Wallet 2</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Income</div>
+                        <div class="card-value" id="totalIncome">₹0</div>
+                        <div class="card-change positive">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Expenses</div>
+                        <div class="card-value" id="totalExpenses">₹0</div>
+                        <div class="card-change negative">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Net Savings</div>
+                        <div class="card-value" id="netSavings">₹0</div>
+                        <div class="card-change positive" id="savingsRate">0% rate</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Transactions</div>
+                        <div class="card-value" id="totalTransactions">0</div>
+                        <div class="card-change">All time</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Transactions</h3>
+                        <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                    </div>
+                    <div id="recentTransactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Transactions Page -->
+            <div id="transactions" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="page-subtitle">View and manage all your income and expenses</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">All Transactions</h3>
+                        <div class="table-actions">
+                            <input type="text" class="search-box" id="searchTransactions" placeholder="Search transactions...">
+                            <select class="filter-select" id="filterType">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                        </div>
+                    </div>
+                    <div id="transactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Vaults Page -->
+            <div id="vaults" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Vault Management</h1>
+                    <p class="page-subtitle">Manage your budget vaults and allocation percentages</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showVaultModal()" style="margin-bottom: 20px;">+ Add Vault</button>
+
+                <div id="vaultsList"></div>
+            </div>
+
+            <!-- Wallets Page (NEW) -->
+            <div id="wallets" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Wallet Balances</h1>
+                    <p class="page-subtitle">Track your wallet balances and transactions</p>
+                </div>
+
+                <div id="walletsList"></div>
+            </div>
+
+            <!-- Goals Page -->
+            <div id="goals" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Future Goals</h1>
+                    <p class="page-subtitle">Track your financial goals and progress</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showGoalModal()" style="margin-bottom: 20px;">+ Add Goal</button>
+
+                <div id="goalsList"></div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Financial Reports</h1>
+                    <p class="page-subtitle">Monthly and annual financial summaries</p>
+                </div>
+
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-label">This Month Income</div>
+                        <div class="card-value" id="monthIncome">₹0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">This Month Expenses</div>
+                        <div class="card-value" id="monthExpenses">₹0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">This Month Savings</div>
+                        <div class="card-value" id="monthSavings">₹0</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Annual Total</div>
+                        <div class="card-value" id="yearTotal">₹0</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Monthly Breakdown</h3>
+                    </div>
+                    <div id="monthlyBreakdown"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FAB Button -->
+        <button class="fab" onclick="showTransactionModal()">+</button>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="transactionModalTitle">Add Transaction</h3>
+                <button class="close-modal" onclick="closeModal('transactionModal')">×</button>
+            </div>
+            <form id="transactionForm">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="txnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time</label>
+                            <input type="time" class="form-input" id="txnTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-input" id="txnType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount (₹)</label>
+                        <input type="number" class="form-input" id="txnAmount" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <input type="text" class="form-input" id="txnCategory" required placeholder="e.g., Salary, Food, Transport">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" id="txnLocation" placeholder="e.g., Delhi, Juma Masjid">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Wallet</label>
+                        <select class="form-input" id="txnWallet" required>
+                            <option value="HR">HR Wallet</option>
+                            <option value="HL">HL Wallet</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="vaultSelectGroup">
+                        <label class="form-label">Vault (for expenses)</label>
+                        <select class="form-input" id="txnVault"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
+                    </div>
+                    <input type="hidden" id="txnId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('transactionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vault Modal -->
+    <div id="vaultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="vaultModalTitle">Add Vault</h3>
+                <button class="close-modal" onclick="closeModal('vaultModal')">×</button>
+            </div>
+            <form id="vaultForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Vault Name</label>
+                        <input type="text" class="form-input" id="vaultName" required placeholder="e.g., 💰 Emergency Fund">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Allocation Percentage (%)</label>
+                        <input type="number" class="form-input" id="vaultPercentage" required min="0" max="100" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="vaultDescription" placeholder="Purpose of this vault..."></textarea>
+                    </div>
+                    <input type="hidden" id="vaultId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('vaultModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="goalModalTitle">Add Goal</h3>
+                <button class="close-modal" onclick="closeModal('goalModal')">×</button>
+            </div>
+            <form id="goalForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Goal Name</label>
+                        <input type="text" class="form-input" id="goalName" required placeholder="e.g., New Laptop">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Amount (₹)</label>
+                        <input type="number" class="form-input" id="goalTarget" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Amount (₹)</label>
+                        <input type="number" class="form-input" id="goalCurrent" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Linked Vault</label>
+                        <select class="form-input" id="goalVault"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" class="form-input" id="goalDeadline">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="goalNotes" placeholder="Goal details..."></textarea>
+                    </div>
+                    <input type="hidden" id="goalId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000';
+        
+        // State
+        let authToken = null;
+        let currentUser = null;
+        let isDemoMode = false;
+        
+        // Wallets (NEW)
+        let wallets = {
+            HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+            HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+        };
+        
+        // Demo Data
+        let demoData = {
+            vaults: [
+                { _id: '1', name: '👑 Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '2', name: '🧪 Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '3', name: '🧱 Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '4', name: '🔒 Core Survival Vault', percentage: 10, description: 'Essential needs', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '5', name: '🎭 Chaos Play Vault', percentage: 10, description: 'Spend freely', totalIncome: 0, totalSpent: 0, balance: 0 }
+            ],
+            transactions: [],
+            goals: [],
+            wallets: {
+                HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+            setupEventListeners();
+            setDefaultDateTime();
+        });
+
+        function checkAuth() {
+            authToken = localStorage.getItem('vf_token');
+            currentUser = localStorage.getItem('vf_username');
+            
+            if (authToken && currentUser) {
+                showApp();
+            } else {
+                showAuth();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser || 'User';
+            loadAllData();
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+
+        function setupEventListeners() {
+            // Auth tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(tabName + 'Form').classList.add('active');
+                });
+            });
+
+            // Forms
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                await login(username, password);
+            });
+
+            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('signupUsername').value;
+                const password = document.getElementById('signupPassword').value;
+                await signup(username, password);
+            });
+
+            document.getElementById('demoBtn').addEventListener('click', startDemoMode);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    switchPage(page);
+                });
+            });
+
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+
+            // Transaction form
+            document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
+            document.getElementById('txnType').addEventListener('change', toggleVaultSelect);
+
+            // Vault form
+            document.getElementById('vaultForm').addEventListener('submit', handleVaultSubmit);
+
+            // Goal form
+            document.getElementById('goalForm').addEventListener('submit', handleGoalSubmit);
+
+            // Search and filter
+            document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
+            document.getElementById('filterType').addEventListener('change', filterTransactions);
+
+            // Close modal on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // API Functions
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            if (isDemoMode) {
+                return handleDemoApiCall(endpoint, method, data);
+            }
+
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (authToken) {
+                options.headers['Authorization'] = 'Bearer ' + authToken;
+            }
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(API_BASE_URL + endpoint, options);
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Request failed');
+                }
+
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                showToast(error.message, 'error');
+                throw error;
+            }
+        }
+
+        function handleDemoApiCall(endpoint, method, data) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (endpoint === '/api/vaults' && method === 'GET') {
+                        resolve(demoData.vaults);
+                    } else if (endpoint === '/api/transactions' && method === 'GET') {
+                        resolve(demoData.transactions);
+                    } else if (endpoint === '/api/goals' && method === 'GET') {
+                        resolve(demoData.goals);
+                    } else if (endpoint === '/api/transactions' && method === 'POST') {
+                        const txn = { ...data, _id: Date.now().toString() };
+                        demoData.transactions.push(txn);
+                        
+                        // Update wallets and vaults
+                        if (txn.type === 'income') {
+                            demoData.wallets[txn.wallet].balance += txn.amount;
+                            demoData.wallets[txn.wallet].totalIncome += txn.amount;
+                            
+                            demoData.vaults.forEach(vault => {
+                                const allocation = (txn.amount * vault.percentage) / 100;
+                                vault.totalIncome += allocation;
+                                vault.balance += allocation;
+                            });
+                        } else if (txn.vaultId && txn.wallet) {
+                            const vault = demoData.vaults.find(v => v._id === txn.vaultId);
+                            if (vault) {
+                                vault.totalSpent += txn.amount;
+                                vault.balance -= txn.amount;
+                            }
+                            demoData.wallets[txn.wallet].balance -= txn.amount;
+                            demoData.wallets[txn.wallet].totalSpent += txn.amount;
+                        }
+                        
+                        resolve(txn);
+                    } else if (endpoint.startsWith('/api/transactions/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.transactions.findIndex(t => t._id === id);
+                        if (index > -1) {
+                            demoData.transactions.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else if (endpoint === '/api/vaults' && method === 'POST') {
+                        const vault = { ...data, _id: Date.now().toString(), totalIncome: 0, totalSpent: 0, balance: 0 };
+                        demoData.vaults.push(vault);
+                        resolve(vault);
+                    } else if (endpoint.startsWith('/api/vaults/') && method === 'PUT') {
+                        const id = endpoint.split('/').pop();
+                        const vault = demoData.vaults.find(v => v._id === id);
+                        if (vault) {
+                            Object.assign(vault, data);
+                        }
+                        resolve(vault);
+                    } else if (endpoint.startsWith('/api/vaults/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.vaults.findIndex(v => v._id === id);
+                        if (index > -1) {
+                            demoData.vaults.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else if (endpoint === '/api/goals' && method === 'POST') {
+                        const goal = { ...data, _id: Date.now().toString() };
+                        demoData.goals.push(goal);
+                        resolve(goal);
+                    } else if (endpoint.startsWith('/api/goals/') && method === 'PUT') {
+                        const id = endpoint.split('/').pop();
+                        const goal = demoData.goals.find(g => g._id === id);
+                        if (goal) {
+                            Object.assign(goal, data);
+                        }
+                        resolve(goal);
+                    } else if (endpoint.startsWith('/api/goals/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.goals.findIndex(g => g._id === id);
+                        if (index > -1) {
+                            demoData.goals.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else {
+                        resolve({});
+                    }
+                }, 300);
+            });
+        }
+
+        async function login(username, password) {
+            try {
+                const result = await apiCall('/api/auth/login', 'POST', { username, password });
+                authToken = result.token;
+                currentUser = result.user.username;
+                localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_username', currentUser);
+                isDemoMode = false;
+                showToast('Login successful!', 'success');
+                showApp();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function signup(username, password) {
+            try {
+                const result = await apiCall('/api/auth/register', 'POST', { username, password });
+                authToken = result.token;
+                currentUser = result.user.username;
+                localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_username', currentUser);
+                isDemoMode = false;
+                showToast('Account created successfully!', 'success');
+                showApp();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function startDemoMode() {
+            isDemoMode = true;
+            currentUser = 'Demo User';
+            authToken = 'demo-token';
+            showToast('Demo mode activated!', 'success');
+            showApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('vf_token');
+            localStorage.removeItem('vf_username');
+            authToken = null;
+            currentUser = null;
+            isDemoMode = false;
+            resetDemoData();
+            showAuth();
+            showToast('Logged out successfully', 'success');
+        }
+
+        function resetDemoData() {
+            demoData = {
+                vaults: [
+                    { _id: '1', name: '👑 Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '2', name: '🧪 Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '3', name: '🧱 Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '4', name: '🔒 Core Survival Vault', percentage: 10, description: 'Essential needs', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '5', name: '🎭 Chaos Play Vault', percentage: 10, description: 'Spend freely', totalIncome: 0, totalSpent: 0, balance: 0 }
+                ],
+                transactions: [],
+                goals: [],
+                wallets: {
+                    HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                    HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+                }
+            };
+        }
+
+        // Data Loading
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadVaults(),
+                    loadTransactions(),
+                    loadGoals()
+                ]);
+                calculateWalletBalances();
+                renderDashboard();
+                renderCurrentPage();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        let vaults = [];
+        let transactions = [];
+        let goals = [];
+
+        async function loadVaults() {
+            vaults = await apiCall('/api/vaults');
+        }
+
+        async function loadTransactions() {
+            transactions = await apiCall('/api/transactions');
+        }
+
+        async function loadGoals() {
+            goals = await apiCall('/api/goals');
+        }
+
+        function calculateWalletBalances() {
+            if (isDemoMode) {
+                wallets = demoData.wallets;
+            } else {
+                wallets = {
+                    HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                    HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+                };
+                
+                console.log('Calculating wallet balances from transactions:', transactions.length);
+                
+                transactions.forEach(txn => {
+                    console.log('Transaction:', txn.type, txn.amount, 'Wallet:', txn.wallet);
+                    
+                    const walletKey = txn.wallet || 'HR'; // Default to HR if not specified
+                    
+                    if (wallets[walletKey]) {
+                        if (txn.type === 'income') {
+                            wallets[walletKey].balance += txn.amount;
+                            wallets[walletKey].totalIncome += txn.amount;
+                        } else {
+                            wallets[walletKey].balance -= txn.amount;
+                            wallets[walletKey].totalSpent += txn.amount;
+                        }
+                    }
+                });
+                
+                console.log('Final wallet balances:', wallets);
+            }
+        }
+
+        // Page Navigation
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(pageName).classList.add('active');
+            document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+            
+            renderCurrentPage();
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-visible');
+            }
+        }
+
+        function renderCurrentPage() {
+            const activePage = document.querySelector('.page.active').id;
+            
+            switch(activePage) {
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'transactions':
+                    renderTransactionsPage();
+                    break;
+                case 'vaults':
+                    renderVaultsPage();
+                    break;
+                case 'wallets':
+                    renderWalletsPage();
+                    break;
+                case 'goals':
+                    renderGoalsPage();
+                    break;
+                case 'reports':
+                    renderReportsPage();
+                    break;
+            }
+        }
+
+        // Dashboard
+        function renderDashboard() {
+            calculateWalletBalances();
+            
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netSavings = totalIncome - totalExpenses;
+            const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : 0;
+
+            document.getElementById('hrWalletBalance').textContent = formatCurrency(wallets.HR.balance);
+            document.getElementById('hlWalletBalance').textContent = formatCurrency(wallets.HL.balance);
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('netSavings').textContent = formatCurrency(netSavings);
+            document.getElementById('savingsRate').textContent = savingsRate + '% rate';
+            document.getElementById('totalTransactions').textContent = transactions.length;
+
+            const recent = transactions.slice(0, 5);
+            renderTransactionTable(recent, 'recentTransactionsTable');
+        }
+
+        // Transactions Page
+        function renderTransactionsPage() {
+            renderTransactionTable(transactions, 'transactionsTable');
+        }
+
+        function renderTransactionTable(data, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">💳</div>
+                        <h3 class="empty-title">No transactions yet</h3>
+                        <p class="empty-text">Start tracking your income and expenses</p>
+                        <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>Date & Time</th>';
+            html += '<th>Type</th>';
+            html += '<th>Amount</th>';
+            html += '<th>Category</th>';
+            html += '<th>Location</th>';
+            html += '<th>Wallet</th>';
+            html += '<th>Vault</th>';
+            html += '<th>Notes</th>';
+            html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+
+            data.forEach(txn => {
+                const dateObj = new Date(txn.date);
+                const dateStr = dateObj.toLocaleDateString();
+                const timeStr = txn.time || '';
+                
+                html += '<tr>';
+                html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
+                html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
+                html += `<td><strong>₹${txn.amount.toLocaleString()}</strong></td>`;
+                html += `<td>${txn.category}</td>`;
+                html += `<td>${txn.location ? '📍 ' + txn.location : '-'}</td>`;
+                html += `<td>${txn.wallet || '-'}</td>`;
+                html += `<td>${txn.vaultName || '-'}</td>`;
+                html += `<td>${txn.notes || '-'}</td>`;
+                html += `<td>
+                    <button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>
+                </td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function filterTransactions() {
+            const search = document.getElementById('searchTransactions').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+
+            let filtered = transactions;
+
+            if (type !== 'all') {
+                filtered = filtered.filter(t => t.type === type);
+            }
+
+            if (search) {
+                filtered = filtered.filter(t => 
+                    t.category.toLowerCase().includes(search) ||
+                    (t.location && t.location.toLowerCase().includes(search)) ||
+                    (t.notes && t.notes.toLowerCase().includes(search))
+                );
+            }
+
+            renderTransactionTable(filtered, 'transactionsTable');
+        }
+
+        // Vaults Page
+        function renderVaultsPage() {
+            const container = document.getElementById('vaultsList');
+            
+            if (vaults.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏦</div>
+                        <h3 class="empty-title">No vaults yet</h3>
+                        <p class="empty-text">Create vaults to organize your budget</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            vaults.forEach(vault => {
+                html += `
+                    <div class="vault-card">
+                        <div class="vault-header">
+                            <div>
+                                <div class="vault-name">${vault.name}</div>
+                                <div class="vault-desc">${vault.description || ''}</div>
+                            </div>
+                            <div class="vault-percentage">${vault.percentage}%</div>
+                        </div>
+                        <div class="vault-stats">
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Income</div>
+                                <div class="vault-stat-value">₹${vault.totalIncome.toLocaleString()}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Spent</div>
+                                <div class="vault-stat-value">₹${vault.totalSpent.toLocaleString()}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Balance</div>
+                                <div class="vault-stat-value" style="color: ${vault.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">₹${vault.balance.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <div class="vault-actions">
+                            <button class="btn btn-secondary" onclick="editVault('${vault._id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteVault('${vault._id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Wallets Page (NEW)
+        function renderWalletsPage() {
+            const container = document.getElementById('walletsList');
+            
+            let html = '';
+            Object.keys(wallets).forEach(key => {
+                const wallet = wallets[key];
+                html += `
+                    <div class="vault-card">
+                        <div class="vault-name">👛 ${wallet.name}</div>
+                        <div class="vault-stats">
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Total Income</div>
+                                <div class="vault-stat-value" style="color: var(--secondary)">₹${wallet.totalIncome.toLocaleString()}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Total Spent</div>
+                                <div class="vault-stat-value" style="color: var(--danger)">₹${wallet.totalSpent.toLocaleString()}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Current Balance</div>
+                                <div class="vault-stat-value" style="color: ${wallet.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">₹${wallet.balance.toLocaleString()}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Goals Page
+        function renderGoalsPage() {
+            const container = document.getElementById('goalsList');
+            
+            if (goals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <h3 class="empty-title">No goals yet</h3>
+                        <p class="empty-text">Set financial goals to track your progress</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            goals.forEach(goal => {
+                const progress = goal.targetAmount > 0 ? ((goal.currentAmount / goal.targetAmount) * 100).toFixed(1) : 0;
+                
+                html += `
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <div>
+                                <div class="goal-name">${goal.name}</div>
+                                <div class="goal-amount">₹${goal.currentAmount.toLocaleString()} / ₹${goal.targetAmount.toLocaleString()}</div>
+                                ${goal.deadline ? `<div class="goal-amount">Due: ${new Date(goal.deadline).toLocaleDateString()}</div>` : ''}
+                            </div>
+                            <div class="goal-progress">${progress}%</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                        </div>
+                        ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${goal.notes}</p>` : ''}
+                        <div class="vault-actions" style="margin-top: 16px;">
+                            <button class="btn btn-secondary" onclick="editGoal('${goal._id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteGoal('${goal._id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Reports Page
+        function renderReportsPage() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthTransactions = transactions.filter(t => {
+                const txnDate = new Date(t.date);
+                return txnDate.getMonth() === currentMonth && txnDate.getFullYear() === currentYear;
+            });
+
+            const monthIncome = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const monthExpenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const monthSavings = monthIncome - monthExpenses;
+
+            const yearIncome = transactions.filter(t => new Date(t.date).getFullYear() === currentYear && t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const yearExpenses = transactions.filter(t => new Date(t.date).getFullYear() === currentYear && t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const yearTotal = yearIncome - yearExpenses;
+
+            document.getElementById('monthIncome').textContent = formatCurrency(monthIncome);
+            document.getElementById('monthExpenses').textContent = formatCurrency(monthExpenses);
+            document.getElementById('monthSavings').textContent = formatCurrency(monthSavings);
+            document.getElementById('yearTotal').textContent = formatCurrency(yearTotal);
+
+            renderMonthlyBreakdown();
+        }
+
+        function renderMonthlyBreakdown() {
+            const container = document.getElementById('monthlyBreakdown');
+            const monthlyData = {};
+
+            transactions.forEach(txn => {
+                const date = new Date(txn.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthlyData[key]) {
+                    monthlyData[key] = { income: 0, expense: 0 };
+                }
+                
+                if (txn.type === 'income') {
+                    monthlyData[key].income += txn.amount;
+                } else {
+                    monthlyData[key].expense += txn.amount;
+                }
+            });
+
+            if (Object.keys(monthlyData).length === 0) {
+                container.innerHTML = '<div class="empty-state"><p class="empty-text">No data for monthly breakdown</p></div>';
+                return;
+            }
+
+            let html = '<table><thead><tr>';
+            html += '<th>Month</th>';
+            html += '<th>Income</th>';
+            html += '<th>Expenses</th>';
+            html += '<th>Savings</th>';
+            html += '</tr></thead><tbody>';
+
+            Object.keys(monthlyData).sort().reverse().forEach(month => {
+                const data = monthlyData[month];
+                const savings = data.income - data.expense;
+                
+                html += '<tr>';
+                html += `<td><strong>${month}</strong></td>`;
+                html += `<td style="color: var(--secondary)"><strong>₹${data.income.toLocaleString()}</strong></td>`;
+                html += `<td style="color: var(--danger)"><strong>₹${data.expense.toLocaleString()}</strong></td>`;
+                html += `<td style="color: ${savings >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>₹${savings.toLocaleString()}</strong></td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Modal Functions
+        function showTransactionModal(id = null) {
+            const modal = document.getElementById('transactionModal');
+            const form = document.getElementById('transactionForm');
+            const title = document.getElementById('transactionModalTitle');
+            
+            form.reset();
+            document.getElementById('txnId').value = '';
+            
+            if (id) {
+                const txn = transactions.find(t => t._id === id);
+                if (txn) {
+                    title.textContent = 'Edit Transaction';
+                    document.getElementById('txnId').value = txn._id;
+                    document.getElementById('txnDate').value = txn.date.split('T')[0];
+                    document.getElementById('txnTime').value = txn.time || '';
+                    document.getElementById('txnType').value = txn.type;
+                    document.getElementById('txnAmount').value = txn.amount;
+                    document.getElementById('txnCategory').value = txn.category;
+                    document.getElementById('txnLocation').value = txn.location || '';
+                    document.getElementById('txnWallet').value = txn.wallet || 'HR';
+                    document.getElementById('txnVault').value = txn.vaultId || '';
+                    document.getElementById('txnNotes').value = txn.notes || '';
+                }
+            } else {
+                title.textContent = 'Add Transaction';
+                setDefaultDateTime();
+            }
+            
+            populateVaultSelect();
+            toggleVaultSelect();
+            modal.classList.add('active');
+        }
+
+        function showVaultModal(id = null) {
+            const modal = document.getElementById('vaultModal');
+            const form = document.getElementById('vaultForm');
+            const title = document.getElementById('vaultModalTitle');
+            
+            form.reset();
+            document.getElementById('vaultId').value = '';
+            
+            if (id) {
+                const vault = vaults.find(v => v._id === id);
+                if (vault) {
+                    title.textContent = 'Edit Vault';
+                    document.getElementById('vaultId').value = vault._id;
+                    document.getElementById('vaultName').value = vault.name;
+                    document.getElementById('vaultPercentage').value = vault.percentage;
+                    document.getElementById('vaultDescription').value = vault.description || '';
+                }
+            } else {
+                title.textContent = 'Add Vault';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        function showGoalModal(id = null) {
+            const modal = document.getElementById('goalModal');
+            const form = document.getElementById('goalForm');
+            const title = document.getElementById('goalModalTitle');
+            
+            form.reset();
+            document.getElementById('goalId').value = '';
+            
+            if (id) {
+                const goal = goals.find(g => g._id === id);
+                if (goal) {
+                    title.textContent = 'Edit Goal';
+                    document.getElementById('goalId').value = goal._id;
+                    document.getElementById('goalName').value = goal.name;
+                    document.getElementById('goalTarget').value = goal.targetAmount;
+                    document.getElementById('goalCurrent').value = goal.currentAmount || 0;
+                    document.getElementById('goalVault').value = goal.vaultId || '';
+                    document.getElementById('goalDeadline').value = goal.deadline ? goal.deadline.split('T')[0] : '';
+                    document.getElementById('goalNotes').value = goal.notes || '';
+                }
+            } else {
+                title.textContent = 'Add Goal';
+            }
+            
+            populateGoalVaultSelect();
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function populateVaultSelect() {
+            const select = document.getElementById('txnVault');
+            select.innerHTML = '<option value="">Select vault...</option>';
+            vaults.forEach(vault => {
+                select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
+            });
+        }
+
+        function populateGoalVaultSelect() {
+            const select = document.getElementById('goalVault');
+            select.innerHTML = '<option value="">Select vault...</option>';
+            vaults.forEach(vault => {
+                select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
+            });
+        }
+
+        function toggleVaultSelect() {
+            const type = document.getElementById('txnType').value;
+            const group = document.getElementById('vaultSelectGroup');
+            group.style.display = type === 'expense' ? 'block' : 'none';
+        }
+
+        // Form Handlers
+        async function handleTransactionSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('txnId').value;
+            const type = document.getElementById('txnType').value;
+            const vaultIdValue = document.getElementById('txnVault').value;
+            
+            const data = {
+                date: document.getElementById('txnDate').value,
+                time: document.getElementById('txnTime').value,
+                type: type,
+                amount: parseFloat(document.getElementById('txnAmount').value),
+                category: document.getElementById('txnCategory').value,
+                location: document.getElementById('txnLocation').value,
+                wallet: document.getElementById('txnWallet').value,
+                notes: document.getElementById('txnNotes').value
+            };
+
+            // FIX: Only add vaultId if expense and value exists
+            if (type === 'expense' && vaultIdValue) {
+                data.vaultId = vaultIdValue;
+                data.vaultName = vaults.find(v => v._id === vaultIdValue)?.name || '';
+            }
+
+            try {
+                if (id) {
+                    await apiCall(`/api/transactions/${id}`, 'PUT', data);
+                    showToast('Transaction updated!', 'success');
+                } else {
+                    await apiCall('/api/transactions', 'POST', data);
+                    showToast('Transaction added!', 'success');
+                }
+                
+                await loadTransactions();
+                await loadVaults();
+                closeModal('transactionModal');
+                renderCurrentPage();
+                renderDashboard();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function handleVaultSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('vaultId').value;
+            const data = {
+                name: document.getElementById('vaultName').value,
+                percentage: parseInt(document.getElementById('vaultPercentage').value),
+                description: document.getElementById('vaultDescription').value
+            };
+
+            try {
+                if (id) {
+                    await apiCall(`/api/vaults/${id}`, 'PUT', data);
+                    showToast('Vault updated!', 'success');
+                } else {
+                    await apiCall('/api/vaults', 'POST', data);
+                    showToast('Vault created!', 'success');
+                }
+                
+                await loadVaults();
+                closeModal('vaultModal');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function handleGoalSubmit(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('goalId').value;
+            const vaultId = document.getElementById('goalVault').value;
+            const data = {
+                name: document.getElementById('goalName').value,
+                targetAmount: parseFloat(document.getElementById('goalTarget').value),
+                currentAmount: parseFloat(document.getElementById('goalCurrent').value) || 0,
+                vaultId: vaultId,
+                vaultName: vaults.find(v => v._id === vaultId)?.name || '',
+                deadline: document.getElementById('goalDeadline').value,
+                notes: document.getElementById('goalNotes').value,
+                status: 'active'
+            };
+
+            try {
+                if (id) {
+                    await apiCall(`/api/goals/${id}`, 'PUT', data);
+                    showToast('Goal updated!', 'success');
+                } else {
+                    await apiCall('/api/goals', 'POST', data);
+                    showToast('Goal created!', 'success');
+                }
+                
+                await loadGoals();
+                closeModal('goalModal');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        // Delete Functions
+        function editTransaction(id) {
+            showTransactionModal(id);
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('Delete this transaction?')) return;
+            
+            try {
+                await apiCall(`/api/transactions/${id}`, 'DELETE');
+                await loadTransactions();
+                await loadVaults();
+                showToast('Transaction deleted!', 'success');
+                renderCurrentPage();
+                renderDashboard();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function editVault(id) {
+            showVaultModal(id);
+        }
+
+        async function deleteVault(id) {
+            if (!confirm('Delete this vault?')) return;
+            
+            try {
+                await apiCall(`/api/vaults/${id}`, 'DELETE');
+                await loadVaults();
+                showToast('Vault deleted!', 'success');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function editGoal(id) {
+            showGoalModal(id);
+        }
+
+        async function deleteGoal(id) {
+            if (!confirm('Delete this goal?')) return;
+            
+            try {
+                await apiCall(`/api/goals/${id}`, 'DELETE');
+                await loadGoals();
+                showToast('Goal deleted!', 'success');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        // Utility Functions
+        function formatCurrency(amount) {
+            return '₹' + amount.toLocaleString('en-IN');
+        }
+
+        function setDefaultDateTime() {
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const time = `${hours}:${minutes}`;
+            
+            document.getElementById('txnDate').value = today;
+            document.getElementById('txnTime').value = time;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('mobile-visible');
+        }
+    </script>
+</body>
+</html>
