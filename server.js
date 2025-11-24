@@ -12,6 +12,13 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
+const path = require('path');
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api/')) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
 
 // Middleware
 app.use(cors());
@@ -609,8 +616,13 @@ app.get('/health', (req, res) => {
 
 // Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 VaultFlow server running on port ${PORT}`);
-});
-// At the very end of server.js, ADD this line:
+
+// Only start server in local development
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`🚀 VaultFlow server running on port ${PORT}`);
+    });
+}
+
+// Export for Vercel serverless
 module.exports = app;
