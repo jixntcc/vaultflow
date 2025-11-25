@@ -524,7 +524,7 @@ app.delete('/api/transactions/:id', ensureConnection, authenticateToken, async (
 // GOAL ROUTES (FIXED)
 // ============================================
 
-// Get all goals
+// Get all goals (AUTO-UPDATE CURRENT AMOUNT FROM VAULT BALANCE)
 app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const goals = await Goal.find({ userId: req.user.userId })
@@ -532,12 +532,27 @@ app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
             .lean()
             .maxTimeMS(10000);
         
+        // Get all user's vaults for balance lookup
+        const vaults = await Vault.find({ userId: req.user.userId }).lean();
+        const vaultMap = {};
+        vaults.forEach(vault => {
+            vaultMap[String(vault._id)] = vault.balance || 0;
+        });
+
+        // Auto-update goal.currentAmount with linked vault's balance
+        goals.forEach(goal => {
+            if (goal.vaultId && vaultMap[String(goal.vaultId)]) {
+                goal.currentAmount = vaultMap[String(goal.vaultId)];
+            }
+        });
+
         res.json(goals);
     } catch (error) {
         console.error('Get goals error:', error);
         res.status(500).json({ error: 'Server error fetching goals' });
     }
 });
+
 
 // Create goal (FIXED)
 app.post('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
