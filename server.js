@@ -1,5 +1,5 @@
 /**
- * VaultFlow Financial Tracker - Backend Server
+ * VaultFlow Financial Tracker - Backend Server (Vercel Optimized)
  * Node.js + Express + MongoDB
  */
 
@@ -8,30 +8,59 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 require('dotenv').config();
 
 const app = express();
-const path = require('path');
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('*', (req, res) => {
-  if (!req.path.startsWith('/api/')) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-  }
-});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB Connected'))
-.catch(err => console.error('❌ MongoDB Connection Error:', err));
+// Serve index.html for all non-API routes
+app.get('*', (req, res, next) => {
+    if (!req.path.startsWith('/api/')) {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    } else {
+        next();
+    }
+});
+
+// ============================================
+// MONGODB CONNECTION (VERCEL OPTIMIZED)
+// ============================================
+
+let cachedConnection = null;
+
+async function connectToDatabase() {
+    if (cachedConnection && mongoose.connection.readyState === 1) {
+        console.log('✅ Using cached MongoDB connection');
+        return cachedConnection;
+    }
+
+    try {
+        const opts = {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 10000, // 10 second timeout
+            socketTimeoutMS: 45000, // 45 second timeout
+            maxPoolSize: 10,
+            minPoolSize: 2,
+            bufferCommands: false
+        };
+
+        console.log('🔄 Connecting to MongoDB...');
+        const conn = await mongoose.connect(process.env.MONGODB_URI, opts);
+        cachedConnection = conn;
+        console.log('✅ MongoDB Connected');
+        return conn;
+    } catch (err) {
+        console.error('❌ MongoDB Connection Error:', err);
+        throw err;
+    }
+}
 
 // ============================================
 // MODELS
@@ -60,16 +89,16 @@ const vaultSchema = new mongoose.Schema({
 
 const Vault = mongoose.model('Vault', vaultSchema);
 
-// Transaction Schema (UPDATED with wallet field)
+// Transaction Schema
 const transactionSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, required: true },
-    time: { type: String }, // NEW: Time field
+    time: { type: String },
     type: { type: String, enum: ['income', 'expense'], required: true },
     amount: { type: Number, required: true },
     category: { type: String, required: true },
-    location: { type: String }, // NEW: Location field
-    wallet: { type: String, enum: ['HR', 'HL'] }, // NEW: Wallet field (HR or HL)
+    location: { type: String },
+    wallet: { type: String, enum: ['HR', 'HL'] },
     vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' },
     vaultName: { type: String },
     notes: { type: String },
@@ -78,13 +107,13 @@ const transactionSchema = new mongoose.Schema({
 
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
-// Goal Schema
+// Goal Schema (FIXED)
 const goalSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     name: { type: String, required: true },
     targetAmount: { type: Number, required: true },
     currentAmount: { type: Number, default: 0 },
-    vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' },
+    vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' }, // Made optional
     vaultName: { type: String },
     deadline: { type: Date },
     status: { type: String, enum: ['active', 'completed', 'archived'], default: 'active' },
@@ -97,6 +126,17 @@ const Goal = mongoose.model('Goal', goalSchema);
 // ============================================
 // MIDDLEWARE
 // ============================================
+
+// Database connection middleware
+const ensureConnection = async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        return res.status(503).json({ error: 'Database connection failed' });
+    }
+};
 
 // Authentication Middleware
 const authenticateToken = (req, res, next) => {
@@ -121,11 +161,10 @@ const authenticateToken = (req, res, next) => {
 // ============================================
 
 // Register
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', ensureConnection, async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validation
         if (!username || !password) {
             return res.status(400).json({ error: 'Username and password required' });
         }
@@ -134,16 +173,13 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Password must be at least 6 characters' });
         }
 
-        // Check if user exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ error: 'Username already exists' });
         }
 
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user
         const user = new User({
             username,
             password: hashedPassword
@@ -151,13 +187,13 @@ app.post('/api/auth/register', async (req, res) => {
 
         await user.save();
 
-        // Create default vaults for new user
+        // Create default vaults
         const defaultVaults = [
-            { name: '👑 Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building' },
-            { name: '🧪 Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments' },
-            { name: '🧱 Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books' },
-            { name: '🔒 Core Survival Vault', percentage: 10, description: 'Essential needs' },
-            { name: '🎭 Chaos Play Vault', percentage: 10, description: 'Spend freely' }
+            { name: 'Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building' },
+            { name: 'Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments' },
+            { name: 'Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books' },
+            { name: 'Core Survival Vault', percentage: 10, description: 'Essential needs' },
+            { name: 'Chaos Play Vault', percentage: 10, description: 'Spend freely' }
         ];
 
         for (const vaultData of defaultVaults) {
@@ -168,7 +204,6 @@ app.post('/api/auth/register', async (req, res) => {
             await vault.save();
         }
 
-        // Generate token
         const token = jwt.sign(
             { userId: user._id, username: user.username },
             process.env.JWT_SECRET,
@@ -188,28 +223,24 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 // Login
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', ensureConnection, async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Validation
         if (!username || !password) {
             return res.status(400).json({ error: 'Username and password required' });
         }
 
-        // Find user
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Check password
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Generate token
         const token = jwt.sign(
             { userId: user._id, username: user.username },
             process.env.JWT_SECRET,
@@ -229,13 +260,17 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 // ============================================
-// VAULT ROUTES
+// VAULT ROUTES (OPTIMIZED)
 // ============================================
 
-// Get all vaults for user
-app.get('/api/vaults', authenticateToken, async (req, res) => {
+// Get all vaults
+app.get('/api/vaults', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const vaults = await Vault.find({ userId: req.user.userId }).sort({ createdAt: 1 });
+        const vaults = await Vault.find({ userId: req.user.userId })
+            .sort({ createdAt: 1 })
+            .lean()
+            .maxTimeMS(10000);
+        
         res.json(vaults);
     } catch (error) {
         console.error('Get vaults error:', error);
@@ -244,7 +279,7 @@ app.get('/api/vaults', authenticateToken, async (req, res) => {
 });
 
 // Create vault
-app.post('/api/vaults', authenticateToken, async (req, res) => {
+app.post('/api/vaults', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const { name, percentage, description } = req.body;
 
@@ -269,7 +304,7 @@ app.post('/api/vaults', authenticateToken, async (req, res) => {
 });
 
 // Update vault
-app.put('/api/vaults/:id', authenticateToken, async (req, res) => {
+app.put('/api/vaults/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const { name, percentage, description } = req.body;
 
@@ -292,7 +327,7 @@ app.put('/api/vaults/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete vault
-app.delete('/api/vaults/:id', authenticateToken, async (req, res) => {
+app.delete('/api/vaults/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const vault = await Vault.findOneAndDelete({
             _id: req.params.id,
@@ -312,14 +347,17 @@ app.delete('/api/vaults/:id', authenticateToken, async (req, res) => {
 });
 
 // ============================================
-// TRANSACTION ROUTES (UPDATED with wallet support)
+// TRANSACTION ROUTES
 // ============================================
 
-// Get all transactions for user
-app.get('/api/transactions', authenticateToken, async (req, res) => {
+// Get all transactions
+app.get('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const transactions = await Transaction.find({ userId: req.user.userId })
-            .sort({ date: -1, time: -1 });
+            .sort({ date: -1, time: -1 })
+            .lean()
+            .maxTimeMS(10000);
+        
         res.json(transactions);
     } catch (error) {
         console.error('Get transactions error:', error);
@@ -327,17 +365,15 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
     }
 });
 
-// Create transaction (UPDATED with wallet field)
-app.post('/api/transactions', authenticateToken, async (req, res) => {
+// Create transaction
+app.post('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const { date, time, type, amount, category, location, wallet, vaultId, vaultName, notes } = req.body;
 
-        // Validation
         if (!date || !type || !amount || !category) {
             return res.status(400).json({ error: 'Date, type, amount, and category required' });
         }
 
-        // Create transaction with wallet field
         const transaction = new Transaction({
             userId: req.user.userId,
             date,
@@ -346,17 +382,16 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
             amount,
             category,
             location,
-            wallet, // NEW: Save wallet (HR or HL)
-            vaultId,
+            wallet,
+            vaultId: vaultId || null,
             vaultName,
             notes
         });
 
         await transaction.save();
 
-        // Update vault balances if applicable
+        // Update vault balances
         if (type === 'income') {
-            // Distribute income across all vaults
             const vaults = await Vault.find({ userId: req.user.userId });
             for (const vault of vaults) {
                 const allocation = (amount * vault.percentage) / 100;
@@ -365,7 +400,6 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
                 await vault.save();
             }
         } else if (type === 'expense' && vaultId) {
-            // Deduct from specific vault
             const vault = await Vault.findById(vaultId);
             if (vault) {
                 vault.totalSpent += amount;
@@ -382,12 +416,11 @@ app.post('/api/transactions', authenticateToken, async (req, res) => {
     }
 });
 
-// Update transaction (UPDATED with wallet field)
-app.put('/api/transactions/:id', authenticateToken, async (req, res) => {
+// Update transaction
+app.put('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const { date, time, type, amount, category, location, wallet, vaultId, vaultName, notes } = req.body;
 
-        // Get old transaction to reverse vault changes
         const oldTransaction = await Transaction.findOne({
             _id: req.params.id,
             userId: req.user.userId
@@ -397,7 +430,7 @@ app.put('/api/transactions/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Transaction not found' });
         }
 
-        // Reverse old transaction effects
+        // Reverse old effects
         if (oldTransaction.type === 'income') {
             const vaults = await Vault.find({ userId: req.user.userId });
             for (const vault of vaults) {
@@ -415,14 +448,14 @@ app.put('/api/transactions/:id', authenticateToken, async (req, res) => {
             }
         }
 
-        // Update transaction with wallet field
+        // Update transaction
         const transaction = await Transaction.findOneAndUpdate(
             { _id: req.params.id, userId: req.user.userId },
-            { date, time, type, amount, category, location, wallet, vaultId, vaultName, notes },
+            { date, time, type, amount, category, location, wallet, vaultId: vaultId || null, vaultName, notes },
             { new: true }
         );
 
-        // Apply new transaction effects
+        // Apply new effects
         if (type === 'income') {
             const vaults = await Vault.find({ userId: req.user.userId });
             for (const vault of vaults) {
@@ -449,7 +482,7 @@ app.put('/api/transactions/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete transaction
-app.delete('/api/transactions/:id', authenticateToken, async (req, res) => {
+app.delete('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const transaction = await Transaction.findOne({
             _id: req.params.id,
@@ -460,7 +493,7 @@ app.delete('/api/transactions/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Transaction not found' });
         }
 
-        // Reverse vault effects
+        // Reverse effects
         if (transaction.type === 'income') {
             const vaults = await Vault.find({ userId: req.user.userId });
             for (const vault of vaults) {
@@ -488,13 +521,17 @@ app.delete('/api/transactions/:id', authenticateToken, async (req, res) => {
 });
 
 // ============================================
-// GOAL ROUTES
+// GOAL ROUTES (FIXED)
 // ============================================
 
-// Get all goals for user
-app.get('/api/goals', authenticateToken, async (req, res) => {
+// Get all goals
+app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const goals = await Goal.find({ userId: req.user.userId }).sort({ createdAt: -1 });
+        const goals = await Goal.find({ userId: req.user.userId })
+            .sort({ createdAt: -1 })
+            .lean()
+            .maxTimeMS(10000);
+        
         res.json(goals);
     } catch (error) {
         console.error('Get goals error:', error);
@@ -502,13 +539,18 @@ app.get('/api/goals', authenticateToken, async (req, res) => {
     }
 });
 
-// Create goal
-app.post('/api/goals', authenticateToken, async (req, res) => {
+// Create goal (FIXED)
+app.post('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
+        let { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
 
         if (!name || !targetAmount) {
             return res.status(400).json({ error: 'Name and target amount required' });
+        }
+
+        // FIX: Handle empty vaultId
+        if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
+            vaultId = null;
         }
 
         const goal = new Goal({
@@ -516,7 +558,7 @@ app.post('/api/goals', authenticateToken, async (req, res) => {
             name,
             targetAmount,
             currentAmount: currentAmount || 0,
-            vaultId,
+            vaultId: vaultId || null,
             vaultName,
             deadline,
             status: status || 'active',
@@ -532,14 +574,19 @@ app.post('/api/goals', authenticateToken, async (req, res) => {
     }
 });
 
-// Update goal
-app.put('/api/goals/:id', authenticateToken, async (req, res) => {
+// Update goal (FIXED)
+app.put('/api/goals/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
+        let { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
+
+        // FIX: Handle empty vaultId
+        if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
+            vaultId = null;
+        }
 
         const goal = await Goal.findOneAndUpdate(
             { _id: req.params.id, userId: req.user.userId },
-            { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes },
+            { name, targetAmount, currentAmount, vaultId: vaultId || null, vaultName, deadline, status, notes },
             { new: true }
         );
 
@@ -556,7 +603,7 @@ app.put('/api/goals/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete goal
-app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
+app.delete('/api/goals/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const goal = await Goal.findOneAndDelete({
             _id: req.params.id,
@@ -580,9 +627,9 @@ app.delete('/api/goals/:id', authenticateToken, async (req, res) => {
 // ============================================
 
 // Get dashboard summary
-app.get('/api/analytics/summary', authenticateToken, async (req, res) => {
+app.get('/api/analytics/summary', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const transactions = await Transaction.find({ userId: req.user.userId });
+        const transactions = await Transaction.find({ userId: req.user.userId }).lean();
 
         const totalIncome = transactions
             .filter(t => t.type === 'income')
@@ -614,15 +661,17 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', message: 'VaultFlow API is running' });
 });
 
-// Start server
+// ============================================
+// START SERVER
+// ============================================
+
 const PORT = process.env.PORT || 3000;
 
-// Only start server in local development
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
         console.log(`🚀 VaultFlow server running on port ${PORT}`);
     });
 }
 
-// Export for Vercel serverless
+// Export for Vercel
 module.exports = app;
