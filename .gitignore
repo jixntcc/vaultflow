@@ -1,1 +1,23 @@
-node_modules/ 
+# Node dependencies
+node_modules/
+
+# Environment variables (never commit secrets)
+.env
+.env.*
+*.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / system files
+.DS_Store
+Thumbs.db
+
+# Build / cache files (optional but recommended)
+dist/
+.next/
+.vercel/
+.cache/
