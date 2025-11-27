@@ -99,6 +99,7 @@ const transactionSchema = new mongoose.Schema({
     category: { type: String, required: true },
     location: { type: String },
     wallet: { type: String, enum: ['HR', 'HL'] },
+    paymentMethod: { type: String, enum: ['online', 'byhand'], default: 'online' },
     vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' },
     vaultName: { type: String },
     notes: { type: String },
@@ -368,7 +369,7 @@ app.get('/api/transactions', ensureConnection, authenticateToken, async (req, re
 // Create transaction
 app.post('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const { date, time, type, amount, category, location, wallet, vaultId, vaultName, notes } = req.body;
+        const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
 
         if (!date || !type || !amount || !category) {
             return res.status(400).json({ error: 'Date, type, amount, and category required' });
@@ -383,6 +384,7 @@ app.post('/api/transactions', ensureConnection, authenticateToken, async (req, r
             category,
             location,
             wallet,
+            paymentMethod: paymentMethod || 'online',
             vaultId: vaultId || null,
             vaultName,
             notes
@@ -419,12 +421,9 @@ app.post('/api/transactions', ensureConnection, authenticateToken, async (req, r
 // Update transaction
 app.put('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
     try {
-        const { date, time, type, amount, category, location, wallet, vaultId, vaultName, notes } = req.body;
+        const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
 
-        const oldTransaction = await Transaction.findOne({
-            _id: req.params.id,
-            userId: req.user.userId
-        });
+        const oldTransaction = await Transaction.findOne({ _id: req.params.id, userId: req.user.userId });
 
         if (!oldTransaction) {
             return res.status(404).json({ error: 'Transaction not found' });
@@ -451,7 +450,7 @@ app.put('/api/transactions/:id', ensureConnection, authenticateToken, async (req
         // Update transaction
         const transaction = await Transaction.findOneAndUpdate(
             { _id: req.params.id, userId: req.user.userId },
-            { date, time, type, amount, category, location, wallet, vaultId: vaultId || null, vaultName, notes },
+            { date, time, type, amount, category, location, wallet, paymentMethod: paymentMethod || 'online', vaultId: vaultId || null, vaultName, notes },
             { new: true }
         );
 
