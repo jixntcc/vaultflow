@@ -1187,15 +1187,25 @@
                         <input type="text" class="form-input" id="txnLocation" placeholder="e.g., Delhi, Juma Masjid">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Wallet</label>
-                        <select class="form-input" id="txnWallet" required>
-                            <option value="HR">HR Wallet</option>
-                            <option value="HL">HL Wallet</option>
-                        </select>
-                    </div>
-                    <div class="form-group" id="vaultSelectGroup">
-                        <label class="form-label">Vault (for expenses)</label>
-                        <select class="form-input" id="txnVault"></select>
+    <label class="form-label">Wallet</label>
+    <select class="form-input" id="txnWallet" required>
+        <option value="HR">HR Wallet</option>
+        <option value="HL">HL Wallet</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label class="form-label">Payment Method</label>
+    <select class="form-input" id="txnPaymentMethod" required>
+        <option value="online">💳 Online (UPI, Bank Transfer)</option>
+        <option value="byhand">💵 By Hand (Cash)</option>
+    </select>
+</div>
+
+<div class="form-group" id="vaultSelectGroup">
+    <label class="form-label">Vault for expenses</label>
+    <select class="form-input" id="txnVault"></select>
+</div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Notes</label>
@@ -1752,9 +1762,10 @@
             html += '<th>Amount</th>';
             html += '<th>Category</th>';
             html += '<th>Location</th>';
-            html += '<th>Wallet</th>';
-            html += '<th>Vault</th>';
-            html += '<th>Notes</th>';
+            html += `<th>Wallet</th>`;
+            html += `<th>Payment Method</th>`;
+            html += `<th>Vault</th>`;
+            html += `<th>Notes</th>`;
             html += '<th>Actions</th>';
             html += '</tr></thead><tbody>';
 
@@ -1769,9 +1780,10 @@
                 html += `<td><strong>₹${txn.amount.toLocaleString()}</strong></td>`;
                 html += `<td>${txn.category}</td>`;
                 html += `<td>${txn.location ? '📍 ' + txn.location : '-'}</td>`;
-                html += `<td>${txn.wallet || '-'}</td>`;
-                html += `<td>${txn.vaultName || '-'}</td>`;
-                html += `<td>${txn.notes || '-'}</td>`;
+                html += `<td>${txn.wallet}</td>`;
+                    html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
+                    html += `<td>${txn.vaultName || '-'}</td>`;
+                    html += `<td>${txn.notes || '-'}</td>`;
                 html += `<td>
                     <button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>
                     <button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>
@@ -2043,17 +2055,18 @@
             if (id) {
                 const txn = transactions.find(t => t._id === id);
                 if (txn) {
-                    title.textContent = 'Edit Transaction';
-                    document.getElementById('txnId').value = txn._id;
-                    document.getElementById('txnDate').value = txn.date.split('T')[0];
-                    document.getElementById('txnTime').value = txn.time || '';
-                    document.getElementById('txnType').value = txn.type;
-                    document.getElementById('txnAmount').value = txn.amount;
-                    document.getElementById('txnCategory').value = txn.category;
-                    document.getElementById('txnLocation').value = txn.location || '';
-                    document.getElementById('txnWallet').value = txn.wallet || 'HR';
-                    document.getElementById('txnVault').value = txn.vaultId || '';
-                    document.getElementById('txnNotes').value = txn.notes || '';
+            title.textContent = 'Edit Transaction';
+            document.getElementById('txnId').value = txn.id;
+            document.getElementById('txnDate').value = txn.date.split('T')[0];
+            document.getElementById('txnTime').value = txn.time;
+            document.getElementById('txnType').value = txn.type;
+            document.getElementById('txnAmount').value = txn.amount;
+            document.getElementById('txnCategory').value = txn.category;
+            document.getElementById('txnLocation').value = txn.location;
+            document.getElementById('txnWallet').value = txn.wallet || 'HR';
+            document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';
+            document.getElementById('txnVault').value = txn.vaultId;
+            document.getElementById('txnNotes').value = txn.notes;
                 }
             } else {
                 title.textContent = 'Add Transaction';
@@ -2145,22 +2158,24 @@
 
         // Form Handlers
         async function handleTransactionSubmit(e) {
-            e.preventDefault();
-            
-            const id = document.getElementById('txnId').value;
-            const type = document.getElementById('txnType').value;
-            const vaultIdValue = document.getElementById('txnVault').value;
-            
-            const data = {
-                date: document.getElementById('txnDate').value,
-                time: document.getElementById('txnTime').value,
-                type: type,
-                amount: parseFloat(document.getElementById('txnAmount').value),
-                category: document.getElementById('txnCategory').value,
-                location: document.getElementById('txnLocation').value,
-                wallet: document.getElementById('txnWallet').value,
-                notes: document.getElementById('txnNotes').value
-            };
+    e.preventDefault();
+    
+    const id = document.getElementById('txnId').value;
+    const type = document.getElementById('txnType').value;
+    const vaultIdValue = document.getElementById('txnVault').value;
+    const paymentMethod = document.getElementById('txnPaymentMethod').value;
+    
+    const data = {
+        date: document.getElementById('txnDate').value,
+        time: document.getElementById('txnTime').value,
+        type: type,
+        amount: parseFloat(document.getElementById('txnAmount').value),
+        category: document.getElementById('txnCategory').value,
+        location: document.getElementById('txnLocation').value,
+        wallet: document.getElementById('txnWallet').value,
+        paymentMethod: paymentMethod,
+        notes: document.getElementById('txnNotes').value
+    };
 
             // FIX: Only add vaultId if expense and value exists
             if (type === 'expense' && vaultIdValue) {
