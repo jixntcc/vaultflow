@@ -405,14 +405,15 @@
         }
 
         .modal-content {
-            background: var(--surface);
-            border-radius: 16px;
-            max-width: 540px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-        }
+    background: var(--surface);
+    border-radius: 16px;
+    max-width: 540px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
 
         .modal-header {
             padding: 24px;
@@ -450,8 +451,10 @@
         }
 
         .modal-body {
-            padding: 24px;
-        }
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
 
         .form-group {
             margin-bottom: 20px;
@@ -487,12 +490,14 @@
         }
 
         .modal-footer {
-            padding: 20px 24px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
+    padding: 20px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+    background: var(--surface);
+}
 
         /* Toast */
         .toast {
@@ -1756,39 +1761,39 @@
                 return;
             }
 
-            let html = '<table><thead><tr>';
-            html += '<th>Date & Time</th>';
-            html += '<th>Type</th>';
-            html += '<th>Amount</th>';
-            html += '<th>Category</th>';
-            html += '<th>Location</th>';
+            let html = `<table><thead><tr>`;
+            html += `<th>Date Time</th>`;
+            html += `<th>Type</th>`;
+            html += `<th>Amount</th>`;
+            html += `<th>Category</th>`;
+            html += `<th>Location</th>`;
             html += `<th>Wallet</th>`;
-            html += `<th>Payment Method</th>`;
+            html += `<th>Payment Method</th>`;  // ← ADD THIS LINE
             html += `<th>Vault</th>`;
             html += `<th>Notes</th>`;
-            html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += `<th>Actions</th>`;
+            html += `</tr></thead><tbody>`;
 
             data.forEach(txn => {
                 const dateObj = new Date(txn.date);
                 const dateStr = dateObj.toLocaleDateString();
-                const timeStr = txn.time || '';
+                const timeStr = txn.time;
                 
-                html += '<tr>';
+                html += `<tr>`;
                 html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
                 html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
-                html += `<td><strong>₹${txn.amount.toLocaleString()}</strong></td>`;
+                html += `<td><strong>${txn.amount.toLocaleString()}</strong></td>`;
                 html += `<td>${txn.category}</td>`;
-                html += `<td>${txn.location ? '📍 ' + txn.location : '-'}</td>`;
+                html += `<td>${txn.location ? txn.location : '-'}</td>`;
                 html += `<td>${txn.wallet}</td>`;
-                    html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
-                    html += `<td>${txn.vaultName || '-'}</td>`;
-                    html += `<td>${txn.notes || '-'}</td>`;
-                html += `<td>
-                    <button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>
-                    <button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>
-                </td>`;
-                html += '</tr>';
+                html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;  // ← ADD THIS LINE
+                html += `<td>${txn.vaultName || '-'}</td>`;
+                html += `<td>${txn.notes || '-'}</td>`;
+                html += `<td>`;
+                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn.id}')">Edit</button>`;
+                html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn.id}')">Delete</button>`;
+                html += `</td>`;
+                html += `</tr>`;
             });
 
             html += '</tbody></table>';
@@ -2045,16 +2050,16 @@
 
         // Modal Functions
         function showTransactionModal(id = null) {
-            const modal = document.getElementById('transactionModal');
-            const form = document.getElementById('transactionForm');
-            const title = document.getElementById('transactionModalTitle');
-            
-            form.reset();
-            document.getElementById('txnId').value = '';
-            
-            if (id) {
-                const txn = transactions.find(t => t._id === id);
-                if (txn) {
+    const modal = document.getElementById('transactionModal');
+    const form = document.getElementById('transactionForm');
+    const title = document.getElementById('transactionModalTitle');
+    
+    form.reset();
+    document.getElementById('txnId').value = '';
+    
+    if (id) {
+        const txn = transactions.find(t => t.id == id);
+        if (txn) {
             title.textContent = 'Edit Transaction';
             document.getElementById('txnId').value = txn.id;
             document.getElementById('txnDate').value = txn.date.split('T')[0];
@@ -2064,19 +2069,19 @@
             document.getElementById('txnCategory').value = txn.category;
             document.getElementById('txnLocation').value = txn.location;
             document.getElementById('txnWallet').value = txn.wallet || 'HR';
-            document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';
+            document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';  // ← ADD THIS LINE
             document.getElementById('txnVault').value = txn.vaultId;
             document.getElementById('txnNotes').value = txn.notes;
-                }
-            } else {
-                title.textContent = 'Add Transaction';
-                setDefaultDateTime();
-            }
-            
-            populateVaultSelect();
-            toggleVaultSelect();
-            modal.classList.add('active');
         }
+    } else {
+        title.textContent = 'Add Transaction';
+    }
+    
+    setDefaultDateTime();
+    populateVaultSelect();
+    toggleVaultSelect();
+    modal.classList.add('active');
+}
 
         function showVaultModal(id = null) {
             const modal = document.getElementById('vaultModal');
