@@ -1020,39 +1020,70 @@
                 <div id="goalsList"></div>
             </div>
 
-            <!-- Reports Page -->
-            <div id="reports" class="page">
-                <div class="page-header">
-                    <h1 class="page-title">Financial Reports</h1>
-                    <p class="page-subtitle">Monthly and annual financial summaries</p>
-                </div>
+ <!-- Reports Page -->
+<div id="reports" class="page">
+    <div class="page-header">
+        <h1 class="page-title">Financial Reports</h1>
+        <p class="page-subtitle">Monthly and annual financial summaries</p>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-label">This Month Income</div>
+            <div class="card-value" id="monthIncomeDisplay">₹0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">This Month Expenses</div>
+            <div class="card-value" id="monthExpensesDisplay">₹0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">This Month Savings</div>
+            <div class="card-value" id="monthSavingsDisplay">₹0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Annual Total</div>
+            <div class="card-value" id="annualDisplay">₹0</div>
+        </div>
+    </div>
 
-                <div class="cards-grid">
-                    <div class="card">
-                        <div class="card-label">This Month Income</div>
-                        <div class="card-value" id="monthIncome">₹0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">This Month Expenses</div>
-                        <div class="card-value" id="monthExpenses">₹0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">This Month Savings</div>
-                        <div class="card-value" id="monthSavings">₹0</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-label">Annual Total</div>
-                        <div class="card-value" id="yearTotal">₹0</div>
-                    </div>
-                </div>
+    <!-- Charts Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+        <!-- Pie Chart: Income vs Expenses -->
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
 
-                <div class="table-container">
-                    <div class="table-header">
-                        <h3 class="table-title">Monthly Breakdown</h3>
-                    </div>
-                    <div id="monthlyBreakdown"></div>
-                </div>
-            </div>
+        <!-- Bar Chart: Category Breakdown -->
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+        <!-- Bar Chart: Vault Breakdown -->
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
+            <canvas id="vaultChart"></canvas>
+        </div>
+
+        <!-- Line Chart: Monthly Trends -->
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📅 Monthly Trends</h3>
+            <canvas id="trendsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Monthly Breakdown Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Breakdown</h3>
+        </div>
+        <div id="monthlyBreakdown"></div>
+    </div>
+</div>
         </main>
 
         <!-- FAB Button -->
@@ -1843,30 +1874,8 @@
 
         // Reports Page
         function renderReportsPage() {
-            const now = new Date();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-
-            const monthTransactions = transactions.filter(t => {
-                const txnDate = new Date(t.date);
-                return txnDate.getMonth() === currentMonth && txnDate.getFullYear() === currentYear;
-            });
-
-            const monthIncome = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const monthExpenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const monthSavings = monthIncome - monthExpenses;
-
-            const yearIncome = transactions.filter(t => new Date(t.date).getFullYear() === currentYear && t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-            const yearExpenses = transactions.filter(t => new Date(t.date).getFullYear() === currentYear && t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-            const yearTotal = yearIncome - yearExpenses;
-
-            document.getElementById('monthIncome').textContent = formatCurrency(monthIncome);
-            document.getElementById('monthExpenses').textContent = formatCurrency(monthExpenses);
-            document.getElementById('monthSavings').textContent = formatCurrency(monthSavings);
-            document.getElementById('yearTotal').textContent = formatCurrency(yearTotal);
-
-            renderMonthlyBreakdown();
-        }
+    loadReports();
+}
 
         function renderMonthlyBreakdown() {
             const container = document.getElementById('monthlyBreakdown');
@@ -2215,5 +2224,205 @@
             document.getElementById('sidebar').classList.toggle('mobile-visible');
         }
     </script>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Global charts object to store chart instances
+const chartsInstance = {};
+
+// Load reports when page opens
+function loadReports() {
+    apiCall('/api/analytics/full')
+        .then(data => renderCharts(data))
+        .catch(error => console.error('Error loading reports:', error));
+}
+
+// Render all 4 charts
+async function renderCharts(data) {
+    // Update summary cards
+    document.getElementById('monthIncomeDisplay').textContent = '₹' + data.currentMonth.income.toLocaleString('en-IN');
+    document.getElementById('monthExpensesDisplay').textContent = '₹' + data.currentMonth.expenses.toLocaleString('en-IN');
+    document.getElementById('monthSavingsDisplay').textContent = '₹' + data.currentMonth.savings.toLocaleString('en-IN');
+    document.getElementById('annualDisplay').textContent = '₹' + (data.currentMonth.income - data.currentMonth.expenses).toLocaleString('en-IN');
+
+    // Destroy existing charts if they exist
+    Object.values(chartsInstance).forEach(chart => chart?.destroy?.());
+    chartsInstance.pie = null;
+    chartsInstance.category = null;
+    chartsInstance.vault = null;
+    chartsInstance.trends = null;
+
+    // Chart 1: Pie - Income vs Expenses
+    try {
+        const pieCtx = document.getElementById('pieChart');
+        if (pieCtx) {
+            chartsInstance.pie = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Income', 'Expenses'],
+                    datasets: [{
+                        data: [data.incomeVsExpenses.income, data.incomeVsExpenses.expenses],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderColor: ['#059669', '#dc2626'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating pie chart:', e);
+    }
+
+    // Chart 2: Bar - Category
+    try {
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx) {
+            const categories = Object.keys(data.byCategory);
+            const categoryValues = categories.map(k => data.byCategory[k]);
+            chartsInstance.category = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Expenses (₹)',
+                        data: categoryValues,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating category chart:', e);
+    }
+
+    // Chart 3: Bar - Vault
+    try {
+        const vaultCtx = document.getElementById('vaultChart');
+        if (vaultCtx) {
+            const vaults = Object.keys(data.byVault);
+            const vaultValues = vaults.map(k => data.byVault[k]);
+            chartsInstance.vault = new Chart(vaultCtx, {
+                type: 'bar',
+                data: {
+                    labels: vaults,
+                    datasets: [{
+                        label: 'Expenses (₹)',
+                        data: vaultValues,
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating vault chart:', e);
+    }
+
+    // Chart 4: Line - Monthly Trends
+    try {
+        const trendsCtx = document.getElementById('trendsChart');
+        if (trendsCtx) {
+            const months = data.monthly.map(m => m.month);
+            const incomeData = data.monthly.map(m => m.income);
+            const expenseData = data.monthly.map(m => m.expenses);
+            const savingsData = data.monthly.map(m => m.savings);
+
+            chartsInstance.trends = new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: incomeData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: expenseData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Savings',
+                            data: savingsData,
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating trends chart:', e);
+    }
+}
+</script>
+
 </body>
 </html>

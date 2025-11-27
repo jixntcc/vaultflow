@@ -521,10 +521,10 @@ app.delete('/api/transactions/:id', ensureConnection, authenticateToken, async (
 });
 
 // ============================================
-// GOAL ROUTES (FIXED)
+// GOAL ROUTES (AUTO-UPDATE CURRENT AMOUNT)
 // ============================================
 
-// Get all goals (AUTO-UPDATE CURRENT AMOUNT FROM VAULT BALANCE)
+// Get all goals (auto-link vault balance as currentAmount)
 app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
     try {
         const goals = await Goal.find({ userId: req.user.userId })
@@ -532,17 +532,17 @@ app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
             .lean()
             .maxTimeMS(10000);
         
-        // Get all user's vaults for balance lookup
+        // Get map of vaultId => balance for this user
         const vaults = await Vault.find({ userId: req.user.userId }).lean();
         const vaultMap = {};
         vaults.forEach(vault => {
             vaultMap[String(vault._id)] = vault.balance || 0;
         });
 
-        // Auto-update goal.currentAmount with linked vault's balance
-        goals.forEach(goal => {
-            if (goal.vaultId && vaultMap[String(goal.vaultId)]) {
-                goal.currentAmount = vaultMap[String(goal.vaultId)];
+        // Overwrite each goal.currentAmount with vault balance (if linked)
+        goals.forEach(g => {
+            if (g.vaultId && vaultMap[String(g.vaultId)]) {
+                g.currentAmount = vaultMap[String(g.vaultId)];
             }
         });
 
@@ -552,7 +552,6 @@ app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Server error fetching goals' });
     }
 });
-
 
 // Create goal (FIXED)
 app.post('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
@@ -638,7 +637,7 @@ app.delete('/api/goals/:id', ensureConnection, authenticateToken, async (req, re
 });
 
 // ============================================
-// ANALYTICS ROUTES
+// ANALYTICS ROUTES (ENHANCED WITH CHARTS)
 // ============================================
 
 // Get dashboard summary
@@ -668,6 +667,88 @@ app.get('/api/analytics/summary', ensureConnection, authenticateToken, async (re
     } catch (error) {
         console.error('Get summary error:', error);
         res.status(500).json({ error: 'Server error fetching summary' });
+    }
+});
+
+// Get full analytics for reports (with chart data)
+app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const transactions = await Transaction.find({ userId }).lean();
+        const vaults = await Vault.find({ userId }).lean();
+
+        // CHART 1: Income vs Expenses (Pie)
+        const totalIncome = transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + t.amount, 0);
+        const totalExpenses = transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + t.amount, 0);
+
+        // CHART 2: Spending by Category (Bar)
+        const byCategory = {};
+        transactions
+            .filter(t => t.type === 'expense')
+            .forEach(t => {
+                if (!byCategory[t.category]) byCategory[t.category] = 0;
+                byCategory[t.category] += t.amount;
+            });
+
+        // CHART 3: Spending by Vault (Bar)
+        const byVault = {};
+        transactions
+            .filter(t => t.type === 'expense' && t.vaultId)
+            .forEach(t => {
+                const key = t.vaultName || 'Unassigned';
+                if (!byVault[key]) byVault[key] = 0;
+                byVault[key] += t.amount;
+            });
+
+        // CHART 4: Monthly Trends (Line)
+        const byMonth = {};
+        transactions.forEach(t => {
+            const d = new Date(t.date);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+            if (!byMonth[key]) {
+                byMonth[key] = { income: 0, expenses: 0 };
+            }
+            if (t.type === 'income') byMonth[key].income += t.amount;
+            if (t.type === 'expense') byMonth[key].expenses += t.amount;
+        });
+
+        const monthly = Object.keys(byMonth)
+            .sort()
+            .slice(-12) // Last 12 months only
+            .map(key => ({
+                month: key,
+                income: byMonth[key].income,
+                expenses: byMonth[key].expenses,
+                savings: byMonth[key].income - byMonth[key].expenses
+            }));
+
+        // Current month data
+        const now = new Date();
+        const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentMonthData = byMonth[currentMonthKey] || { income: 0, expenses: 0 };
+
+        res.json({
+            currentMonth: {
+                income: currentMonthData.income,
+                expenses: currentMonthData.expenses,
+                savings: currentMonthData.income - currentMonthData.expenses
+            },
+            incomeVsExpenses: {
+                income: totalIncome,
+                expenses: totalExpenses
+            },
+            byCategory: Object.keys(byCategory).length > 0 ? byCategory : { 'No data': 0 },
+            byVault: Object.keys(byVault).length > 0 ? byVault : { 'No expenses': 0 },
+            monthly: monthly.length > 0 ? monthly : []
+        });
+
+    } catch (error) {
+        console.error('Full analytics error:', error);
+        res.status(500).json({ error: 'Server error fetching analytics' });
     }
 });
 
