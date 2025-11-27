@@ -1000,13 +1000,71 @@
 
             <!-- Wallets Page (NEW) -->
             <div id="wallets" class="page">
-                <div class="page-header">
-                    <h1 class="page-title">Wallet Balances</h1>
-                    <p class="page-subtitle">Track your wallet balances and transactions</p>
-                </div>
-
-                <div id="walletsList"></div>
+    <div class="page-header">
+        <h1 class="page-title">Wallet Balances</h1>
+        <p class="page-subtitle">Track your wallet balances by payment method</p>
+    </div>
+    
+    <!-- HR Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🔴</span>
+            <h3 style="margin: 0; font-size: 20px;">HR Wallet</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
             </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">₹0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HL Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🟠</span>
+            <h3 style="margin: 0; font-size: 20px;">HL Wallet</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">₹0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="cards-grid" style="margin-top: 32px;">
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💳 Total Online Balance</div>
+            <div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">₹0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💵 Total By-Hand Balance</div>
+            <div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">₹0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">📊 Grand Total</div>
+            <div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">₹0</div>
+        </div>
+    </div>
+</div>
 
             <!-- Goals Page -->
             <div id="goals" class="page">
@@ -1799,34 +1857,83 @@
 
         // Wallets Page (NEW)
         function renderWalletsPage() {
-            const container = document.getElementById('walletsList');
-            
-            let html = '';
-            Object.keys(wallets).forEach(key => {
-                const wallet = wallets[key];
-                html += `
-                    <div class="vault-card">
-                        <div class="vault-name">👛 ${wallet.name}</div>
-                        <div class="vault-stats">
-                            <div class="vault-stat">
-                                <div class="vault-stat-label">Total Income</div>
-                                <div class="vault-stat-value" style="color: var(--secondary)">₹${wallet.totalIncome.toLocaleString()}</div>
-                            </div>
-                            <div class="vault-stat">
-                                <div class="vault-stat-label">Total Spent</div>
-                                <div class="vault-stat-value" style="color: var(--danger)">₹${wallet.totalSpent.toLocaleString()}</div>
-                            </div>
-                            <div class="vault-stat">
-                                <div class="vault-stat-label">Current Balance</div>
-                                <div class="vault-stat-value" style="color: ${wallet.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">₹${wallet.balance.toLocaleString()}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
+    // Calculate balances by payment method
+    const walletStats = {
+        HR: { online: 0, byhand: 0, total: 0 },
+        HL: { online: 0, byhand: 0, total: 0 }
+    };
 
-            container.innerHTML = html;
+    // Process all transactions to calculate balances
+    transactions.forEach(txn => {
+        const wallet = txn.wallet || 'HR';
+        const amount = txn.amount;
+        const isOnline = txn.paymentMethod === 'online' || !txn.paymentMethod;
+
+        if (txn.type === 'income') {
+            // Income goes to wallets based on payment method
+            if (isOnline) {
+                walletStats[wallet].online += amount;
+            } else {
+                walletStats[wallet].byhand += amount;
+            }
+        } else if (txn.type === 'expense') {
+            // Expense deducts from the selected wallet
+            if (isOnline) {
+                walletStats[wallet].online -= amount;
+            } else {
+                walletStats[wallet].byhand -= amount;
+            }
         }
+    });
+
+    // Calculate totals for each wallet
+    Object.keys(walletStats).forEach(key => {
+        walletStats[key].total = walletStats[key].online + walletStats[key].byhand;
+    });
+
+    // Calculate grand totals
+    const totalOnline = walletStats.HR.online + walletStats.HL.online;
+    const totalByHand = walletStats.HR.byhand + walletStats.HL.byhand;
+    const grandTotal = walletStats.HR.total + walletStats.HL.total;
+
+    // Format currency function
+    const formatMoney = (amount) => {
+        return '₹' + Math.abs(amount).toLocaleString('en-IN', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+    };
+
+    // Update HR Wallet
+    document.getElementById('hrOnlineBalance').textContent = formatMoney(walletStats.HR.online);
+    document.getElementById('hrOnlineBalance').style.color = walletStats.HR.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
+    
+    document.getElementById('hrByHandBalance').textContent = formatMoney(walletStats.HR.byhand);
+    document.getElementById('hrByHandBalance').style.color = walletStats.HR.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
+    
+    document.getElementById('hrTotalBalance').textContent = formatMoney(walletStats.HR.total);
+    document.getElementById('hrTotalBalance').style.color = walletStats.HR.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    // Update HL Wallet
+    document.getElementById('hlOnlineBalance').textContent = formatMoney(walletStats.HL.online);
+    document.getElementById('hlOnlineBalance').style.color = walletStats.HL.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
+    
+    document.getElementById('hlByHandBalance').textContent = formatMoney(walletStats.HL.byhand);
+    document.getElementById('hlByHandBalance').style.color = walletStats.HL.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
+    
+    document.getElementById('hlTotalBalance').textContent = formatMoney(walletStats.HL.total);
+    document.getElementById('hlTotalBalance').style.color = walletStats.HL.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    // Update Summary Cards
+    document.getElementById('totalOnlineBalance').textContent = formatMoney(totalOnline);
+    document.getElementById('totalOnlineBalance').style.color = totalOnline >= 0 ? 'var(--secondary)' : 'var(--danger)';
+    
+    document.getElementById('totalByHandBalance').textContent = formatMoney(totalByHand);
+    document.getElementById('totalByHandBalance').style.color = totalByHand >= 0 ? 'var(--warning)' : 'var(--danger)';
+    
+    document.getElementById('grandTotalBalance').textContent = formatMoney(grandTotal);
+    document.getElementById('grandTotalBalance').style.color = grandTotal >= 0 ? 'var(--primary)' : 'var(--danger)';
+};
 
         // Goals Page
         function renderGoalsPage() {
