@@ -367,7 +367,9 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: var(--primary);
+            background: var(--primary);.modal-body {
+    padding: 24px;
+}
             color: white;
             border: none;
             font-size: 24px;
@@ -405,15 +407,15 @@
         }
 
         .modal-content {
-    background: var(--surface);
-    border-radius: 16px;
-    max-width: 540px;
-    width: 100%;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-}
+            background: var(--surface);
+            border-radius: 16px;
+            max-width: 540px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
 
         .modal-header {
             padding: 24px;
@@ -451,7 +453,9 @@
         }
 
         .modal-body {
-            padding: 24px;
+           padding: 24px;
+           overflow-y: auto;
+           flex: 1;
         }
 
         .form-group {
@@ -496,8 +500,6 @@
            flex-shrink: 0;
            background: var(--surface);
         }
-
-
 
         /* Toast */
         .toast {
