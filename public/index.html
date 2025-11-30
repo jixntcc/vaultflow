@@ -493,11 +493,19 @@
     padding: 20px 24px;
     border-top: 1px solid var(--border);
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 12px;
     flex-shrink: 0;
     background: var(--surface);
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 492px;
+    border-radius: 0 0 16px 16px;
 }
+
 
         /* Toast */
         .toast {
