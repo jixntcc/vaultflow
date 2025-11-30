@@ -451,10 +451,12 @@
         }
 
         .modal-body {
-    padding: 24px;
-    overflow-y: auto;
-    flex: 1;
-}
+           padding: 24px;
+           overflow-y: auto;
+           flex: 1;
+           max-height: calc(90vh - 180px);
+        }
+
 
         .form-group {
             margin-bottom: 20px;
@@ -490,12 +492,15 @@
         }
 
         .modal-footer {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+           padding: 20px 24px;
+           border-top: 1px solid var(--border);
+           display: flex;
+           justify-content: center;
+           gap: 12px;
+           flex-shrink: 0;
+           background: var(--surface);
         }
+
 
 
         /* Toast */
