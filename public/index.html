@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VaultFlow - Personal Finance Manager</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <style>
         /* Your original theme colors and design */
         * {
@@ -1223,12 +1224,15 @@
                         <label class="form-label">Notes</label>
                         <textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
                     </div>
-                    <input type="hidden" id="txnId">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('transactionModal')">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
+                  <input type="hidden" id="txnId">
+                </form>
+            </div>
+
+            <!-- Footer (FIXED at bottom, OUTSIDE modal-body) -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeTransactionModal()">Cancel</button>
+                <button type="submit" form="transactionForm" class="btn btn-primary">Save</button>
+            </div>
             </form>
         </div>
     </div>
