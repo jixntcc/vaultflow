@@ -1322,6 +1322,25 @@
     <div id="toast" class="toast"></div>
 
     <script>
+
+        // Generic API call helper for authenticated requests
+        async function apiCall(url, method = 'GET', data = null) {
+        const opts = {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')  // assumes you store JWT after login
+         }
+         };
+         if (data) opts.body = JSON.stringify(data);
+         const response = await fetch(url, opts);
+         if (!response.ok) {
+         const err = await response.json();
+         throw new Error(err.error || 'API error');
+        }
+         return response.json();
+      }
+
         // Configuration
         const API_BASE_URL = window.location.origin;
         
@@ -2290,20 +2309,21 @@
             showTransactionModal(id);
         }
 
+        // Replace your old deleteTransaction function with this
         async function deleteTransaction(id) {
-            if (!confirm('Delete this transaction?')) return;
-            
-            try {
-                await apiCall(`/api/transactions/${id}`, 'DELETE');
-                await loadTransactions();
-                await loadVaults();
-                showToast('Transaction deleted!', 'success');
-                renderCurrentPage();
-                renderDashboard();
-            } catch (error) {
-                // Error already shown
-            }
-        }
+        if (!confirm('Delete this transaction?')) return;
+        try {
+        await apiCall(`/api/transactions/${id}`, 'DELETE');
+        await loadTransactions();     // Reload the list from backend
+        await loadVaults();           // If you want vaults updated
+        showToast('Transaction deleted!', 'success');
+        renderCurrentPage();          // Update the visible page
+        renderDashboard();            // Refresh summary stats
+    } catch (error) {
+        showToast('Error deleting transaction: ' + error.message, 'error');
+    }
+    }
+
 
         function editVault(id) {
             showVaultModal(id);
