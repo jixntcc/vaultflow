@@ -1322,25 +1322,6 @@
     <div id="toast" class="toast"></div>
 
     <script>
-
-        // Generic API call helper for authenticated requests
-        async function apiCall(url, method = 'GET', data = null) {
-        const opts = {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.getItem('token')  // assumes you store JWT after login
-         }
-         };
-         if (data) opts.body = JSON.stringify(data);
-         const response = await fetch(url, opts);
-         if (!response.ok) {
-         const err = await response.json();
-         throw new Error(err.error || 'API error');
-        }
-         return response.json();
-      }
-
         // Configuration
         const API_BASE_URL = window.location.origin;
         
@@ -1805,7 +1786,7 @@
             html += `<th>Category</th>`;
             html += `<th>Location</th>`;
             html += `<th>Wallet</th>`;
-            html += `<th>Payment Method</th>`;  // ← ADD THIS LINE
+            html += `<th>Payment Method</th>`;
             html += `<th>Vault</th>`;
             html += `<th>Notes</th>`;
             html += `<th>Actions</th>`;
@@ -1816,6 +1797,7 @@
                 const dateStr = dateObj.toLocaleDateString();
                 const timeStr = txn.time;
                 
+                // FIX: Changed txn.id to txn._id in the buttons below
                 html += `<tr>`;
                 html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
                 html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
@@ -1823,12 +1805,12 @@
                 html += `<td>${txn.category}</td>`;
                 html += `<td>${txn.location ? txn.location : '-'}</td>`;
                 html += `<td>${txn.wallet}</td>`;
-                html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;  // ← ADD THIS LINE
+                html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
                 html += `<td>${txn.vaultName || '-'}</td>`;
                 html += `<td>${txn.notes || '-'}</td>`;
                 html += `<td>`;
-                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn.id}')">Edit</button>`;
-                html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn.id}')">Delete</button>`;
+                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>`; 
+                html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>`;
                 html += `</td>`;
                 html += `</tr>`;
             });
@@ -2087,39 +2069,40 @@
 
         // Modal Functions
         function showTransactionModal(id = null) {
-    const modal = document.getElementById('transactionModal');
-    const form = document.getElementById('transactionForm');
-    const title = document.getElementById('transactionModalTitle');
-    
-    form.reset();
-    document.getElementById('txnId').value = '';
-    
-    if (id) {
-        const txn = transactions.find(t => t.id == id);
-        if (txn) {
-            title.textContent = 'Edit Transaction';
-            document.getElementById('txnId').value = txn.id;
-            document.getElementById('txnDate').value = txn.date.split('T')[0];
-            document.getElementById('txnTime').value = txn.time;
-            document.getElementById('txnType').value = txn.type;
-            document.getElementById('txnAmount').value = txn.amount;
-            document.getElementById('txnCategory').value = txn.category;
-            document.getElementById('txnLocation').value = txn.location;
-            document.getElementById('txnWallet').value = txn.wallet || 'HR';
-            document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';  // ← ADD THIS LINE
-            document.getElementById('txnVault').value = txn.vaultId;
-            document.getElementById('txnNotes').value = txn.notes;
+            const modal = document.getElementById('transactionModal');
+            const form = document.getElementById('transactionForm');
+            const title = document.getElementById('transactionModalTitle');
+            
+            form.reset();
+            document.getElementById('txnId').value = '';
+            
+            if (id) {
+                // FIX: Changed t.id to t._id here
+                const txn = transactions.find(t => t._id == id);
+                if (txn) {
+                    title.textContent = 'Edit Transaction';
+                    document.getElementById('txnId').value = txn._id; // FIX: Use _id
+                    document.getElementById('txnDate').value = txn.date.split('T')[0];
+                    document.getElementById('txnTime').value = txn.time;
+                    document.getElementById('txnType').value = txn.type;
+                    document.getElementById('txnAmount').value = txn.amount;
+                    document.getElementById('txnCategory').value = txn.category;
+                    document.getElementById('txnLocation').value = txn.location;
+                    document.getElementById('txnWallet').value = txn.wallet || 'HR';
+                    document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';
+                    document.getElementById('txnVault').value = txn.vaultId;
+                    document.getElementById('txnNotes').value = txn.notes;
+                }
+            } else {
+                title.textContent = 'Add Transaction';
+            }
+            
+            setDefaultDateTime();
+            populateVaultSelect();
+            toggleVaultSelect();
+            modal.classList.add('active');
         }
-    } else {
-        title.textContent = 'Add Transaction';
-    }
-    
-    setDefaultDateTime();
-    populateVaultSelect();
-    toggleVaultSelect();
-    modal.classList.add('active');
-}
-
+        
         function showVaultModal(id = null) {
             const modal = document.getElementById('vaultModal');
             const form = document.getElementById('vaultForm');
@@ -2309,21 +2292,20 @@
             showTransactionModal(id);
         }
 
-        // Replace your old deleteTransaction function with this
         async function deleteTransaction(id) {
-        if (!confirm('Delete this transaction?')) return;
-        try {
-        await apiCall(`/api/transactions/${id}`, 'DELETE');
-        await loadTransactions();     // Reload the list from backend
-        await loadVaults();           // If you want vaults updated
-        showToast('Transaction deleted!', 'success');
-        renderCurrentPage();          // Update the visible page
-        renderDashboard();            // Refresh summary stats
-    } catch (error) {
-        showToast('Error deleting transaction: ' + error.message, 'error');
-    }
-    }
-
+            if (!confirm('Delete this transaction?')) return;
+            
+            try {
+                await apiCall(`/api/transactions/${id}`, 'DELETE');
+                await loadTransactions();
+                await loadVaults();
+                showToast('Transaction deleted!', 'success');
+                renderCurrentPage();
+                renderDashboard();
+            } catch (error) {
+                // Error already shown
+            }
+        }
 
         function editVault(id) {
             showVaultModal(id);
