@@ -1147,6 +1147,17 @@
         </div>
     </div>
 
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
+            <canvas id="savingsPortfolioChart"></canvas>
+        </div>
+        <div class="card" style="padding: 20px;">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
+            <canvas id="incomeCategoryChart"></canvas>
+        </div>
+    </div>
+
     <!-- Monthly Breakdown Table -->
     <div class="table-container">
         <div class="table-header">
@@ -2400,6 +2411,8 @@ async function renderCharts(data) {
     chartsInstance.category = null;
     chartsInstance.vault = null;
     chartsInstance.trends = null;
+    chartsInstance.savingsPortfolio = null;
+    chartsInstance.incomeCategory = null;
 
     // Chart 1: Pie - Income vs Expenses
     try {
@@ -2567,6 +2580,86 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating trends chart:', e);
+    }
+
+    // Chart 5: Savings Portfolio Trend (Area Line)
+    try {
+        const savingsPortfolioCtx = document.getElementById('savingsPortfolioChart');
+        if (savingsPortfolioCtx) {
+            const portfolioLabels = (data.savingsPortfolio || []).map(m => m.month);
+            const portfolioValues = (data.savingsPortfolio || []).map(m => m.value);
+
+            chartsInstance.savingsPortfolio = new Chart(savingsPortfolioCtx, {
+                type: 'line',
+                data: {
+                    labels: portfolioLabels,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: portfolioValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating savings portfolio chart:', e);
+    }
+
+    // Chart 6: Income by Category / Stream
+    try {
+        const incomeCategoryCtx = document.getElementById('incomeCategoryChart');
+        if (incomeCategoryCtx) {
+            const incomeCategories = Object.keys(data.incomeByCategory || {});
+            const incomeValues = incomeCategories.map(k => data.incomeByCategory[k]);
+
+            chartsInstance.incomeCategory = new Chart(incomeCategoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: incomeCategories,
+                    datasets: [{
+                        label: 'Income (₹)',
+                        data: incomeValues,
+                        backgroundColor: '#22c55e',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating income category chart:', e);
     }
 }
 </script>
