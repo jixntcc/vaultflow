@@ -19,15 +19,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html for all non-API routes
-app.get('*', (req, res, next) => {
-    if (!req.path.startsWith('/api/')) {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    } else {
-        next();
-    }
-});
-
 // ============================================
 // MONGODB CONNECTION (VERCEL OPTIMIZED)
 // ============================================
@@ -803,6 +794,21 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
 // Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', message: 'VaultFlow API is running' });
+});
+
+// Serve index.html for all non-API routes (placed after API routes)
+app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            console.error('Error serving index.html:', err);
+            res.status(500).send('VaultFlow is temporarily unavailable. Please try again.');
+        }
+    });
 });
 
 // ============================================
