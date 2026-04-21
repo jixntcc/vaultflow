@@ -676,6 +676,16 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
         const transactions = await Transaction.find({ userId }).lean();
         const vaults = await Vault.find({ userId }).lean();
 
+        const normalizeCategory = (value) => {
+            const cleaned = (value || '').toString().trim().replace(/\s+/g, ' ');
+            if (!cleaned) return 'Uncategorized';
+
+            return cleaned
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        };
+
         // CHART 1: Income vs Expenses (Pie)
         const totalIncome = transactions
             .filter(t => t.type === 'income')
@@ -689,8 +699,19 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
         transactions
             .filter(t => t.type === 'expense')
             .forEach(t => {
-                if (!byCategory[t.category]) byCategory[t.category] = 0;
-                byCategory[t.category] += t.amount;
+                const key = normalizeCategory(t.category);
+                if (!byCategory[key]) byCategory[key] = 0;
+                byCategory[key] += t.amount;
+            });
+
+        // CHART 2B: Income by Category / Stream (Bar)
+        const incomeByCategory = {};
+        transactions
+            .filter(t => t.type === 'income')
+            .forEach(t => {
+                const key = normalizeCategory(t.category);
+                if (!incomeByCategory[key]) incomeByCategory[key] = 0;
+                incomeByCategory[key] += t.amount;
             });
 
         // CHART 3: Spending by Vault (Bar)
@@ -725,6 +746,16 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
                 savings: byMonth[key].income - byMonth[key].expenses
             }));
 
+        // CHART 5: Savings Portfolio Trend (Cumulative Savings)
+        let runningSavings = 0;
+        const savingsPortfolio = monthly.map(item => {
+            runningSavings += item.savings;
+            return {
+                month: item.month,
+                value: runningSavings
+            };
+        });
+
         // Current month data
         const now = new Date();
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -740,9 +771,15 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
                 income: totalIncome,
                 expenses: totalExpenses
             },
-            byCategory: Object.keys(byCategory).length > 0 ? byCategory : { 'No data': 0 },
+            byCategory: Object.keys(byCategory).length > 0
+                ? Object.fromEntries(Object.entries(byCategory).sort((a, b) => b[1] - a[1]))
+                : { 'No data': 0 },
+            incomeByCategory: Object.keys(incomeByCategory).length > 0
+                ? Object.fromEntries(Object.entries(incomeByCategory).sort((a, b) => b[1] - a[1]))
+                : { 'No income': 0 },
             byVault: Object.keys(byVault).length > 0 ? byVault : { 'No expenses': 0 },
-            monthly: monthly.length > 0 ? monthly : []
+            monthly: monthly.length > 0 ? monthly : [],
+            savingsPortfolio
         });
 
     } catch (error) {
