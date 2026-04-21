@@ -693,6 +693,16 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
                 byCategory[t.category] += t.amount;
             });
 
+        // CHART 2B: Income by Category / Stream (Bar)
+        const incomeByCategory = {};
+        transactions
+            .filter(t => t.type === 'income')
+            .forEach(t => {
+                const key = t.category || 'Uncategorized';
+                if (!incomeByCategory[key]) incomeByCategory[key] = 0;
+                incomeByCategory[key] += t.amount;
+            });
+
         // CHART 3: Spending by Vault (Bar)
         const byVault = {};
         transactions
@@ -725,6 +735,16 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
                 savings: byMonth[key].income - byMonth[key].expenses
             }));
 
+        // CHART 5: Savings Portfolio Trend (Cumulative Savings)
+        let runningSavings = 0;
+        const savingsPortfolio = monthly.map(item => {
+            runningSavings += item.savings;
+            return {
+                month: item.month,
+                value: runningSavings
+            };
+        });
+
         // Current month data
         const now = new Date();
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -741,8 +761,10 @@ app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, 
                 expenses: totalExpenses
             },
             byCategory: Object.keys(byCategory).length > 0 ? byCategory : { 'No data': 0 },
+            incomeByCategory: Object.keys(incomeByCategory).length > 0 ? incomeByCategory : { 'No income': 0 },
             byVault: Object.keys(byVault).length > 0 ? byVault : { 'No expenses': 0 },
-            monthly: monthly.length > 0 ? monthly : []
+            monthly: monthly.length > 0 ? monthly : [],
+            savingsPortfolio
         });
 
     } catch (error) {
