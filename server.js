@@ -760,12 +760,21 @@ incomeVsExpenses: {
 income: totalIncome,
 expenses: totalExpenses
 },
-byCategory: Object.keys(byCategory).length > 0 ? byCategory : { 'No data': 0 },
-            incomeByCategory: Object.keys(incomeByCategory).length > 0 ? incomeByCategory : { 'No income': 0 },
-byVault: Object.keys(byVault).length > 0 ? byVault : { 'No expenses': 0 },
-            monthly: monthly.length > 0 ? monthly : []
-            monthly: monthly.length > 0 ? monthly : [],
-            savingsPortfolio
+byCategory: Object.keys(byCategory).length > 0
+  ? byCategory
+  : { 'No data': 0 },
+
+incomeByCategory: Object.keys(incomeByCategory).length > 0
+  ? incomeByCategory
+  : { 'No income': 0 },
+
+byVault: Object.keys(byVault).length > 0
+  ? byVault
+  : { 'No expenses': 0 },
+
+monthly: monthly.length > 0 ? monthly : [],
+
+savingsPortfolio: savingsPortfolio
 });
 
 } catch (error) {
@@ -794,4 +803,3 @@ console.log(`🚀 VaultFlow server running on port ${PORT}`);
 // Export for Vercel
 module.exports = app;
 module.exports = app;
-// bye
