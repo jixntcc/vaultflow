@@ -253,6 +253,16 @@
             border-collapse: collapse;
         }
 
+        .transactions-table {
+            table-layout: fixed;
+        }
+
+        .transactions-table td,
+        .transactions-table th {
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
         th {
             text-align: left;
             padding: 12px 24px;
@@ -796,6 +806,43 @@
 
             .auth-box {
                 padding: 32px 24px;
+            }
+        }
+
+        /* Compact desktop/laptop: keep 100% zoom usable without horizontal scroll */
+        @media (max-width: 1400px) and (min-width: 769px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 14px;
+            }
+
+            .table-header {
+                padding: 16px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 10px 10px;
+                font-size: 13px;
+            }
+
+            .transactions-table th:nth-child(9),
+            .transactions-table td:nth-child(9) {
+                display: none; /* notes */
+            }
+
+            .search-box {
+                min-width: 170px;
+            }
+
+            .action-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+                margin-right: 4px;
             }
         }
 
@@ -1878,7 +1925,7 @@
                 return;
             }
 
-            let html = `<table><thead><tr>`;
+            let html = `<table class="transactions-table"><thead><tr>`;
             html += `<th>Date Time</th>`;
             html += `<th>Type</th>`;
             html += `<th>Amount</th>`;
