@@ -2738,7 +2738,7 @@ function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
         <span class="tag">Total Expenses: ₹${totalExpenses.toLocaleString('en-IN')}</span>
         <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
     </div>`;
-    html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>Month</th><th>Past Month Balance</th><th>Monthly Income</th><th>Monthly Expenses</th><th>Final Balance</th><th>Savings Rate</th></tr></thead><tbody>';
     rows.forEach((r) => {
         const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
         html += `<tr><td><strong>${r.month}</strong></td>
