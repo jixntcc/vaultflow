@@ -1157,6 +1157,10 @@
             <canvas id="incomeCategoryChart"></canvas>
         </div>
     </div>
+    <div class="card" style="padding: 20px; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
+        <div id="incomeFlowChart" style="overflow-x:auto;"></div>
+    </div>
 
     <!-- Monthly Breakdown Table -->
     <div class="table-container">
@@ -2414,6 +2418,8 @@ async function renderCharts(data) {
     chartsInstance.savingsPortfolio = null;
     chartsInstance.incomeCategory = null;
 
+    renderIncomeFlowChart(data);
+
     // Chart 1: Horizontal Progress - Income vs Expenses
     try {
         const progressContainer = document.getElementById('incomeExpensesProgress');
@@ -2661,6 +2667,60 @@ async function renderCharts(data) {
     } catch (e) {
         console.error('Error creating income category chart:', e);
     }
+}
+
+function renderIncomeFlowChart(data) {
+    const container = document.getElementById('incomeFlowChart');
+    if (!container) return;
+    const income = Number(data?.currentMonth?.income || 0);
+    const expenses = Number(data?.currentMonth?.expenses || 0);
+    const savings = Math.max(0, Number(data?.currentMonth?.savings ?? (income - expenses)));
+    const categories = Object.entries(data?.byCategory || {}).filter(([, v]) => Number(v) > 0).sort((a, b) => b[1] - a[1]);
+    const top = categories.slice(0, 5);
+    const other = categories.slice(5).reduce((sum, [, v]) => sum + Number(v), 0);
+    if (other > 0) top.push(['Other', other]);
+
+    const width = 980, height = 360, nodeW = 22, topY = 36, trackH = 280;
+    const leftX = 60, midX = 430, rightX = 790;
+    const total = Math.max(income, expenses + savings, 1);
+    const scale = trackH / total;
+    const grossH = Math.max(18, income * scale);
+    const expenseH = Math.max(18, expenses * scale);
+    const savingsH = Math.max(18, savings * scale);
+    const grossY = topY + (trackH - grossH) / 2;
+    const expenseY = topY + 14;
+    const savingsY = expenseY + expenseH + 18;
+
+    const curve = (x1, y1, x2, y2, h, op = 0.3) => `<path d="M ${x1} ${y1} C ${x1 + 110} ${y1}, ${x2 - 110} ${y2}, ${x2} ${y2} L ${x2} ${y2 + h} C ${x2 - 110} ${y2 + h}, ${x1 + 110} ${y1 + h}, ${x1} ${y1 + h} Z" fill="rgba(148,163,184,${op})"></path>`;
+
+    let yCursor = topY;
+    const rightNodes = top.map(([name, value]) => {
+        const h = Math.max(12, Number(value) * scale);
+        const y = yCursor;
+        yCursor += h + 10;
+        return { name, value: Number(value), h, y };
+    });
+    let offset = 0;
+    const flowsToCategories = rightNodes.map((n) => {
+        const h = Math.max(10, (n.value / Math.max(expenses, 1)) * expenseH);
+        const p = curve(midX + nodeW, expenseY + offset, rightX, n.y, h, 0.22);
+        offset += h;
+        return p;
+    }).join('');
+
+    container.innerHTML = `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Financial flow sankey chart">
+        ${curve(leftX + nodeW, grossY, midX, expenseY, expenseH, 0.34)}
+        ${curve(leftX + nodeW, grossY + expenseH, midX, savingsY, savingsH, 0.24)}
+        ${flowsToCategories}
+        <rect x="${leftX}" y="${grossY}" width="${nodeW}" height="${grossH}" fill="#a3a3a3"></rect>
+        <rect x="${midX}" y="${expenseY}" width="${nodeW}" height="${expenseH}" fill="#a3a3a3"></rect>
+        <rect x="${midX}" y="${savingsY}" width="${nodeW}" height="${savingsH}" fill="#a3a3a3"></rect>
+        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (₹${n.value.toLocaleString('en-IN')})</text>`).join('')}
+        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (₹${income.toLocaleString('en-IN')})</text>
+        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (₹${expenses.toLocaleString('en-IN')})</text>
+        <text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (₹${savings.toLocaleString('en-IN')})</text>
+      </svg>`;
 }
 </script>
 
