@@ -834,9 +834,29 @@
             gap: 16px;
         }
 
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
         @media (max-width: 480px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .reports-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            #incomeFlowChart svg {
+                min-width: 780px;
             }
         }
     </style>
@@ -1119,7 +1139,7 @@
     </div>
 
     <!-- Charts Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <!-- Pie Chart: Income vs Expenses -->
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
@@ -1133,7 +1153,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <!-- Bar Chart: Vault Breakdown -->
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
@@ -1147,7 +1167,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
             <canvas id="savingsPortfolioChart"></canvas>
@@ -2738,7 +2758,7 @@ function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
         <span class="tag">Total Expenses: ₹${totalExpenses.toLocaleString('en-IN')}</span>
         <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
     </div>`;
-    html += '<table><thead><tr><th>Month</th><th>Past Month Balance</th><th>Monthly Income</th><th>Monthly Expenses</th><th>Final Balance</th><th>Savings Rate</th></tr></thead><tbody>';
+    html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
     rows.forEach((r) => {
         const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
         html += `<tr><td><strong>${r.month}</strong></td>
