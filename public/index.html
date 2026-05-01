@@ -1207,6 +1207,30 @@
         <h1 class="page-title">Financial Reports</h1>
         <p class="page-subtitle">Monthly and annual financial summaries</p>
     </div>
+    <div class="card" style="padding:16px; margin-bottom: 20px;">
+        <div class="table-actions">
+            <select class="filter-select" id="reportPreset">
+                <option value="all">All time</option>
+                <option value="week">This week</option>
+                <option value="month" selected>This month</option>
+                <option value="year">This year</option>
+                <option value="custom">Custom range</option>
+            </select>
+            <input type="date" class="search-box" id="reportFromDate">
+            <input type="date" class="search-box" id="reportToDate">
+            <select class="filter-select" id="reportLocale">
+                <option value="en-IN">English (India)</option>
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+            </select>
+            <select class="filter-select" id="reportCurrency">
+                <option value="INR">INR ₹</option>
+                <option value="USD">USD $</option>
+                <option value="EUR">EUR €</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
+        </div>
+    </div>
     
     <!-- Summary Cards -->
     <div class="cards-grid">
@@ -2515,21 +2539,94 @@
 <script>
 // Global charts object to store chart instances
 const chartsInstance = {};
+let reportsRawData = null;
+let reportFormat = { locale: 'en-IN', currency: 'INR' };
 
 // Load reports when page opens
 function loadReports() {
     apiCall('/api/analytics/full')
-        .then(data => renderCharts(data))
+        .then(data => {
+            reportsRawData = data;
+            setupReportFilterDefaults();
+            applyReportFilters();
+        })
         .catch(error => console.error('Error loading reports:', error));
+}
+
+function setupReportFilterDefaults() {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth(), 1);
+    const toIso = today.toISOString().slice(0, 10);
+    const fromIso = from.toISOString().slice(0, 10);
+    if (document.getElementById('reportFromDate')) document.getElementById('reportFromDate').value = fromIso;
+    if (document.getElementById('reportToDate')) document.getElementById('reportToDate').value = toIso;
+}
+
+function formatMoney(value) {
+    return new Intl.NumberFormat(reportFormat.locale, { style: 'currency', currency: reportFormat.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
+}
+
+function applyReportFilters() {
+    if (!reportsRawData) return;
+    reportFormat.locale = document.getElementById('reportLocale')?.value || 'en-IN';
+    reportFormat.currency = document.getElementById('reportCurrency')?.value || 'INR';
+
+    const preset = document.getElementById('reportPreset')?.value || 'all';
+    const fromInput = document.getElementById('reportFromDate')?.value;
+    const toInput = document.getElementById('reportToDate')?.value;
+    let fromDate = fromInput ? new Date(fromInput + 'T00:00:00') : null;
+    let toDate = toInput ? new Date(toInput + 'T23:59:59') : null;
+    const now = new Date();
+    if (preset === 'week') fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    if (preset === 'month') fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (preset === 'year') fromDate = new Date(now.getFullYear(), 0, 1);
+    if (preset !== 'custom' && preset !== 'all') toDate = now;
+    if (preset === 'all') { fromDate = null; toDate = null; }
+
+    const filtered = transactions.filter(t => {
+        const d = new Date(t.date);
+        if (fromDate && d < fromDate) return false;
+        if (toDate && d > toDate) return false;
+        return true;
+    });
+
+    renderCharts(buildAnalyticsFromTransactions(filtered));
+}
+
+function buildAnalyticsFromTransactions(txns) {
+    const byCategory = {}, byVault = {}, byMonth = {}, incomeByCategory = {};
+    let totalIncome = 0, totalExpenses = 0;
+    txns.forEach(t => {
+        const amt = Number(t.amount || 0);
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        if (!byMonth[key]) byMonth[key] = { income: 0, expenses: 0 };
+        if (t.type === 'income') {
+            totalIncome += amt; byMonth[key].income += amt;
+            incomeByCategory[t.category || 'Uncategorized'] = (incomeByCategory[t.category || 'Uncategorized'] || 0) + amt;
+        } else {
+            totalExpenses += amt; byMonth[key].expenses += amt;
+            byCategory[t.category || 'Uncategorized'] = (byCategory[t.category || 'Uncategorized'] || 0) + amt;
+            byVault[t.vaultName || 'Unassigned'] = (byVault[t.vaultName || 'Unassigned'] || 0) + amt;
+        }
+    });
+    const monthly = Object.keys(byMonth).sort().map(month => ({ month, income: byMonth[month].income, expenses: byMonth[month].expenses, savings: byMonth[month].income - byMonth[month].expenses }));
+    const savingsPortfolio = monthly.reduce((arr, m) => {
+        const prev = arr.length ? arr[arr.length - 1].value : 0;
+        arr.push({ month: m.month, value: prev + m.savings });
+        return arr;
+    }, []);
+    const currentMonth = monthly.length ? monthly[monthly.length - 1] : { income: 0, expenses: 0, savings: 0 };
+    return { currentMonth, incomeVsExpenses: { income: totalIncome, expenses: totalExpenses }, byCategory, byVault, monthly, savingsPortfolio, incomeByCategory };
 }
 
 // Render all 4 charts
 async function renderCharts(data) {
     // Update summary cards
-    document.getElementById('monthIncomeDisplay').textContent = '₹' + data.currentMonth.income.toLocaleString('en-IN');
-    document.getElementById('monthExpensesDisplay').textContent = '₹' + data.currentMonth.expenses.toLocaleString('en-IN');
-    document.getElementById('monthSavingsDisplay').textContent = '₹' + data.currentMonth.savings.toLocaleString('en-IN');
-    document.getElementById('annualDisplay').textContent = '₹' + (data.currentMonth.income - data.currentMonth.expenses).toLocaleString('en-IN');
+    document.getElementById('monthIncomeDisplay').textContent = formatMoney(data.currentMonth.income);
+    document.getElementById('monthExpensesDisplay').textContent = formatMoney(data.currentMonth.expenses);
+    document.getElementById('monthSavingsDisplay').textContent = formatMoney(data.currentMonth.savings);
+    document.getElementById('annualDisplay').textContent = formatMoney(data.currentMonth.income - data.currentMonth.expenses);
 
     // Destroy existing charts if they exist
     Object.values(chartsInstance).forEach(chart => chart?.destroy?.());
@@ -2795,9 +2892,9 @@ async function renderCharts(data) {
 function renderIncomeFlowChart(data) {
     const container = document.getElementById('incomeFlowChart');
     if (!container) return;
-    const income = Number(data?.currentMonth?.income || 0);
-    const expenses = Number(data?.currentMonth?.expenses || 0);
-    const net = Number(data?.currentMonth?.savings ?? (income - expenses));
+    const income = Number(data?.incomeVsExpenses?.income || 0);
+    const expenses = Number(data?.incomeVsExpenses?.expenses || 0);
+    const net = Number(income - expenses);
     const savings = Math.max(0, net);
     const deficit = Math.max(0, -net);
     const categories = Object.entries(data?.byCategory || {}).filter(([, v]) => Number(v) > 0).sort((a, b) => b[1] - a[1]);
