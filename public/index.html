@@ -1235,19 +1235,19 @@
     <!-- Summary Cards -->
     <div class="cards-grid">
         <div class="card">
-            <div class="card-label">This Month Income</div>
+            <div class="card-label" id="monthIncomeLabel">This Month Income</div>
             <div class="card-value" id="monthIncomeDisplay">₹0</div>
         </div>
         <div class="card">
-            <div class="card-label">This Month Expenses</div>
+            <div class="card-label" id="monthExpenseLabel">This Month Expenses</div>
             <div class="card-value" id="monthExpensesDisplay">₹0</div>
         </div>
         <div class="card">
-            <div class="card-label">This Month Savings</div>
+            <div class="card-label" id="monthSavingsLabel">This Month Savings</div>
             <div class="card-value" id="monthSavingsDisplay">₹0</div>
         </div>
         <div class="card">
-            <div class="card-label">Annual Total</div>
+            <div class="card-label" id="annualLabel">Annual Total</div>
             <div class="card-value" id="annualDisplay">₹0</div>
         </div>
     </div>
@@ -2582,6 +2582,22 @@ function applyReportFilters() {
     if (preset === 'year') fromDate = new Date(now.getFullYear(), 0, 1);
     if (preset !== 'custom' && preset !== 'all') toDate = now;
     if (preset === 'all') { fromDate = null; toDate = null; }
+    const labelMap = {
+        all: { income: 'Total Income', expense: 'Total Expenses', savings: 'Net Savings', annual: 'Lifetime Net' },
+        week: { income: 'This Week Income', expense: 'This Week Expenses', savings: 'This Week Savings', annual: 'Week Net' },
+        month: { income: 'This Month Income', expense: 'This Month Expenses', savings: 'This Month Savings', annual: 'Month Net' },
+        year: { income: 'This Year Income', expense: 'This Year Expenses', savings: 'This Year Savings', annual: 'Year-to-date Net' },
+        custom: { income: 'Range Income', expense: 'Range Expenses', savings: 'Range Savings', annual: 'Range Net' }
+    };
+    const labels = labelMap[preset] || labelMap.all;
+    const incomeLabelEl = document.getElementById('monthIncomeLabel');
+    const expenseLabelEl = document.getElementById('monthExpenseLabel');
+    const savingsLabelEl = document.getElementById('monthSavingsLabel');
+    const annualLabelEl = document.getElementById('annualLabel');
+    if (incomeLabelEl) incomeLabelEl.textContent = labels.income;
+    if (expenseLabelEl) expenseLabelEl.textContent = labels.expense;
+    if (savingsLabelEl) savingsLabelEl.textContent = labels.savings;
+    if (annualLabelEl) annualLabelEl.textContent = labels.annual;
 
     const filtered = transactions.filter(t => {
         const d = new Date(t.date);
@@ -2622,11 +2638,12 @@ function buildAnalyticsFromTransactions(txns) {
 
 // Render all 4 charts
 async function renderCharts(data) {
+    const periodNet = Number(data?.incomeVsExpenses?.income || 0) - Number(data?.incomeVsExpenses?.expenses || 0);
     // Update summary cards
-    document.getElementById('monthIncomeDisplay').textContent = formatMoney(data.currentMonth.income);
-    document.getElementById('monthExpensesDisplay').textContent = formatMoney(data.currentMonth.expenses);
-    document.getElementById('monthSavingsDisplay').textContent = formatMoney(data.currentMonth.savings);
-    document.getElementById('annualDisplay').textContent = formatMoney(data.currentMonth.income - data.currentMonth.expenses);
+    document.getElementById('monthIncomeDisplay').textContent = formatMoney(data.incomeVsExpenses.income);
+    document.getElementById('monthExpensesDisplay').textContent = formatMoney(data.incomeVsExpenses.expenses);
+    document.getElementById('monthSavingsDisplay').textContent = formatMoney(periodNet);
+    document.getElementById('annualDisplay').textContent = formatMoney(periodNet);
 
     // Destroy existing charts if they exist
     Object.values(chartsInstance).forEach(chart => chart?.destroy?.());
