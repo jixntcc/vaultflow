@@ -778,7 +778,7 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 20px;
+                padding: 84px 16px 20px 16px;
             }
 
             .cards-grid {
@@ -872,6 +872,13 @@
         @media (max-width: 768px) {
             .mobile-menu-btn {
                 display: flex;
+                top: calc(env(safe-area-inset-top, 0px) + 12px);
+                left: 12px;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                backdrop-filter: blur(6px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.18);
             }
         }
 
