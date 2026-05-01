@@ -2540,7 +2540,7 @@
 // Global charts object to store chart instances
 const chartsInstance = {};
 let reportsRawData = null;
-let reportFormat = { locale: 'en-IN', currency: 'INR' };
+let reportFormat = { locale: 'en-IN', currency: 'INR', fxRates: { INR: 1, USD: 0.012, EUR: 0.011 } };
 
 // Load reports when page opens
 function loadReports() {
@@ -2553,6 +2553,14 @@ function loadReports() {
         .catch(error => console.error('Error loading reports:', error));
 }
 
+function detectDefaultCurrency() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const locale = navigator.language || 'en-IN';
+    if (tz.startsWith('America/') || locale.includes('-US')) return { currency: 'USD', locale: 'en-US' };
+    if (locale.includes('-GB')) return { currency: 'GBP', locale: 'en-GB' };
+    return { currency: 'INR', locale: locale.includes('en') ? locale : 'en-IN' };
+}
+
 function setupReportFilterDefaults() {
     const today = new Date();
     const from = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -2560,16 +2568,30 @@ function setupReportFilterDefaults() {
     const fromIso = from.toISOString().slice(0, 10);
     if (document.getElementById('reportFromDate')) document.getElementById('reportFromDate').value = fromIso;
     if (document.getElementById('reportToDate')) document.getElementById('reportToDate').value = toIso;
+    const defaults = detectDefaultCurrency();
+    const currencyEl = document.getElementById('reportCurrency');
+    const localeEl = document.getElementById('reportLocale');
+    if (currencyEl && [...currencyEl.options].some(o => o.value === defaults.currency)) currencyEl.value = defaults.currency;
+    if (localeEl && [...localeEl.options].some(o => o.value === defaults.locale)) localeEl.value = defaults.locale;
 }
 
 function formatMoney(value) {
     return new Intl.NumberFormat(reportFormat.locale, { style: 'currency', currency: reportFormat.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
 }
 
-function applyReportFilters() {
+async function loadFxRates(base = 'INR') {
+    try {
+        const res = await fetch(`https://open.er-api.com/v6/latest/${base}`);
+        const data = await res.json();
+        if (data?.rates) reportFormat.fxRates = data.rates;
+    } catch (_) {}
+}
+
+async function applyReportFilters() {
     if (!reportsRawData) return;
     reportFormat.locale = document.getElementById('reportLocale')?.value || 'en-IN';
     reportFormat.currency = document.getElementById('reportCurrency')?.value || 'INR';
+    await loadFxRates('INR');
 
     const preset = document.getElementById('reportPreset')?.value || 'all';
     const fromInput = document.getElementById('reportFromDate')?.value;
@@ -2610,10 +2632,11 @@ function applyReportFilters() {
 }
 
 function buildAnalyticsFromTransactions(txns) {
+    const conversion = reportFormat.currency === 'INR' ? 1 : (reportFormat.fxRates?.[reportFormat.currency] || 1);
     const byCategory = {}, byVault = {}, byMonth = {}, incomeByCategory = {};
     let totalIncome = 0, totalExpenses = 0;
     txns.forEach(t => {
-        const amt = Number(t.amount || 0);
+        const amt = Number(t.amount || 0) * conversion;
         const d = new Date(t.date);
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         if (!byMonth[key]) byMonth[key] = { income: 0, expenses: 0 };
