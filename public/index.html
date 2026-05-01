@@ -253,6 +253,16 @@
             border-collapse: collapse;
         }
 
+        .transactions-table {
+            table-layout: fixed;
+        }
+
+        .transactions-table td,
+        .transactions-table th {
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+        }
+
         th {
             text-align: left;
             padding: 12px 24px;
@@ -768,7 +778,12 @@
 
             .main-content {
                 margin-left: 0;
-                padding: 20px;
+                padding: 88px 16px 20px 16px;
+            }
+
+            .page-header {
+                padding-left: 64px;
+                margin-bottom: 20px;
             }
 
             .cards-grid {
@@ -799,6 +814,43 @@
             }
         }
 
+        /* Compact desktop/laptop: keep 100% zoom usable without horizontal scroll */
+        @media (max-width: 1400px) and (min-width: 769px) {
+            .main-content {
+                padding: 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 14px;
+            }
+
+            .table-header {
+                padding: 16px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 10px 10px;
+                font-size: 13px;
+            }
+
+            .transactions-table th:nth-child(9),
+            .transactions-table td:nth-child(9) {
+                display: none; /* notes */
+            }
+
+            .search-box {
+                min-width: 170px;
+            }
+
+            .action-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+                margin-right: 4px;
+            }
+        }
+
         .hidden {
             display: none !important;
         }
@@ -825,6 +877,13 @@
         @media (max-width: 768px) {
             .mobile-menu-btn {
                 display: flex;
+                top: calc(env(safe-area-inset-top, 0px) + 12px);
+                left: 12px;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                backdrop-filter: blur(6px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.18);
             }
         }
 
@@ -834,9 +893,60 @@
             gap: 16px;
         }
 
+        .mobile-txn-list {
+            display: none;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
         @media (max-width: 480px) {
             .form-row {
                 grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .reports-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            #incomeFlowChart svg {
+                min-width: 780px;
+            }
+
+            .mobile-txn-list {
+                display: grid;
+                gap: 12px;
+            }
+
+            .mobile-txn-card {
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 12px;
+                background: var(--surface);
+            }
+
+            .mobile-txn-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+
+            .mobile-txn-meta {
+                font-size: 12px;
+                color: var(--text-secondary);
+                margin-top: 6px;
+                display: grid;
+                gap: 2px;
             }
         }
     </style>
@@ -1119,11 +1229,11 @@
     </div>
 
     <!-- Charts Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <!-- Pie Chart: Income vs Expenses -->
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
-            <canvas id="pieChart"></canvas>
+            <div id="incomeExpensesProgress"></div>
         </div>
 
         <!-- Bar Chart: Category Breakdown -->
@@ -1133,7 +1243,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <!-- Bar Chart: Vault Breakdown -->
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
@@ -1147,7 +1257,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    <div class="reports-grid">
         <div class="card" style="padding: 20px;">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
             <canvas id="savingsPortfolioChart"></canvas>
@@ -1156,6 +1266,10 @@
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
             <canvas id="incomeCategoryChart"></canvas>
         </div>
+    </div>
+    <div class="card" style="padding: 20px; margin-bottom: 24px;">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
+        <div id="incomeFlowChart" style="overflow-x:auto;"></div>
     </div>
 
     <!-- Monthly Breakdown Table -->
@@ -1790,7 +1904,40 @@
                 return;
             }
 
-            let html = `<table><thead><tr>`;
+            const isMobileView = window.innerWidth <= 768;
+            if (isMobileView) {
+                let mobileHtml = '<div class="mobile-txn-list">';
+                data.forEach(txn => {
+                    const dateObj = new Date(txn.date);
+                    const dateStr = dateObj.toLocaleDateString('en-GB');
+                    mobileHtml += `
+                        <div class="mobile-txn-card">
+                            <div class="mobile-txn-top">
+                                <strong>${dateStr} • ${txn.time || ''}</strong>
+                                <span class="badge ${txn.type}">${txn.type}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-size:14px; color:var(--text-secondary);">${txn.category || '-'}</div>
+                                    <div class="mobile-txn-meta">
+                                        <span>Wallet: ${txn.wallet || '-'}</span>
+                                        <span>Vault: ${txn.vaultName || '-'}</span>
+                                        <span>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="font-weight:700; font-size:20px;">₹${Number(txn.amount || 0).toLocaleString('en-IN')}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                mobileHtml += '</div>';
+                container.innerHTML = mobileHtml;
+                return;
+            }
+
+            let html = `<table class="transactions-table"><thead><tr>`;
             html += `<th>Date Time</th>`;
             html += `<th>Type</th>`;
             html += `<th>Amount</th>`;
@@ -2032,7 +2179,6 @@
 }
 
         function renderMonthlyBreakdown() {
-            const container = document.getElementById('monthlyBreakdown');
             const monthlyData = {};
 
             transactions.forEach(txn => {
@@ -2050,32 +2196,12 @@
                 }
             });
 
-            if (Object.keys(monthlyData).length === 0) {
-                container.innerHTML = '<div class="empty-state"><p class="empty-text">No data for monthly breakdown</p></div>';
-                return;
-            }
-
-            let html = '<table><thead><tr>';
-            html += '<th>Month</th>';
-            html += '<th>Income</th>';
-            html += '<th>Expenses</th>';
-            html += '<th>Savings</th>';
-            html += '</tr></thead><tbody>';
-
-            Object.keys(monthlyData).sort().reverse().forEach(month => {
-                const data = monthlyData[month];
-                const savings = data.income - data.expense;
-                
-                html += '<tr>';
-                html += `<td><strong>${month}</strong></td>`;
-                html += `<td style="color: var(--secondary)"><strong>₹${data.income.toLocaleString()}</strong></td>`;
-                html += `<td style="color: var(--danger)"><strong>₹${data.expense.toLocaleString()}</strong></td>`;
-                html += `<td style="color: ${savings >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>₹${savings.toLocaleString()}</strong></td>`;
-                html += '</tr>';
-            });
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
+            const monthlyRows = Object.keys(monthlyData).sort().map((month) => ({
+                month,
+                income: monthlyData[month].income,
+                expenses: monthlyData[month].expense
+            }));
+            renderMonthlyBreakdownFromAnalytics(monthlyRows);
         }
 
         // Modal Functions
@@ -2414,39 +2540,42 @@ async function renderCharts(data) {
     chartsInstance.savingsPortfolio = null;
     chartsInstance.incomeCategory = null;
 
-    // Chart 1: Pie - Income vs Expenses
+    renderIncomeFlowChart(data);
+    renderMonthlyBreakdownFromAnalytics(data.monthly || []);
+
+    // Chart 1: Horizontal Progress - Income vs Expenses
     try {
-        const pieCtx = document.getElementById('pieChart');
-        if (pieCtx) {
-            chartsInstance.pie = new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Income', 'Expenses'],
-                    datasets: [{
-                        data: [data.incomeVsExpenses.income, data.incomeVsExpenses.expenses],
-                        backgroundColor: ['#10b981', '#ef4444'],
-                        borderColor: ['#059669', '#dc2626'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '₹' + context.parsed.toLocaleString('en-IN');
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+        const progressContainer = document.getElementById('incomeExpensesProgress');
+        if (progressContainer) {
+            const income = Number(data.incomeVsExpenses.income || 0);
+            const expenses = Number(data.incomeVsExpenses.expenses || 0);
+            const total = income + expenses;
+            const incomePercent = total > 0 ? ((income / total) * 100) : 0;
+            const expensePercent = total > 0 ? ((expenses / total) * 100) : 0;
+
+            progressContainer.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:600;">
+                    <span>Income ${incomePercent.toFixed(1)}%</span>
+                    <span>Expenses ${expensePercent.toFixed(1)}%</span>
+                </div>
+                <div style="width:100%; height:22px; background:#e5e7eb; border-radius:999px; overflow:hidden; display:flex;">
+                    <div style="width:${incomePercent}%; background:#10b981; transition:width 0.4s ease;"></div>
+                    <div style="width:${expensePercent}%; background:#ef4444; transition:width 0.4s ease;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#374151;">
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <span style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                        ₹${income.toLocaleString('en-IN')}
+                    </span>
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <span style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+                        ₹${expenses.toLocaleString('en-IN')}
+                    </span>
+                </div>
+            `;
         }
     } catch (e) {
-        console.error('Error creating pie chart:', e);
+        console.error('Error creating income vs expenses progress bar:', e);
     }
 
     // Chart 2: Bar - Category
@@ -2661,6 +2790,109 @@ async function renderCharts(data) {
     } catch (e) {
         console.error('Error creating income category chart:', e);
     }
+}
+
+function renderIncomeFlowChart(data) {
+    const container = document.getElementById('incomeFlowChart');
+    if (!container) return;
+    const income = Number(data?.currentMonth?.income || 0);
+    const expenses = Number(data?.currentMonth?.expenses || 0);
+    const net = Number(data?.currentMonth?.savings ?? (income - expenses));
+    const savings = Math.max(0, net);
+    const deficit = Math.max(0, -net);
+    const categories = Object.entries(data?.byCategory || {}).filter(([, v]) => Number(v) > 0).sort((a, b) => b[1] - a[1]);
+    const top = categories.slice(0, 5);
+    const other = categories.slice(5).reduce((sum, [, v]) => sum + Number(v), 0);
+    if (other > 0) top.push(['Other', other]);
+
+    const width = 980, height = 360, nodeW = 22, topY = 36, trackH = 280;
+    const leftX = 60, midX = 430, rightX = 790;
+    const total = Math.max(income + deficit, expenses + savings, 1);
+    const scale = trackH / total;
+    const grossH = Math.max(18, income * scale);
+    const expenseH = Math.max(18, expenses * scale);
+    const savingsH = Math.max(18, savings * scale);
+    const deficitH = deficit > 0 ? Math.max(12, deficit * scale) : 0;
+    const grossY = topY + (trackH - grossH) / 2;
+    const expenseY = topY + 14;
+    const savingsY = expenseY + expenseH + 18;
+    const deficitY = grossY + grossH + 14;
+
+    const curve = (x1, y1, x2, y2, h, op = 0.3) => `<path d="M ${x1} ${y1} C ${x1 + 110} ${y1}, ${x2 - 110} ${y2}, ${x2} ${y2} L ${x2} ${y2 + h} C ${x2 - 110} ${y2 + h}, ${x1 + 110} ${y1 + h}, ${x1} ${y1 + h} Z" fill="rgba(148,163,184,${op})"></path>`;
+
+    let yCursor = topY;
+    const rightNodes = top.map(([name, value]) => {
+        const h = Math.max(12, Number(value) * scale);
+        const y = yCursor;
+        yCursor += h + 10;
+        return { name, value: Number(value), h, y };
+    });
+    let offset = 0;
+    const flowsToCategories = rightNodes.map((n) => {
+        const h = Math.max(10, (n.value / Math.max(expenses, 1)) * expenseH);
+        const p = curve(midX + nodeW, expenseY + offset, rightX, n.y, h, 0.22);
+        offset += h;
+        return p;
+    }).join('');
+
+    container.innerHTML = `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Financial flow sankey chart">
+        ${curve(leftX + nodeW, grossY, midX, expenseY, expenseH, 0.34)}
+        ${savings > 0 ? curve(leftX + nodeW, grossY + expenseH, midX, savingsY, savingsH, 0.24) : ''}
+        ${deficit > 0 ? curve(leftX + nodeW, deficitY, midX, expenseY + expenseH - deficitH, deficitH, 0.2) : ''}
+        ${flowsToCategories}
+        <rect x="${leftX}" y="${grossY}" width="${nodeW}" height="${grossH}" fill="#a3a3a3"></rect>
+        <rect x="${midX}" y="${expenseY}" width="${nodeW}" height="${expenseH}" fill="#a3a3a3"></rect>
+        ${savings > 0 ? `<rect x="${midX}" y="${savingsY}" width="${nodeW}" height="${savingsH}" fill="#a3a3a3"></rect>` : ''}
+        ${deficit > 0 ? `<rect x="${leftX}" y="${deficitY}" width="${nodeW}" height="${deficitH}" fill="#a3a3a3"></rect>` : ''}
+        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (₹${n.value.toLocaleString('en-IN')})</text>`).join('')}
+        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (₹${income.toLocaleString('en-IN')})</text>
+        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (₹${expenses.toLocaleString('en-IN')})</text>
+        ${savings > 0 ? `<text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (₹${savings.toLocaleString('en-IN')})</text>` : ''}
+        ${deficit > 0 ? `<text x="${leftX + 30}" y="${deficitY + deficitH / 2}" font-size="13" font-weight="600" fill="#991b1b">Deficit Funding ${income > 0 ? ((deficit / income) * 100).toFixed(1) : '0.0'}% (₹${deficit.toLocaleString('en-IN')})</text>` : ''}
+      </svg>`;
+}
+
+function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
+    const container = document.getElementById('monthlyBreakdown');
+    if (!container) return;
+    if (!Array.isArray(monthlyRows) || monthlyRows.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p class="empty-text">No data for monthly breakdown</p></div>';
+        return;
+    }
+
+    let openingBalance = 0;
+    const rows = [...monthlyRows].sort((a, b) => a.month.localeCompare(b.month)).map((row) => {
+        const income = Number(row.income || 0);
+        const expenses = Number(row.expenses || 0);
+        const closingBalance = openingBalance + income - expenses;
+        const mapped = { month: row.month, openingBalance, income, expenses, closingBalance, net: income - expenses };
+        openingBalance = closingBalance;
+        return mapped;
+    }).reverse();
+
+    const totalIncome = rows.reduce((sum, r) => sum + r.income, 0);
+    const totalExpenses = rows.reduce((sum, r) => sum + r.expenses, 0);
+    const avgSavingsRate = totalIncome > 0 ? (((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+
+    let html = `<div style="margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap;">
+        <span class="tag">Months: ${rows.length}</span>
+        <span class="tag">Total Income: ₹${totalIncome.toLocaleString('en-IN')}</span>
+        <span class="tag">Total Expenses: ₹${totalExpenses.toLocaleString('en-IN')}</span>
+        <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
+    </div>`;
+    html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
+    rows.forEach((r) => {
+        const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
+        html += `<tr><td><strong>${r.month}</strong></td>
+            <td>₹${r.openingBalance.toLocaleString('en-IN')}</td>
+            <td style="color:var(--secondary)"><strong>₹${r.income.toLocaleString('en-IN')}</strong></td>
+            <td style="color:var(--danger)"><strong>₹${r.expenses.toLocaleString('en-IN')}</strong></td>
+            <td style="color:${r.closingBalance >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>₹${r.closingBalance.toLocaleString('en-IN')}</strong></td>
+            <td style="color:${savingsRate >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${savingsRate.toFixed(1)}%</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 </script>
 
