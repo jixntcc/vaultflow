@@ -260,6 +260,36 @@ res.status(500).json({ error: 'Server error during login' });
 }
 });
 
+// Refresh token (allows short-lived access token renewal)
+app.post('/api/auth/refresh', ensureConnection, async (req, res) => {
+try {
+const authHeader = req.headers['authorization'];
+const token = authHeader && authHeader.split(' ')[1];
+if (!token) return res.status(401).json({ error: 'Access token required' });
+
+let decoded;
+try {
+decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+} catch (e) {
+return res.status(403).json({ error: 'Invalid token' });
+}
+
+const user = await User.findById(decoded.userId).lean();
+if (!user) return res.status(404).json({ error: 'User not found' });
+
+const newToken = jwt.sign(
+{ userId: user._id, username: user.username },
+process.env.JWT_SECRET,
+{ expiresIn: '30d' }
+);
+
+res.json({ token: newToken, user: { id: user._id, username: user.username } });
+} catch (error) {
+console.error('Refresh token error:', error);
+res.status(500).json({ error: 'Server error during token refresh' });
+}
+});
+
 // ============================================
 // VAULT ROUTES (OPTIMIZED)
 // ============================================
