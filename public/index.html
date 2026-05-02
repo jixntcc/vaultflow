@@ -897,6 +897,30 @@
             display: none;
         }
 
+        .skeleton {
+            position: relative;
+            overflow: hidden;
+            background: #e5e7eb;
+            border-radius: 10px;
+            min-height: 90px;
+        }
+
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150px;
+            width: 120px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent);
+            animation: shimmer 1.2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -150px; }
+            100% { left: 100%; }
+        }
+
         .reports-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -918,9 +942,7 @@
                 gap: 16px;
             }
 
-            #incomeFlowChart svg {
-                min-width: 780px;
-            }
+            #incomeFlowChart svg { width: 100%; height: auto; }
 
             .mobile-txn-list {
                 display: grid;
@@ -2596,6 +2618,7 @@ let reportFormat = { locale: 'en-IN', currency: 'INR', fxRates: { INR: 1, USD: 0
 
 // Load reports when page opens
 function loadReports() {
+    showReportsSkeleton();
     apiCall('/api/analytics/full')
         .then(data => {
             reportsRawData = data;
@@ -2603,6 +2626,31 @@ function loadReports() {
             applyReportFilters();
         })
         .catch(error => console.error('Error loading reports:', error));
+}
+
+function showReportsSkeleton() {
+    ['monthIncomeDisplay', 'monthExpensesDisplay', 'monthSavingsDisplay', 'annualDisplay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = '';
+            el.classList.add('skeleton');
+        }
+    });
+}
+
+function clearReportsSkeleton() {
+    ['monthIncomeDisplay', 'monthExpensesDisplay', 'monthSavingsDisplay', 'annualDisplay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('skeleton');
+    });
+}
+
+function deferRender(task) {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(task, { timeout: 300 });
+    } else {
+        setTimeout(task, 0);
+    }
 }
 
 function detectDefaultCurrency() {
@@ -2719,6 +2767,7 @@ async function renderCharts(data) {
     document.getElementById('monthExpensesDisplay').textContent = formatMoney(data.incomeVsExpenses.expenses);
     document.getElementById('monthSavingsDisplay').textContent = formatMoney(periodNet);
     document.getElementById('annualDisplay').textContent = formatMoney(periodNet);
+    clearReportsSkeleton();
 
     // Destroy existing charts if they exist
     Object.values(chartsInstance).forEach(chart => chart?.destroy?.());
@@ -2729,8 +2778,8 @@ async function renderCharts(data) {
     chartsInstance.savingsPortfolio = null;
     chartsInstance.incomeCategory = null;
 
-    renderIncomeFlowChart(data);
-    renderMonthlyBreakdownFromAnalytics(data.monthly || []);
+    deferRender(() => renderIncomeFlowChart(data));
+    deferRender(() => renderMonthlyBreakdownFromAnalytics(data.monthly || []));
 
     // Chart 1: Horizontal Progress - Income vs Expenses
     try {
@@ -2768,7 +2817,7 @@ async function renderCharts(data) {
     }
 
     // Chart 2: Bar - Category
-    try {
+    deferRender(() => { try {
         const categoryCtx = document.getElementById('categoryChart');
         if (categoryCtx) {
             const categories = Object.keys(data.byCategory);
@@ -2803,10 +2852,10 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating category chart:', e);
-    }
+    }});
 
     // Chart 3: Bar - Vault
-    try {
+    deferRender(() => { try {
         const vaultCtx = document.getElementById('vaultChart');
         if (vaultCtx) {
             const vaults = Object.keys(data.byVault);
@@ -2841,10 +2890,10 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating vault chart:', e);
-    }
+    }});
 
     // Chart 4: Line - Monthly Trends
-    try {
+    deferRender(() => { try {
         const trendsCtx = document.getElementById('trendsChart');
         if (trendsCtx) {
             const months = data.monthly.map(m => m.month);
@@ -2898,10 +2947,10 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating trends chart:', e);
-    }
+    }});
 
     // Chart 5: Savings Portfolio Trend (Area Line)
-    try {
+    deferRender(() => { try {
         const savingsPortfolioCtx = document.getElementById('savingsPortfolioChart');
         if (savingsPortfolioCtx) {
             const portfolioLabels = (data.savingsPortfolio || []).map(m => m.month);
@@ -2939,10 +2988,10 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating savings portfolio chart:', e);
-    }
+    }});
 
     // Chart 6: Income by Category / Stream
-    try {
+    deferRender(() => { try {
         const incomeCategoryCtx = document.getElementById('incomeCategoryChart');
         if (incomeCategoryCtx) {
             const incomeCategories = Object.keys(data.incomeByCategory || {});
@@ -2978,7 +3027,110 @@ async function renderCharts(data) {
         }
     } catch (e) {
         console.error('Error creating income category chart:', e);
+    }});
+}
+
+function renderIncomeFlowChart(data) {
+    const container = document.getElementById('incomeFlowChart');
+    if (!container) return;
+    const income = Number(data?.incomeVsExpenses?.income || 0);
+    const expenses = Number(data?.incomeVsExpenses?.expenses || 0);
+    const net = Number(income - expenses);
+    const savings = Math.max(0, net);
+    const deficit = Math.max(0, -net);
+    const categories = Object.entries(data?.byCategory || {}).filter(([, v]) => Number(v) > 0).sort((a, b) => b[1] - a[1]);
+    const top = categories.slice(0, 5);
+    const other = categories.slice(5).reduce((sum, [, v]) => sum + Number(v), 0);
+    if (other > 0) top.push(['Other', other]);
+
+    const width = 980, height = 360, nodeW = 22, topY = 36, trackH = 280;
+    const leftX = 60, midX = 430, rightX = 790;
+    const total = Math.max(income + deficit, expenses + savings, 1);
+    const scale = trackH / total;
+    const grossH = Math.max(18, income * scale);
+    const expenseH = Math.max(18, expenses * scale);
+    const savingsH = Math.max(18, savings * scale);
+    const deficitH = deficit > 0 ? Math.max(12, deficit * scale) : 0;
+    const grossY = topY + (trackH - grossH) / 2;
+    const expenseY = topY + 14;
+    const savingsY = expenseY + expenseH + 18;
+    const deficitY = grossY + grossH + 14;
+
+    const curve = (x1, y1, x2, y2, h, op = 0.3) => `<path d="M ${x1} ${y1} C ${x1 + 110} ${y1}, ${x2 - 110} ${y2}, ${x2} ${y2} L ${x2} ${y2 + h} C ${x2 - 110} ${y2 + h}, ${x1 + 110} ${y1 + h}, ${x1} ${y1 + h} Z" fill="rgba(148,163,184,${op})"></path>`;
+
+    let yCursor = topY;
+    const rightNodes = top.map(([name, value]) => {
+        const h = Math.max(12, Number(value) * scale);
+        const y = yCursor;
+        yCursor += h + 10;
+        return { name, value: Number(value), h, y };
+    });
+    let offset = 0;
+    const flowsToCategories = rightNodes.map((n) => {
+        const h = Math.max(10, (n.value / Math.max(expenses, 1)) * expenseH);
+        const p = curve(midX + nodeW, expenseY + offset, rightX, n.y, h, 0.22);
+        offset += h;
+        return p;
+    }).join('');
+
+    container.innerHTML = `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Financial flow sankey chart">
+        ${curve(leftX + nodeW, grossY, midX, expenseY, expenseH, 0.34)}
+        ${savings > 0 ? curve(leftX + nodeW, grossY + expenseH, midX, savingsY, savingsH, 0.24) : ''}
+        ${deficit > 0 ? curve(leftX + nodeW, deficitY, midX, expenseY + expenseH - deficitH, deficitH, 0.2) : ''}
+        ${flowsToCategories}
+        <rect x="${leftX}" y="${grossY}" width="${nodeW}" height="${grossH}" fill="#a3a3a3"></rect>
+        <rect x="${midX}" y="${expenseY}" width="${nodeW}" height="${expenseH}" fill="#a3a3a3"></rect>
+        ${savings > 0 ? `<rect x="${midX}" y="${savingsY}" width="${nodeW}" height="${savingsH}" fill="#a3a3a3"></rect>` : ''}
+        ${deficit > 0 ? `<rect x="${leftX}" y="${deficitY}" width="${nodeW}" height="${deficitH}" fill="#a3a3a3"></rect>` : ''}
+        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (₹${n.value.toLocaleString('en-IN')})</text>`).join('')}
+        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (₹${income.toLocaleString('en-IN')})</text>
+        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (₹${expenses.toLocaleString('en-IN')})</text>
+        ${savings > 0 ? `<text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (₹${savings.toLocaleString('en-IN')})</text>` : ''}
+        ${deficit > 0 ? `<text x="${leftX + 30}" y="${deficitY + deficitH / 2}" font-size="13" font-weight="600" fill="#991b1b">Deficit Funding ${income > 0 ? ((deficit / income) * 100).toFixed(1) : '0.0'}% (₹${deficit.toLocaleString('en-IN')})</text>` : ''}
+      </svg>`;
+}
+
+function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
+    const container = document.getElementById('monthlyBreakdown');
+    if (!container) return;
+    if (!Array.isArray(monthlyRows) || monthlyRows.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p class="empty-text">No data for monthly breakdown</p></div>';
+        return;
     }
+
+    let openingBalance = 0;
+    const rows = [...monthlyRows].sort((a, b) => a.month.localeCompare(b.month)).map((row) => {
+        const income = Number(row.income || 0);
+        const expenses = Number(row.expenses || 0);
+        const closingBalance = openingBalance + income - expenses;
+        const mapped = { month: row.month, openingBalance, income, expenses, closingBalance, net: income - expenses };
+        openingBalance = closingBalance;
+        return mapped;
+    }).reverse();
+
+    const totalIncome = rows.reduce((sum, r) => sum + r.income, 0);
+    const totalExpenses = rows.reduce((sum, r) => sum + r.expenses, 0);
+    const avgSavingsRate = totalIncome > 0 ? (((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+
+    let html = `<div style="margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap;">
+        <span class="tag">Months: ${rows.length}</span>
+        <span class="tag">Total Income: ₹${totalIncome.toLocaleString('en-IN')}</span>
+        <span class="tag">Total Expenses: ₹${totalExpenses.toLocaleString('en-IN')}</span>
+        <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
+    </div>`;
+    html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
+    rows.forEach((r) => {
+        const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
+        html += `<tr><td><strong>${r.month}</strong></td>
+            <td>₹${r.openingBalance.toLocaleString('en-IN')}</td>
+            <td style="color:var(--secondary)"><strong>₹${r.income.toLocaleString('en-IN')}</strong></td>
+            <td style="color:var(--danger)"><strong>₹${r.expenses.toLocaleString('en-IN')}</strong></td>
+            <td style="color:${r.closingBalance >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>₹${r.closingBalance.toLocaleString('en-IN')}</strong></td>
+            <td style="color:${savingsRate >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${savingsRate.toFixed(1)}%</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
 }
 
 function renderIncomeFlowChart(data) {
