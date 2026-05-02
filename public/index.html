@@ -1478,6 +1478,7 @@
         let authToken = null;
         let currentUser = null;
         let isDemoMode = false;
+        let isRefreshingToken = false;
         
         // Wallets (NEW)
         let wallets = {
@@ -1514,9 +1515,51 @@
             currentUser = localStorage.getItem('vf_username');
             
             if (authToken && currentUser) {
+                if (isTokenExpired(authToken)) {
+                    logout('Session expired. Please login again.', 'warning');
+                    return;
+                }
                 showApp();
             } else {
                 showAuth();
+            }
+        }
+
+        function parseJwt(token) {
+            try {
+                const base64 = token.split('.')[1];
+                const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
+                return JSON.parse(json);
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function isTokenExpired(token, thresholdSeconds = 0) {
+            const payload = parseJwt(token);
+            if (!payload?.exp) return false;
+            const now = Math.floor(Date.now() / 1000);
+            return payload.exp <= (now + thresholdSeconds);
+        }
+
+        async function refreshAuthToken() {
+            if (!authToken || isDemoMode || isRefreshingToken) return false;
+            isRefreshingToken = true;
+            try {
+                const response = await fetch(API_BASE_URL + '/api/auth/refresh', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + authToken }
+                });
+                const result = await response.json();
+                if (!response.ok || !result.token) throw new Error(result.error || 'Session refresh failed');
+                authToken = result.token;
+                localStorage.setItem('vf_token', authToken);
+                return true;
+            } catch (error) {
+                logout('Session expired. Please login again.', 'warning');
+                return false;
+            } finally {
+                isRefreshingToken = false;
             }
         }
 
@@ -1610,6 +1653,10 @@
             };
 
             if (authToken) {
+                if (isTokenExpired(authToken, 120)) {
+                    const refreshed = await refreshAuthToken();
+                    if (!refreshed) throw new Error('Session expired');
+                }
                 options.headers['Authorization'] = 'Bearer ' + authToken;
             }
 
@@ -1620,6 +1667,11 @@
             try {
                 const response = await fetch(API_BASE_URL + endpoint, options);
                 const result = await response.json();
+
+                if (response.status === 401 || response.status === 403) {
+                    const refreshed = await refreshAuthToken();
+                    if (refreshed) return apiCall(endpoint, method, data);
+                }
 
                 if (!response.ok) {
                     throw new Error(result.error || 'Request failed');
@@ -1755,7 +1807,7 @@
             showApp();
         }
 
-        function logout() {
+        function logout(message = 'Logged out successfully', type = 'success') {
             localStorage.removeItem('vf_token');
             localStorage.removeItem('vf_username');
             authToken = null;
@@ -1763,7 +1815,7 @@
             isDemoMode = false;
             resetDemoData();
             showAuth();
-            showToast('Logged out successfully', 'success');
+            showToast(message, type);
         }
 
         function resetDemoData() {
