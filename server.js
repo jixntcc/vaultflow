@@ -9,6 +9,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const crypto = require('crypto');
 
 require('dotenv').config();
 
@@ -85,7 +86,11 @@ throw err;
 // User Schema
 const userSchema = new mongoose.Schema({
 username: { type: String, required: true, unique: true },
+email: { type: String, trim: true, lowercase: true },
 password: { type: String, required: true },
+passwordResetTokenHash: { type: String },
+passwordResetExpiresAt: { type: Date },
+passwordResetTokenType: { type: String },
 createdAt: { type: Date, default: Date.now }
 });
 
@@ -179,6 +184,18 @@ next();
 // ============================================
 // AUTHENTICATION ROUTES
 // ============================================
+const forgotPasswordRateMap = new Map();
+function isRateLimited(key, max = 5, windowMs = 15 * 60 * 1000) {
+const now = Date.now();
+const entry = forgotPasswordRateMap.get(key) || { count: 0, resetAt: now + windowMs };
+if (now > entry.resetAt) {
+entry.count = 0;
+entry.resetAt = now + windowMs;
+}
+entry.count += 1;
+forgotPasswordRateMap.set(key, entry);
+return entry.count > max;
+}
 
 // Register
 app.post('/api/auth/register', ensureConnection, async (req, res) => {
@@ -297,6 +314,63 @@ res.json({ token: accessToken, refreshToken, user: { id: user._id, username: use
 } catch (error) {
 console.error('Refresh token error:', error);
 res.status(500).json({ error: 'Server error during token refresh' });
+}
+});
+
+app.post('/api/auth/forgot-password', ensureConnection, async (req, res) => {
+try {
+const { identifier } = req.body || {};
+const generic = { message: 'If an account exists, a reset link has been sent.' };
+if (!identifier || typeof identifier !== 'string') return res.json(generic);
+const rlKey = `${req.ip}:${identifier.toLowerCase().trim()}`;
+if (isRateLimited(rlKey)) return res.status(429).json(generic);
+
+const user = await User.findOne({ $or: [{ username: identifier.trim() }, { email: identifier.trim().toLowerCase() }] });
+if (!user) return res.json(generic);
+
+const rawToken = crypto.randomBytes(32).toString('hex');
+const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+user.passwordResetTokenHash = tokenHash;
+user.passwordResetTokenType = 'password_reset';
+user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+await user.save();
+
+const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${rawToken}`;
+console.log(`[SECURITY] Password reset requested for user=${user.username} at ${new Date().toISOString()}`);
+console.log(`[MOCK EMAIL] Send reset link to ${user.email || user.username}: ${resetUrl}`);
+return res.json(generic);
+} catch (error) {
+console.error('Forgot password error:', error);
+return res.json({ message: 'If an account exists, a reset link has been sent.' });
+}
+});
+
+app.post('/api/auth/reset-password', ensureConnection, async (req, res) => {
+try {
+const { token, password, confirmPassword } = req.body || {};
+if (!token || !password || !confirmPassword) return res.status(400).json({ error: 'Token and password are required' });
+if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords do not match' });
+if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+return res.status(400).json({ error: 'Password must be 8+ chars with upper, lower, and number' });
+}
+const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+const user = await User.findOne({
+passwordResetTokenHash: tokenHash,
+passwordResetTokenType: 'password_reset',
+passwordResetExpiresAt: { $gt: new Date() }
+});
+if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+
+user.password = await bcrypt.hash(password, 10);
+user.passwordResetTokenHash = undefined;
+user.passwordResetTokenType = undefined;
+user.passwordResetExpiresAt = undefined;
+await user.save();
+console.log(`[SECURITY] Password reset completed for user=${user.username} at ${new Date().toISOString()}`);
+return res.json({ message: 'Password reset successful. Please login with your new password.' });
+} catch (error) {
+console.error('Reset password error:', error);
+return res.status(500).json({ error: 'Server error during password reset' });
 }
 });
 
