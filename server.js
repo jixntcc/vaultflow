@@ -13,6 +13,22 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || '15m';
+const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || '30d';
+
+function issueAuthTokens(user) {
+const accessToken = jwt.sign(
+{ userId: user._id, username: user.username, tokenType: 'access' },
+process.env.JWT_SECRET,
+{ expiresIn: ACCESS_TOKEN_TTL }
+);
+const refreshToken = jwt.sign(
+{ userId: user._id, username: user.username, tokenType: 'refresh' },
+process.env.JWT_SECRET,
+{ expiresIn: REFRESH_TOKEN_TTL }
+);
+return { accessToken, refreshToken };
+}
 
 // Middleware
 app.use(cors());
@@ -152,6 +168,9 @@ jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
 if (err) {
 return res.status(403).json({ error: 'Invalid or expired token' });
 }
+if (user.tokenType && user.tokenType !== 'access') {
+return res.status(403).json({ error: 'Invalid token type' });
+}
 req.user = user;
 next();
 });
@@ -205,15 +224,12 @@ userId: user._id,
 await vault.save();
 }
 
-const token = jwt.sign(
-{ userId: user._id, username: user.username },
-process.env.JWT_SECRET,
-{ expiresIn: '30d' }
-);
+const { accessToken, refreshToken } = issueAuthTokens(user);
 
 res.status(201).json({
 message: 'User registered successfully',
-token,
+token: accessToken,
+refreshToken,
 user: { id: user._id, username: user.username }
 });
 
@@ -242,21 +258,45 @@ if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
-const token = jwt.sign(
-{ userId: user._id, username: user.username },
-process.env.JWT_SECRET,
-{ expiresIn: '30d' }
-);
+const { accessToken, refreshToken } = issueAuthTokens(user);
 
 res.json({
 message: 'Login successful',
-token,
+token: accessToken,
+refreshToken,
 user: { id: user._id, username: user.username }
 });
 
 } catch (error) {
 console.error('Login error:', error);
 res.status(500).json({ error: 'Server error during login' });
+}
+});
+
+// Refresh token (allows short-lived access token renewal)
+app.post('/api/auth/refresh', ensureConnection, async (req, res) => {
+try {
+const authHeader = req.headers['authorization'];
+const token = authHeader && authHeader.split(' ')[1];
+if (!token) return res.status(401).json({ error: 'Access token required' });
+
+let decoded;
+try {
+decoded = jwt.verify(token, process.env.JWT_SECRET);
+} catch (e) {
+return res.status(403).json({ error: 'Invalid or expired refresh token' });
+}
+if (decoded.tokenType !== 'refresh') return res.status(403).json({ error: 'Invalid token type' });
+
+const user = await User.findById(decoded.userId).lean();
+if (!user) return res.status(404).json({ error: 'User not found' });
+
+const { accessToken, refreshToken } = issueAuthTokens(user);
+
+res.json({ token: accessToken, refreshToken, user: { id: user._id, username: user.username } });
+} catch (error) {
+console.error('Refresh token error:', error);
+res.status(500).json({ error: 'Server error during token refresh' });
 }
 });
 
