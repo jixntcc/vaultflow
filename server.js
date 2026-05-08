@@ -10,12 +10,23 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
 const app = express();
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || '15m';
 const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || '30d';
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+const mailTransporter = nodemailer.createTransport({
+service: 'gmail',
+auth: {
+user: EMAIL_USER,
+pass: EMAIL_PASS
+}
+});
 
 function issueAuthTokens(user) {
 const accessToken = jwt.sign(
@@ -86,7 +97,7 @@ throw err;
 // User Schema
 const userSchema = new mongoose.Schema({
 username: { type: String, required: true, unique: true },
-email: { type: String, trim: true, lowercase: true },
+email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
 password: { type: String, required: true },
 passwordResetTokenHash: { type: String },
 passwordResetExpiresAt: { type: Date },
@@ -200,10 +211,10 @@ return entry.count > max;
 // Register
 app.post('/api/auth/register', ensureConnection, async (req, res) => {
 try {
-const { username, password } = req.body;
+const { username, email, password } = req.body;
 
-if (!username || !password) {
-return res.status(400).json({ error: 'Username and password required' });
+if (!username || !email || !password) {
+return res.status(400).json({ error: 'Username, email and password required' });
 }
 
 if (password.length < 6) {
@@ -214,11 +225,16 @@ const existingUser = await User.findOne({ username });
 if (existingUser) {
 return res.status(400).json({ error: 'Username already exists' });
 }
+const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
+if (existingEmail) {
+return res.status(400).json({ error: 'Email already exists' });
+}
 
 const hashedPassword = await bcrypt.hash(password, 10);
 
 const user = new User({
 username,
+email: email.toLowerCase().trim(),
 password: hashedPassword
 });
 
@@ -265,7 +281,10 @@ if (!username || !password) {
 return res.status(400).json({ error: 'Username and password required' });
 }
 
-const user = await User.findOne({ username });
+const identifier = username.trim().toLowerCase();
+const user = await User.findOne({
+$or: [{ username: username.trim() }, { email: identifier }]
+});
 if (!user) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
@@ -319,13 +338,14 @@ res.status(500).json({ error: 'Server error during token refresh' });
 
 app.post('/api/auth/forgot-password', ensureConnection, async (req, res) => {
 try {
-const { identifier } = req.body || {};
+const { email } = req.body || {};
 const generic = { message: 'If an account exists, a reset link has been sent.' };
-if (!identifier || typeof identifier !== 'string') return res.json(generic);
-const rlKey = `${req.ip}:${identifier.toLowerCase().trim()}`;
+if (!email || typeof email !== 'string') return res.json(generic);
+const normalizedEmail = email.toLowerCase().trim();
+const rlKey = `${req.ip}:${normalizedEmail}`;
 if (isRateLimited(rlKey)) return res.status(429).json(generic);
 
-const user = await User.findOne({ $or: [{ username: identifier.trim() }, { email: identifier.trim().toLowerCase() }] });
+const user = await User.findOne({ email: normalizedEmail });
 if (!user) return res.json(generic);
 
 const rawToken = crypto.randomBytes(32).toString('hex');
@@ -337,7 +357,16 @@ await user.save();
 
 const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${rawToken}`;
 console.log(`[SECURITY] Password reset requested for user=${user.username} at ${new Date().toISOString()}`);
-console.log(`[MOCK EMAIL] Send reset link to ${user.email || user.username}: ${resetUrl}`);
+if (EMAIL_USER && EMAIL_PASS) {
+await mailTransporter.sendMail({
+from: `"VaultFlow Security" <${EMAIL_USER}>`,
+to: user.email,
+subject: 'VaultFlow Password Reset',
+html: `<div style="font-family:Arial,sans-serif"><h2>Reset your VaultFlow password</h2><p>Click below to reset your password (valid for 15 minutes):</p><p><a href="${resetUrl}" style="padding:10px 14px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a></p><p>If you did not request this, ignore this email.</p></div>`
+});
+} else {
+console.log(`[MOCK EMAIL] Send reset link to ${user.email}: ${resetUrl}`);
+}
 return res.json(generic);
 } catch (error) {
 console.error('Forgot password error:', error);

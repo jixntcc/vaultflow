@@ -988,7 +988,7 @@
             <!-- Login Form -->
             <form id="loginForm" class="auth-form active">
                 <div class="form-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">Username or Email</label>
                     <input type="text" class="form-input" id="loginUsername" required>
                 </div>
                 <div class="form-group">
@@ -1005,6 +1005,10 @@
                 <div class="form-group">
                     <label class="form-label">Username</label>
                     <input type="text" class="form-input" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="signupEmail" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password (min 6 characters)</label>
@@ -1502,8 +1506,8 @@
             <form id="forgotPasswordForm">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="form-label">Username or Email</label>
-                        <input type="text" class="form-input" id="forgotIdentifier" required>
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="forgotIdentifier" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -1674,8 +1678,11 @@
             document.getElementById('signupForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const username = document.getElementById('signupUsername').value;
+                const email = document.getElementById('signupEmail').value.trim();
                 const password = document.getElementById('signupPassword').value;
-                await signup(username, password);
+                const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                if (!emailOk) return showToast('Please enter a valid email', 'error');
+                await signup(username, email, password);
             });
 
             document.getElementById('demoBtn').addEventListener('click', startDemoMode);
@@ -1864,9 +1871,9 @@
             }
         }
 
-        async function signup(username, password) {
+        async function signup(username, email, password) {
             try {
-                const result = await apiCall('/api/auth/register', 'POST', { username, password });
+                const result = await apiCall('/api/auth/register', 'POST', { username, email, password });
                 authToken = result.token;
                 currentUser = result.user.username;
                 localStorage.setItem('vf_token', authToken);
@@ -1913,12 +1920,14 @@
 
         async function handleForgotPasswordSubmit(e) {
             e.preventDefault();
-            const identifier = document.getElementById('forgotIdentifier').value.trim();
+            const email = document.getElementById('forgotIdentifier').value.trim().toLowerCase();
+            const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            if (!emailOk) return showToast('Please enter a valid email', 'error');
             const btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.textContent = 'Sending...';
             try {
-                const res = await apiCall('/api/auth/forgot-password', 'POST', { identifier });
+                const res = await apiCall('/api/auth/forgot-password', 'POST', { email });
                 showToast(res.message || 'If an account exists, a reset link has been sent.', 'success');
                 closeModal('forgotPasswordModal');
                 e.target.reset();
