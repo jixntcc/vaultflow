@@ -1738,13 +1738,7 @@
                 }
             };
 
-            if (authToken) {
-                if (isTokenExpired(authToken, 120)) {
-                    const refreshed = await refreshAuthToken();
-                    if (!refreshed) throw new Error('Session expired');
-                }
-                options.headers['Authorization'] = 'Bearer ' + authToken;
-            }
+            if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
 
             if (data && method !== 'GET') {
                 options.body = JSON.stringify(data);
