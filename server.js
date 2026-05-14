@@ -168,6 +168,9 @@ jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
 if (err) {
 return res.status(403).json({ error: 'Invalid or expired token' });
 }
+if (user.tokenType && user.tokenType !== 'access') {
+return res.status(403).json({ error: 'Invalid token type' });
+}
 req.user = user;
 next();
 });
@@ -238,15 +241,12 @@ userId: user._id,
 await vault.save();
 }
 
-const token = jwt.sign(
-{ userId: user._id, username: user.username },
-process.env.JWT_SECRET,
-{ expiresIn: '30d' }
-);
+const { accessToken, refreshToken } = issueAuthTokens(user);
 
 res.status(201).json({
 message: 'User registered successfully',
-token,
+token: accessToken,
+refreshToken,
 user: { id: user._id, username: user.username }
 });
 
@@ -278,15 +278,12 @@ if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
-const token = jwt.sign(
-{ userId: user._id, username: user.username },
-process.env.JWT_SECRET,
-{ expiresIn: '30d' }
-);
+const { accessToken, refreshToken } = issueAuthTokens(user);
 
 res.json({
 message: 'Login successful',
-token,
+token: accessToken,
+refreshToken,
 user: { id: user._id, username: user.username }
 });
 
