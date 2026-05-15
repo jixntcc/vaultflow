@@ -55,7 +55,10 @@ return cachedConnection;
 if (connectingPromise) {
 console.log('⏳ Awaiting in-flight MongoDB connection');
 await connectingPromise;
-return cachedConnection;
+if (mongoose.connection.readyState !== 1) {
+throw new Error('MongoDB connection not ready after awaiting in-flight connect');
+}
+return cachedConnection || mongoose.connection;
 }
 
 try {
@@ -75,6 +78,9 @@ const conn = await connectingPromise;
 cachedConnection = conn;
 connectingPromise = null;
 console.log('✅ MongoDB Connected');
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB readyState is ${mongoose.connection.readyState} after connect`);
+}
 return conn;
 } catch (err) {
 connectingPromise = null;
@@ -157,6 +163,9 @@ const Goal = mongoose.model('Goal', goalSchema);
 const ensureConnection = async (req, res, next) => {
 try {
 await connectToDatabase();
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB connection not ready in middleware. readyState=${mongoose.connection.readyState}`);
+}
 next();
 } catch (error) {
 console.error('Database connection failed:', error);
