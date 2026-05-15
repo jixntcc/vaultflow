@@ -45,10 +45,16 @@ next();
 // ============================================
 
 let cachedConnection = null;
+let connectingPromise = null;
 
 async function connectToDatabase() {
 if (cachedConnection && mongoose.connection.readyState === 1) {
 console.log('✅ Using cached MongoDB connection');
+return cachedConnection;
+}
+if (connectingPromise) {
+console.log('⏳ Awaiting in-flight MongoDB connection');
+await connectingPromise;
 return cachedConnection;
 }
 
@@ -64,11 +70,14 @@ bufferCommands: false
 };
 
 console.log('🔄 Connecting to MongoDB...');
-const conn = await mongoose.connect(process.env.MONGODB_URI, opts);
+connectingPromise = mongoose.connect(process.env.MONGODB_URI, opts);
+const conn = await connectingPromise;
 cachedConnection = conn;
+connectingPromise = null;
 console.log('✅ MongoDB Connected');
 return conn;
 } catch (err) {
+connectingPromise = null;
 console.error('❌ MongoDB Connection Error:', err);
 throw err;
 }
