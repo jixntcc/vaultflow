@@ -9,10 +9,23 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
 const app = express();
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+const mailTransporter = nodemailer.createTransport({
+service: 'gmail',
+auth: {
+user: EMAIL_USER,
+pass: EMAIL_PASS
+}
+});
+const AUTH_TOKEN_TTL = process.env.AUTH_TOKEN_TTL || '30d';
 
 // Middleware
 app.use(cors());
@@ -33,11 +46,20 @@ next();
 // ============================================
 
 let cachedConnection = null;
+let connectingPromise = null;
 
 async function connectToDatabase() {
 if (cachedConnection && mongoose.connection.readyState === 1) {
 console.log('✅ Using cached MongoDB connection');
 return cachedConnection;
+}
+if (connectingPromise) {
+console.log('⏳ Awaiting in-flight MongoDB connection');
+await connectingPromise;
+if (mongoose.connection.readyState !== 1) {
+throw new Error('MongoDB connection not ready after awaiting in-flight connect');
+}
+return cachedConnection || mongoose.connection;
 }
 
 try {
@@ -52,11 +74,17 @@ bufferCommands: false
 };
 
 console.log('🔄 Connecting to MongoDB...');
-const conn = await mongoose.connect(process.env.MONGODB_URI, opts);
+connectingPromise = mongoose.connect(process.env.MONGODB_URI, opts);
+const conn = await connectingPromise;
 cachedConnection = conn;
+connectingPromise = null;
 console.log('✅ MongoDB Connected');
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB readyState is ${mongoose.connection.readyState} after connect`);
+}
 return conn;
 } catch (err) {
+connectingPromise = null;
 console.error('❌ MongoDB Connection Error:', err);
 throw err;
 }
@@ -69,7 +97,11 @@ throw err;
 // User Schema
 const userSchema = new mongoose.Schema({
 username: { type: String, required: true, unique: true },
+email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
 password: { type: String, required: true },
+passwordResetTokenHash: { type: String },
+passwordResetExpiresAt: { type: Date },
+passwordResetTokenType: { type: String },
 createdAt: { type: Date, default: Date.now }
 });
 
@@ -132,6 +164,9 @@ const Goal = mongoose.model('Goal', goalSchema);
 const ensureConnection = async (req, res, next) => {
 try {
 await connectToDatabase();
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB connection not ready in middleware. readyState=${mongoose.connection.readyState}`);
+}
 next();
 } catch (error) {
 console.error('Database connection failed:', error);
@@ -160,14 +195,26 @@ next();
 // ============================================
 // AUTHENTICATION ROUTES
 // ============================================
+const forgotPasswordRateMap = new Map();
+function isRateLimited(key, max = 5, windowMs = 15 * 60 * 1000) {
+const now = Date.now();
+const entry = forgotPasswordRateMap.get(key) || { count: 0, resetAt: now + windowMs };
+if (now > entry.resetAt) {
+entry.count = 0;
+entry.resetAt = now + windowMs;
+}
+entry.count += 1;
+forgotPasswordRateMap.set(key, entry);
+return entry.count > max;
+}
 
 // Register
 app.post('/api/auth/register', ensureConnection, async (req, res) => {
 try {
-const { username, password } = req.body;
+const { username, email, password } = req.body;
 
-if (!username || !password) {
-return res.status(400).json({ error: 'Username and password required' });
+if (!username || !email || !password) {
+return res.status(400).json({ error: 'Username, email and password required' });
 }
 
 if (password.length < 6) {
@@ -178,11 +225,16 @@ const existingUser = await User.findOne({ username });
 if (existingUser) {
 return res.status(400).json({ error: 'Username already exists' });
 }
+const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
+if (existingEmail) {
+return res.status(400).json({ error: 'Email already exists' });
+}
 
 const hashedPassword = await bcrypt.hash(password, 10);
 
 const user = new User({
 username,
+email: email.toLowerCase().trim(),
 password: hashedPassword
 });
 
@@ -208,7 +260,7 @@ await vault.save();
 const token = jwt.sign(
 { userId: user._id, username: user.username },
 process.env.JWT_SECRET,
-{ expiresIn: '30d' }
+{ expiresIn: AUTH_TOKEN_TTL }
 );
 
 res.status(201).json({
@@ -227,26 +279,53 @@ res.status(500).json({ error: 'Server error during registration' });
 app.post('/api/auth/login', ensureConnection, async (req, res) => {
 try {
 const { username, password } = req.body;
+console.log('LOGIN DEBUG req.body:', {
+hasBody: !!req.body,
+usernameType: typeof username,
+usernamePreview: typeof username === 'string' ? username.slice(0, 3) + '***' : null,
+hasPassword: !!password,
+passwordType: typeof password
+});
 
 if (!username || !password) {
 return res.status(400).json({ error: 'Username and password required' });
 }
 
-const user = await User.findOne({ username });
+const identifier = username.trim().toLowerCase();
+const user = await User.findOne({
+$or: [{ username: username.trim() }, { email: identifier }]
+});
+console.log('LOGIN DEBUG user lookup:', {
+identifier,
+found: !!user,
+userId: user?._id?.toString?.(),
+hasPasswordHash: !!user?.password
+});
 if (!user) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
 const validPassword = await bcrypt.compare(password, user.password);
+console.log('LOGIN DEBUG password compare result:', { validPassword });
 if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
+}
+
+if (!process.env.JWT_SECRET) {
+console.error('LOGIN DEBUG missing JWT_SECRET');
+return res.status(500).json({ error: 'Server auth configuration error' });
 }
 
 const token = jwt.sign(
 { userId: user._id, username: user.username },
 process.env.JWT_SECRET,
-{ expiresIn: '30d' }
+{ expiresIn: AUTH_TOKEN_TTL }
 );
+console.log('LOGIN DEBUG jwt.sign success:', {
+tokenLength: token?.length,
+ttl: AUTH_TOKEN_TTL,
+userId: user._id?.toString?.()
+});
 
 res.json({
 message: 'Login successful',
@@ -255,8 +334,78 @@ user: { id: user._id, username: user.username }
 });
 
 } catch (error) {
+console.error('LOGIN ERROR DETAILS:', error);
+console.error('LOGIN ERROR:', error);
 console.error('Login error:', error);
 res.status(500).json({ error: 'Server error during login' });
+}
+});
+
+
+app.post('/api/auth/forgot-password', ensureConnection, async (req, res) => {
+try {
+const { email } = req.body || {};
+const generic = { message: 'If an account exists, a reset link has been sent.' };
+if (!email || typeof email !== 'string') return res.json(generic);
+const normalizedEmail = email.toLowerCase().trim();
+const rlKey = `${req.ip}:${normalizedEmail}`;
+if (isRateLimited(rlKey)) return res.status(429).json(generic);
+
+const user = await User.findOne({ email: normalizedEmail });
+if (!user) return res.json(generic);
+
+const rawToken = crypto.randomBytes(32).toString('hex');
+const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+user.passwordResetTokenHash = tokenHash;
+user.passwordResetTokenType = 'password_reset';
+user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+await user.save();
+
+const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${rawToken}`;
+console.log(`[SECURITY] Password reset requested for user=${user.username} at ${new Date().toISOString()}`);
+if (EMAIL_USER && EMAIL_PASS) {
+await mailTransporter.sendMail({
+from: `"VaultFlow Security" <${EMAIL_USER}>`,
+to: user.email,
+subject: 'VaultFlow Password Reset',
+html: `<div style="font-family:Arial,sans-serif"><h2>Reset your VaultFlow password</h2><p>Click below to reset your password (valid for 15 minutes):</p><p><a href="${resetUrl}" style="padding:10px 14px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a></p><p>If you did not request this, ignore this email.</p></div>`
+});
+} else {
+console.log(`[MOCK EMAIL] Send reset link to ${user.email}: ${resetUrl}`);
+}
+return res.json(generic);
+} catch (error) {
+console.error('Forgot password error:', error);
+return res.json({ message: 'If an account exists, a reset link has been sent.' });
+}
+});
+
+app.post('/api/auth/reset-password', ensureConnection, async (req, res) => {
+try {
+const { token, password, confirmPassword } = req.body || {};
+if (!token || !password || !confirmPassword) return res.status(400).json({ error: 'Token and password are required' });
+if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords do not match' });
+if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+return res.status(400).json({ error: 'Password must be 8+ chars with upper, lower, and number' });
+}
+const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+const user = await User.findOne({
+passwordResetTokenHash: tokenHash,
+passwordResetTokenType: 'password_reset',
+passwordResetExpiresAt: { $gt: new Date() }
+});
+if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+
+user.password = await bcrypt.hash(password, 10);
+user.passwordResetTokenHash = undefined;
+user.passwordResetTokenType = undefined;
+user.passwordResetExpiresAt = undefined;
+await user.save();
+console.log(`[SECURITY] Password reset completed for user=${user.username} at ${new Date().toISOString()}`);
+return res.json({ message: 'Password reset successful. Please login with your new password.' });
+} catch (error) {
+console.error('Reset password error:', error);
+return res.status(500).json({ error: 'Server error during password reset' });
 }
 });
 
