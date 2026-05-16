@@ -1548,8 +1548,10 @@
         
         // State
         let authToken = null;
+        let refreshToken = null;
         let currentUser = null;
         let isDemoMode = false;
+        let isRefreshingToken = false;
         
         // Wallets (NEW)
         let wallets = {
@@ -1584,6 +1586,7 @@
 
         function checkAuth() {
             authToken = localStorage.getItem('vf_token');
+            refreshToken = localStorage.getItem('vf_refresh_token');
             currentUser = localStorage.getItem('vf_username');
             
             if (authToken && currentUser) {
@@ -1717,6 +1720,11 @@
                 const response = await fetch(API_BASE_URL + endpoint, options);
                 const result = await response.json();
 
+                if (response.status === 401 || response.status === 403) {
+                    const refreshed = await refreshAuthToken();
+                    if (refreshed) return apiCall(endpoint, method, data);
+                }
+
                 if (!response.ok) {
                     throw new Error(result.error || 'Request failed');
                 }
@@ -1819,6 +1827,7 @@
                 authToken = result.token;
                 currentUser = result.user.username;
                 localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
                 isDemoMode = false;
                 showToast('Login successful!', 'success');
@@ -1834,6 +1843,7 @@
                 authToken = result.token;
                 currentUser = result.user.username;
                 localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
                 isDemoMode = false;
                 showToast('Account created successfully!', 'success');
@@ -1853,8 +1863,10 @@
 
         function logout(message = 'Logged out successfully', type = 'success') {
             localStorage.removeItem('vf_token');
+            localStorage.removeItem('vf_refresh_token');
             localStorage.removeItem('vf_username');
             authToken = null;
+            refreshToken = null;
             currentUser = null;
             isDemoMode = false;
             resetDemoData();
