@@ -315,6 +315,7 @@ user: { id: user._id, username: user.username }
 });
 
 } catch (error) {
+console.error('LOGIN ERROR:', error);
 console.error('Login error:', error);
 res.status(500).json({ error: 'Server error during login' });
 }
