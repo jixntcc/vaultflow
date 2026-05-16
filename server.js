@@ -25,7 +25,7 @@ user: EMAIL_USER,
 pass: EMAIL_PASS
 }
 });
-const AUTH_TOKEN_TTL = '60d';
+const AUTH_TOKEN_TTL = process.env.AUTH_TOKEN_TTL || '30d';
 
 // Middleware
 app.use(cors());
