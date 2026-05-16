@@ -187,9 +187,6 @@ jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
 if (err) {
 return res.status(403).json({ error: 'Invalid or expired token' });
 }
-if (user.tokenType && user.tokenType !== 'access') {
-return res.status(403).json({ error: 'Invalid token type' });
-}
 req.user = user;
 next();
 });
@@ -267,10 +264,12 @@ process.env.JWT_SECRET,
 );
 
 res.status(201).json({
-message: 'User registered successfully',
-token: accessToken,
-refreshToken,
-user: { id: user._id, username: user.username }
+  message: 'User registered successfully',
+  token,
+  user: {
+    id: user._id,
+    username: user.username
+  }
 });
 
 } catch (error) {
@@ -332,10 +331,12 @@ userId: user._id?.toString?.()
 });
 
 res.json({
-message: 'Login successful',
-token: accessToken,
-refreshToken,
-user: { id: user._id, username: user.username }
+  message: 'Login successful',
+  token,
+  user: {
+    id: user._id,
+    username: user.username
+  }
 });
 
 } catch (error) {
