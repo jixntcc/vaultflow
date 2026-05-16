@@ -15,8 +15,6 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
-const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL || '15m';
-const REFRESH_TOKEN_TTL = process.env.REFRESH_TOKEN_TTL || '30d';
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
@@ -27,20 +25,7 @@ user: EMAIL_USER,
 pass: EMAIL_PASS
 }
 });
-
-function issueAuthTokens(user) {
-const accessToken = jwt.sign(
-{ userId: user._id, username: user.username, tokenType: 'access' },
-process.env.JWT_SECRET,
-{ expiresIn: ACCESS_TOKEN_TTL }
-);
-const refreshToken = jwt.sign(
-{ userId: user._id, username: user.username, tokenType: 'refresh' },
-process.env.JWT_SECRET,
-{ expiresIn: REFRESH_TOKEN_TTL }
-);
-return { accessToken, refreshToken };
-}
+const AUTH_TOKEN_TTL = '60d';
 
 // Middleware
 app.use(cors());
@@ -61,11 +46,20 @@ next();
 // ============================================
 
 let cachedConnection = null;
+let connectingPromise = null;
 
 async function connectToDatabase() {
 if (cachedConnection && mongoose.connection.readyState === 1) {
 console.log('✅ Using cached MongoDB connection');
 return cachedConnection;
+}
+if (connectingPromise) {
+console.log('⏳ Awaiting in-flight MongoDB connection');
+await connectingPromise;
+if (mongoose.connection.readyState !== 1) {
+throw new Error('MongoDB connection not ready after awaiting in-flight connect');
+}
+return cachedConnection || mongoose.connection;
 }
 
 try {
@@ -80,11 +74,17 @@ bufferCommands: false
 };
 
 console.log('🔄 Connecting to MongoDB...');
-const conn = await mongoose.connect(process.env.MONGODB_URI, opts);
+connectingPromise = mongoose.connect(process.env.MONGODB_URI, opts);
+const conn = await connectingPromise;
 cachedConnection = conn;
+connectingPromise = null;
 console.log('✅ MongoDB Connected');
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB readyState is ${mongoose.connection.readyState} after connect`);
+}
 return conn;
 } catch (err) {
+connectingPromise = null;
 console.error('❌ MongoDB Connection Error:', err);
 throw err;
 }
@@ -164,6 +164,9 @@ const Goal = mongoose.model('Goal', goalSchema);
 const ensureConnection = async (req, res, next) => {
 try {
 await connectToDatabase();
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB connection not ready in middleware. readyState=${mongoose.connection.readyState}`);
+}
 next();
 } catch (error) {
 console.error('Database connection failed:', error);
@@ -257,7 +260,11 @@ userId: user._id,
 await vault.save();
 }
 
-const { accessToken, refreshToken } = issueAuthTokens(user);
+const token = jwt.sign(
+{ userId: user._id, username: user.username },
+process.env.JWT_SECRET,
+{ expiresIn: AUTH_TOKEN_TTL }
+);
 
 res.status(201).json({
 message: 'User registered successfully',
@@ -294,7 +301,11 @@ if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
-const { accessToken, refreshToken } = issueAuthTokens(user);
+const token = jwt.sign(
+{ userId: user._id, username: user.username },
+process.env.JWT_SECRET,
+{ expiresIn: AUTH_TOKEN_TTL }
+);
 
 res.json({
 message: 'Login successful',
@@ -309,32 +320,6 @@ res.status(500).json({ error: 'Server error during login' });
 }
 });
 
-// Refresh token (allows short-lived access token renewal)
-app.post('/api/auth/refresh', ensureConnection, async (req, res) => {
-try {
-const authHeader = req.headers['authorization'];
-const token = authHeader && authHeader.split(' ')[1];
-if (!token) return res.status(401).json({ error: 'Access token required' });
-
-let decoded;
-try {
-decoded = jwt.verify(token, process.env.JWT_SECRET);
-} catch (e) {
-return res.status(403).json({ error: 'Invalid or expired refresh token' });
-}
-if (decoded.tokenType !== 'refresh') return res.status(403).json({ error: 'Invalid token type' });
-
-const user = await User.findById(decoded.userId).lean();
-if (!user) return res.status(404).json({ error: 'User not found' });
-
-const { accessToken, refreshToken } = issueAuthTokens(user);
-
-res.json({ token: accessToken, refreshToken, user: { id: user._id, username: user.username } });
-} catch (error) {
-console.error('Refresh token error:', error);
-res.status(500).json({ error: 'Server error during token refresh' });
-}
-});
 
 app.post('/api/auth/forgot-password', ensureConnection, async (req, res) => {
 try {
