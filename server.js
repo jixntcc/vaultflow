@@ -283,6 +283,13 @@ res.status(500).json({ error: 'Server error during registration' });
 app.post('/api/auth/login', ensureConnection, async (req, res) => {
 try {
 const { username, password } = req.body;
+console.log('LOGIN DEBUG req.body:', {
+hasBody: !!req.body,
+usernameType: typeof username,
+usernamePreview: typeof username === 'string' ? username.slice(0, 3) + '***' : null,
+hasPassword: !!password,
+passwordType: typeof password
+});
 
 if (!username || !password) {
 return res.status(400).json({ error: 'Username and password required' });
@@ -292,13 +299,25 @@ const identifier = username.trim().toLowerCase();
 const user = await User.findOne({
 $or: [{ username: username.trim() }, { email: identifier }]
 });
+console.log('LOGIN DEBUG user lookup:', {
+identifier,
+found: !!user,
+userId: user?._id?.toString?.(),
+hasPasswordHash: !!user?.password
+});
 if (!user) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
 const validPassword = await bcrypt.compare(password, user.password);
+console.log('LOGIN DEBUG password compare result:', { validPassword });
 if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
+}
+
+if (!process.env.JWT_SECRET) {
+console.error('LOGIN DEBUG missing JWT_SECRET');
+return res.status(500).json({ error: 'Server auth configuration error' });
 }
 
 const token = jwt.sign(
@@ -306,6 +325,11 @@ const token = jwt.sign(
 process.env.JWT_SECRET,
 { expiresIn: AUTH_TOKEN_TTL }
 );
+console.log('LOGIN DEBUG jwt.sign success:', {
+tokenLength: token?.length,
+ttl: AUTH_TOKEN_TTL,
+userId: user._id?.toString?.()
+});
 
 res.json({
 message: 'Login successful',
@@ -315,6 +339,7 @@ user: { id: user._id, username: user.username }
 });
 
 } catch (error) {
+console.error('LOGIN ERROR DETAILS:', error);
 console.error('LOGIN ERROR:', error);
 console.error('Login error:', error);
 res.status(500).json({ error: 'Server error during login' });
