@@ -925,6 +925,86 @@
             gap: 24px;
             margin-bottom: 24px;
         }
+        .reports-filters {
+            position: sticky;
+            top: 10px;
+            z-index: 20;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        .report-filter-toggle {
+            display: none;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .report-filter-groups {
+            display: grid;
+            gap: 10px;
+        }
+        .report-filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .report-filter-row.single {
+            grid-template-columns: 1fr;
+        }
+        .reports-summary-grid .card {
+            padding: 16px;
+            border-radius: 10px;
+        }
+        .reports-summary-grid .card-label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .reports-summary-grid .card-value {
+            font-size: clamp(1.25rem, 5vw, 1.85rem);
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .insight-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface);
+            padding: 12px;
+        }
+        .insight-kicker {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .insight-text {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.45;
+        }
+        .report-chart-card { padding: 16px; }
+        .report-chart-card h3 { margin: 0 0 12px 0; font-size: 16px; }
+        .chart-canvas-wrap { position: relative; min-height: 250px; overflow: hidden; }
+        .chart-canvas-wrap canvas { width: 100% !important; height: 100% !important; }
+        .chart-primary { border: 1px solid #dbeafe; }
+        .chart-secondary { opacity: 0.96; }
+        .sankey-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+        .monthly-breakdown-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         @media (max-width: 480px) {
             .form-row {
@@ -968,6 +1048,13 @@
                 display: grid;
                 gap: 2px;
             }
+            .report-filter-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .reports-filters { padding: 10px; }
+            .reports-summary-grid { gap: 10px; }
+            .chart-canvas-wrap { min-height: 210px; }
         }
 
         /* Mobile UX upgrade (preserves desktop structure) */
@@ -1031,6 +1118,23 @@
 
             .cards-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 18px; }
             .card { padding: 16px; border-radius: 10px; }
+            .reports-filters { top: calc(env(safe-area-inset-top, 0px) + 66px); margin-bottom: 10px; }
+            .report-filter-toggle { display: flex; }
+            .reports-filters.collapsed .report-filter-groups { display: none; }
+            .report-filter-row { gap: 8px; }
+            .report-filter-row .search-box,
+            .report-filter-row .filter-select,
+            .report-filter-row .btn { min-height: 38px; font-size: 14px; }
+            .insights-grid { grid-template-columns: 1fr; gap: 8px; margin-bottom: 14px; }
+            .insight-card { padding: 10px; }
+            .section-title { margin-bottom: 8px; font-size: 15px; }
+            .reports-summary-grid .card { padding: 12px; }
+            .reports-summary-grid .card-label { font-size: 11px; }
+            .reports-summary-grid .card-value { font-size: 1.28rem; }
+            .report-chart-card { padding: 12px; }
+            .report-chart-card h3 { font-size: 15px; margin-bottom: 10px; }
+            .chart-canvas-wrap { min-height: 220px; }
+            .monthly-breakdown-scroll table { min-width: 640px; }
 
             .table-container { border-radius: 10px; }
             .table-header { padding: 14px; gap: 10px; }
@@ -1336,33 +1440,45 @@
         <h1 class="page-title">Financial Reports</h1>
         <p class="page-subtitle">Monthly and annual financial summaries</p>
     </div>
-    <div class="card" style="padding:16px; margin-bottom: 20px;">
-        <div class="table-actions">
-            <select class="filter-select" id="reportPreset">
+    <div class="card reports-filters collapsed" id="reportFiltersCard">
+        <button class="report-filter-toggle" type="button" onclick="toggleReportFilters()">
+            <span>Filters</span>
+            <span id="reportFilterToggleIcon">▾</span>
+        </button>
+        <div class="report-filter-groups">
+            <div class="report-filter-row single">
+                <select class="filter-select" id="reportPreset">
                 <option value="all">All time</option>
                 <option value="week">This week</option>
                 <option value="month" selected>This month</option>
                 <option value="year">This year</option>
                 <option value="custom">Custom range</option>
             </select>
-            <input type="date" class="search-box" id="reportFromDate">
-            <input type="date" class="search-box" id="reportToDate">
-            <select class="filter-select" id="reportLocale">
-                <option value="en-IN">English (India)</option>
-                <option value="en-US">English (US)</option>
-                <option value="en-GB">English (UK)</option>
-            </select>
-            <select class="filter-select" id="reportCurrency">
-                <option value="INR">INR ₹</option>
-                <option value="USD">USD $</option>
-                <option value="EUR">EUR €</option>
-            </select>
-            <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
+            </div>
+            <div class="report-filter-row">
+                <input type="date" class="search-box" id="reportFromDate">
+                <input type="date" class="search-box" id="reportToDate">
+            </div>
+            <div class="report-filter-row">
+                <select class="filter-select" id="reportLocale">
+                    <option value="en-IN">English (India)</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                </select>
+                <select class="filter-select" id="reportCurrency">
+                    <option value="INR">INR ₹</option>
+                    <option value="USD">USD $</option>
+                    <option value="EUR">EUR €</option>
+                </select>
+            </div>
+            <div class="report-filter-row single">
+                <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
+            </div>
         </div>
     </div>
     
     <!-- Summary Cards -->
-    <div class="cards-grid">
+    <div class="cards-grid reports-summary-grid">
         <div class="card">
             <div class="card-label" id="monthIncomeLabel">This Month Income</div>
             <div class="card-value" id="monthIncomeDisplay">₹0</div>
@@ -1381,48 +1497,46 @@
         </div>
     </div>
 
-    <!-- Charts Grid -->
+    <div class="card" style="padding:14px; margin-bottom: 16px;">
+        <h3 class="section-title">✨ Smart Insights</h3>
+        <div id="smartInsights" class="insights-grid"></div>
+    </div>
+
     <div class="reports-grid">
-        <!-- Pie Chart: Income vs Expenses -->
-        <div class="card" style="padding: 20px;">
+        <div class="card report-chart-card chart-primary">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
             <div id="incomeExpensesProgress"></div>
         </div>
-
-        <!-- Bar Chart: Category Breakdown -->
-        <div class="card" style="padding: 20px;">
-            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
-            <canvas id="categoryChart"></canvas>
-        </div>
-    </div>
-
-    <div class="reports-grid">
-        <!-- Bar Chart: Vault Breakdown -->
-        <div class="card" style="padding: 20px;">
-            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
-            <canvas id="vaultChart"></canvas>
-        </div>
-
-        <!-- Line Chart: Monthly Trends -->
-        <div class="card" style="padding: 20px;">
+        <div class="card report-chart-card chart-primary">
             <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📅 Monthly Trends</h3>
-            <canvas id="trendsChart"></canvas>
+            <div class="chart-canvas-wrap"><canvas id="trendsChart"></canvas></div>
         </div>
     </div>
 
     <div class="reports-grid">
-        <div class="card" style="padding: 20px;">
-            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
-            <canvas id="savingsPortfolioChart"></canvas>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="categoryChart"></canvas></div>
         </div>
-        <div class="card" style="padding: 20px;">
-            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
-            <canvas id="incomeCategoryChart"></canvas>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
+            <div class="chart-canvas-wrap"><canvas id="vaultChart"></canvas></div>
         </div>
     </div>
-    <div class="card" style="padding: 20px; margin-bottom: 24px;">
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
+            <div class="chart-canvas-wrap"><canvas id="savingsPortfolioChart"></canvas></div>
+        </div>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="incomeCategoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="card report-chart-card chart-secondary" style="margin-bottom: 24px;">
         <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
-        <div id="incomeFlowChart" style="overflow-x:auto;"></div>
+        <div class="sankey-scroll"><div id="incomeFlowChart"></div></div>
     </div>
 
     <!-- Monthly Breakdown Table -->
@@ -1430,7 +1544,7 @@
         <div class="table-header">
             <h3 class="table-title">Monthly Breakdown</h3>
         </div>
-        <div id="monthlyBreakdown"></div>
+        <div class="monthly-breakdown-scroll"><div id="monthlyBreakdown"></div></div>
     </div>
 </div>
         </main>
@@ -2890,6 +3004,54 @@ function setupReportFilterDefaults() {
 function formatMoney(value) {
     return new Intl.NumberFormat(reportFormat.locale, { style: 'currency', currency: reportFormat.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
 }
+function toggleReportFilters(forceExpand) {
+    const card = document.getElementById('reportFiltersCard');
+    const icon = document.getElementById('reportFilterToggleIcon');
+    if (!card) return;
+    if (forceExpand === true) card.classList.remove('collapsed');
+    else if (forceExpand === false) card.classList.add('collapsed');
+    else card.classList.toggle('collapsed');
+    if (icon) icon.textContent = card.classList.contains('collapsed') ? '▾' : '▴';
+}
+function rankHighestEntry(entries) {
+    return entries.sort((a, b) => b[1] - a[1])[0];
+}
+function generateSmartInsights(data, txns) {
+    const insights = [];
+    const topCategory = rankHighestEntry(Object.entries(data.byCategory || {}));
+    if (topCategory) insights.push({ kicker: 'Top spend', text: `${topCategory[0]} led your spending at ${formatMoney(topCategory[1])}.` });
+    const expenseByDay = {};
+    txns.filter(t => t.type === 'expense').forEach(t => {
+        expenseByDay[t.date] = (expenseByDay[t.date] || 0) + Number(t.amount || 0);
+    });
+    const busiestDay = rankHighestEntry(Object.entries(expenseByDay));
+    if (busiestDay) insights.push({ kicker: 'Biggest expense day', text: `Your peak spend day was ${busiestDay[0]} at ${formatMoney(busiestDay[1])}.` });
+    const income = Number(data?.incomeVsExpenses?.income || 0);
+    const expenses = Number(data?.incomeVsExpenses?.expenses || 0);
+    const savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
+    insights.push({ kicker: 'Savings rate', text: `You saved ${savingsRate.toFixed(1)}% of your income in this period.` });
+    const monthly = data.monthly || [];
+    if (monthly.length >= 2) {
+        const last = monthly[monthly.length - 1], prev = monthly[monthly.length - 2];
+        const change = prev.expenses > 0 ? ((last.expenses - prev.expenses) / prev.expenses) * 100 : 0;
+        insights.push({ kicker: 'Expense momentum', text: `Spending ${change >= 0 ? 'increased' : 'decreased'} ${Math.abs(change).toFixed(1)}% vs previous month.` });
+        const trend = last.income - last.expenses;
+        insights.push({ kicker: 'Income vs expense', text: `${trend >= 0 ? 'Positive' : 'Negative'} cashflow trend (${formatMoney(trend)} net in latest month).` });
+    }
+    const topVault = rankHighestEntry(Object.entries(data.byVault || {}));
+    if (topVault) insights.push({ kicker: 'Top wallet usage', text: `${topVault[0]} handled the most expenses: ${formatMoney(topVault[1])}.` });
+    const activity = {};
+    txns.forEach(t => { const k = t.category || 'Uncategorized'; activity[k] = (activity[k] || 0) + 1; });
+    const mostActive = rankHighestEntry(Object.entries(activity));
+    if (mostActive) insights.push({ kicker: 'Most active category', text: `${mostActive[0]} had the highest activity with ${mostActive[1]} transactions.` });
+    return insights.slice(0, 7);
+}
+function renderSmartInsights(data, txns) {
+    const container = document.getElementById('smartInsights');
+    if (!container) return;
+    const insights = generateSmartInsights(data, txns);
+    container.innerHTML = insights.map(i => `<article class="insight-card"><div class="insight-kicker">${i.kicker}</div><div class="insight-text">${i.text}</div></article>`).join('');
+}
 
 async function loadFxRates(base = 'INR') {
     try {
@@ -2940,7 +3102,10 @@ async function applyReportFilters() {
         return true;
     });
 
-    renderCharts(buildAnalyticsFromTransactions(filtered));
+    const analytics = buildAnalyticsFromTransactions(filtered);
+    renderSmartInsights(analytics, filtered);
+    renderCharts(analytics);
+    if (window.innerWidth <= 768) toggleReportFilters(false);
 }
 
 function buildAnalyticsFromTransactions(txns) {
@@ -3054,7 +3219,7 @@ async function renderCharts(data) {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                    return formatMoney(context.parsed.x);
                                 }
                             }
                         }
@@ -3092,7 +3257,7 @@ async function renderCharts(data) {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                    return formatMoney(context.parsed.x);
                                 }
                             }
                         }
@@ -3149,7 +3314,7 @@ async function renderCharts(data) {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': ₹' + context.parsed.y.toLocaleString('en-IN');
+                                    return context.dataset.label + ': ' + formatMoney(context.parsed.y);
                                 }
                             }
                         }
@@ -3190,7 +3355,7 @@ async function renderCharts(data) {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return '₹' + context.parsed.y.toLocaleString('en-IN');
+                                    return formatMoney(context.parsed.y);
                                 }
                             }
                         }
@@ -3229,7 +3394,7 @@ async function renderCharts(data) {
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return '₹' + context.parsed.x.toLocaleString('en-IN');
+                                    return formatMoney(context.parsed.x);
                                 }
                             }
                         }
