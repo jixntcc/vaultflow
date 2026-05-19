@@ -378,9 +378,7 @@
             width: 56px;
             height: 56px;
             border-radius: 50%;
-            background: var(--primary);.modal-body {
-    padding: 24px;
-}
+            background: var(--primary);
             color: white;
             border: none;
             font-size: 24px;
@@ -971,6 +969,109 @@
                 gap: 2px;
             }
         }
+
+        /* Mobile UX upgrade (preserves desktop structure) */
+        .mobile-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.45);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 999;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #incomeFlowChart {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #incomeFlowChart svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content { padding: 24px 18px; }
+            .reports-grid { grid-template-columns: 1fr; gap: 16px; }
+            .card-value { font-size: clamp(1.5rem, 5vw, 2rem); }
+            .btn { min-height: 42px; }
+        }
+
+        @media (max-width: 768px) {
+            body.mobile-nav-open { overflow: hidden; }
+
+            .app-container { min-height: 100dvh; }
+
+            .mobile-overlay.active { opacity: 1; pointer-events: auto; }
+
+            .sidebar {
+                width: min(86vw, 320px);
+                padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+                box-shadow: 0 16px 40px rgba(17, 24, 39, 0.28);
+            }
+
+            .sidebar.mobile-visible { transform: translateX(0); }
+
+            .main-content {
+                margin-left: 0;
+                padding: calc(env(safe-area-inset-top, 0px) + 78px) 14px calc(env(safe-area-inset-bottom, 0px) + 88px);
+            }
+
+            .page-header { padding-left: 0; margin-bottom: 16px; }
+            .page-title { font-size: clamp(1.35rem, 6vw, 1.8rem); line-height: 1.2; }
+            .page-subtitle { font-size: 14px; }
+
+            .cards-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 18px; }
+            .card { padding: 16px; border-radius: 10px; }
+
+            .table-container { border-radius: 10px; }
+            .table-header { padding: 14px; gap: 10px; }
+            .table-actions { width: 100%; }
+            .search-box, .filter-select { width: 100%; min-width: 0; }
+
+            table { min-width: 680px; }
+
+            .modal { align-items: flex-end; padding: 10px; }
+            .modal-content {
+                max-height: min(92dvh, 760px);
+                border-radius: 14px 14px 0 0;
+            }
+            .modal-header, .modal-body, .modal-footer { padding-left: 16px; padding-right: 16px; }
+            .modal-footer {
+                flex-wrap: wrap;
+                justify-content: stretch;
+                padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+            }
+            .modal-footer .btn { flex: 1; justify-content: center; min-width: 120px; }
+
+            .form-group { margin-bottom: 14px; }
+            .form-input, .filter-select, .search-box { min-height: 42px; font-size: 16px; }
+            textarea.form-input { min-height: 100px; }
+
+            .fab {
+                width: 56px;
+                height: 56px;
+                right: 14px;
+                bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding-left: 12px; padding-right: 12px; }
+            .btn { width: 100%; justify-content: center; }
+            .action-btn { padding: 8px 10px; }
+            .goal-header { flex-direction: column; gap: 8px; }
+            .wallet-card, .vault-card, .goal-card { padding: 16px; }
+        }
+
     </style>
 </head>
 <body>
@@ -1022,10 +1123,11 @@
     <!-- Main App Container -->
     <div id="appContainer" class="app-container hidden">
         <!-- Mobile Menu Button -->
-        <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
 
         <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" aria-hidden="true">
             <div class="logo">💰 VaultFlow</div>
             
             <nav>
@@ -1671,7 +1773,14 @@
                 });
             });
 
-            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => toggleMobileMenu());
+            document.getElementById('mobileOverlay').addEventListener('click', closeMobileMenu);
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) closeMobileMenu();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMobileMenu();
+            });
 
             // Transaction form
             document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
@@ -2022,7 +2131,7 @@
             renderCurrentPage();
             
             if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.remove('mobile-visible');
+                closeMobileMenu();
             }
         }
 
@@ -2692,8 +2801,21 @@
             }, 3000);
         }
 
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-visible');
+        function toggleMobileMenu(forceOpen = null) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const shouldOpen = forceOpen === null ? !sidebar.classList.contains('mobile-visible') : forceOpen;
+
+            sidebar.classList.toggle('mobile-visible', shouldOpen);
+            overlay.classList.toggle('active', shouldOpen);
+            document.body.classList.toggle('mobile-nav-open', shouldOpen);
+            sidebar.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+            menuBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        }
+
+        function closeMobileMenu() {
+            toggleMobileMenu(false);
         }
     </script>
 
