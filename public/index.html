@@ -763,6 +763,40 @@
             color: var(--text-secondary);
             margin-bottom: 24px;
         }
+        .empty-cta-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+        .guided-pulse { animation: guidedPulse 1.8s ease-in-out infinite; box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
+        @keyframes guidedPulse {
+            0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
+            70% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+        .onboarding-overlay {
+            position: fixed; inset: 0; background: rgba(17,24,39,0.55); backdrop-filter: blur(4px);
+            z-index: 5000; display: none; padding: 16px; align-items: center; justify-content: center;
+        }
+        .onboarding-overlay.active { display:flex; }
+        .onboarding-card {
+            width: min(620px, 100%); background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-lg);
+            padding: 20px; max-height: min(92dvh, 760px); overflow-y: auto;
+        }
+        .onboarding-progress { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; font-weight: 600; }
+        .onboarding-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .onboarding-subtitle { color: var(--text-secondary); margin-bottom: 16px; }
+        .onboarding-grid { display:grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+        .onboarding-actions { display:flex; gap:10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+        .onboarding-metrics { display:grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 12px; }
+        .onboarding-metric { background: var(--bg); border-radius: 10px; padding: 10px; text-align:center; }
+        @media (max-width: 768px) {
+            .onboarding-overlay { padding: 0; align-items: flex-end; }
+            .onboarding-card {
+                width: 100%; border-radius: 20px 20px 0 0; min-height: 86dvh;
+                padding: 18px 14px calc(env(safe-area-inset-bottom,0px) + 14px);
+            }
+            .onboarding-grid { grid-template-columns: 1fr; }
+            .onboarding-title { font-size: 20px; }
+            .onboarding-actions .btn { flex: 1; justify-content: center; }
+            .onboarding-metrics { grid-template-columns: 1fr; }
+        }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -1553,6 +1587,13 @@
         <button class="fab" onclick="showTransactionModal()">+</button>
     </div>
 
+    <div id="onboardingOverlay" class="onboarding-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
+            <div id="onboardingContent"></div>
+        </div>
+    </div>
+
     <!-- Transaction Modal -->
     <div id="transactionModal" class="modal">
         <div class="modal-content">
@@ -1768,6 +1809,8 @@
         let currentUser = null;
         let isDemoMode = false;
         let isRefreshingToken = false;
+        let onboardingState = { step: 1, wallet: 'Main Wallet', income: 0, expense: 0, goal: 0 };
+        const ONBOARDING_KEY = 'vf_onboarding_completed';
         
         // Wallets (NEW)
         let wallets = {
@@ -2080,8 +2123,26 @@
             isDemoMode = true;
             currentUser = 'Demo User';
             authToken = 'demo-token';
+            localStorage.setItem(ONBOARDING_KEY, 'completed');
+            seedDemoShowcaseData();
             showToast('Demo mode activated!', 'success');
             showApp();
+        }
+
+        function seedDemoShowcaseData() {
+            const today = new Date();
+            const iso = (d) => d.toISOString().slice(0, 10);
+            const d1 = new Date(today.getFullYear(), today.getMonth(), 2);
+            const d2 = new Date(today.getFullYear(), today.getMonth(), 6);
+            const d3 = new Date(today.getFullYear(), today.getMonth(), 11);
+            const d4 = new Date(today.getFullYear(), today.getMonth(), 16);
+            demoData.transactions = [
+                { _id: 'dx1', date: iso(d1), time: '09:15', type: 'income', amount: 85000, category: 'Salary', wallet: 'HR', paymentMethod: 'online', vaultId: '1', vaultName: '👑 Sovereign Capital Vault' },
+                { _id: 'dx2', date: iso(d2), time: '13:20', type: 'expense', amount: 7200, category: 'Food', wallet: 'HR', paymentMethod: 'online', vaultId: '4', vaultName: '🔒 Core Survival Vault' },
+                { _id: 'dx3', date: iso(d3), time: '11:00', type: 'income', amount: 18000, category: 'Freelance', wallet: 'HL', paymentMethod: 'online', vaultId: '2', vaultName: '🧪 Risk Lab Wallet' },
+                { _id: 'dx4', date: iso(d4), time: '18:40', type: 'expense', amount: 5400, category: 'Transport', wallet: 'HL', paymentMethod: 'online', vaultId: '4', vaultName: '🔒 Core Survival Vault' }
+            ];
+            demoData.goals = [{ _id: 'dg1', name: 'Emergency Fund', targetAmount: 200000, currentAmount: 85000, notes: 'Build 6 month runway' }];
         }
 
         function logout(message = 'Logged out successfully', type = 'success') {
@@ -2182,10 +2243,76 @@
                 calculateWalletBalances();
                 renderDashboard();
                 renderCurrentPage();
+                maybeStartOnboarding();
             } catch (error) {
                 console.error('Error loading data:', error);
             }
         }
+
+        function isFirstTimeUser() {
+            const completed = localStorage.getItem(ONBOARDING_KEY) === 'completed';
+            const hasData = (transactions?.length || 0) > 0 || (vaults?.length || 0) > 0 || (goals?.length || 0) > 0;
+            return !isDemoMode && !completed && !hasData;
+        }
+
+        function maybeStartOnboarding() {
+            if (!isFirstTimeUser()) return applyGuidedHighlights();
+            onboardingState = { step: 1, wallet: 'Main Wallet', income: 0, expense: 0, goal: 0 };
+            document.getElementById('onboardingOverlay')?.classList.add('active');
+            renderOnboardingStep();
+        }
+
+        function finishOnboarding() {
+            localStorage.setItem(ONBOARDING_KEY, 'completed');
+            document.getElementById('onboardingOverlay')?.classList.remove('active');
+            applyGuidedHighlights();
+            showToast('Setup complete. Your dashboard is ready!', 'success');
+        }
+
+        function applyGuidedHighlights() {
+            document.querySelectorAll('.guided-pulse').forEach(el => el.classList.remove('guided-pulse'));
+            if ((transactions?.length || 0) === 0) document.querySelector('.fab')?.classList.add('guided-pulse');
+            if ((vaults?.length || 0) === 0) document.querySelector('[data-page="vaults"]')?.classList.add('guided-pulse');
+            document.querySelector('[data-page="reports"]')?.classList.add('guided-pulse');
+            setTimeout(() => document.querySelector('[data-page="reports"]')?.classList.remove('guided-pulse'), 10000);
+        }
+
+        function nextOnboardingStep() { onboardingState.step = Math.min(6, onboardingState.step + 1); renderOnboardingStep(); }
+        function prevOnboardingStep() { onboardingState.step = Math.max(1, onboardingState.step - 1); renderOnboardingStep(); }
+
+        function renderOnboardingStep() {
+            const content = document.getElementById('onboardingContent');
+            const progress = document.getElementById('onboardingProgress');
+            if (!content || !progress) return;
+            progress.textContent = `Step ${onboardingState.step} of 6`;
+            if (onboardingState.step === 1) content.innerHTML = `<h2 class="onboarding-title">Welcome to VaultFlow 👋</h2><p class="onboarding-subtitle">Let's set up your money system fast—so your first dashboard feels clear, not empty.</p><div class="onboarding-actions"><button class="btn btn-primary" onclick="nextOnboardingStep()">Let’s set up your finances</button></div>`;
+            if (onboardingState.step === 2) content.innerHTML = `<h2 class="onboarding-title">Create your first wallet</h2><p class="onboarding-subtitle">Name your primary wallet and optionally add a starting balance.</p><div class="onboarding-grid"><input id="obWalletName" class="form-input" placeholder="Wallet name" value="${onboardingState.wallet}"><input id="obWalletBalance" class="form-input" type="number" min="0" step="0.01" placeholder="Starting balance (optional)"></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingWallet()">Continue</button></div>`;
+            if (onboardingState.step === 3) content.innerHTML = `<h2 class="onboarding-title">Add first income 💰</h2><p class="onboarding-subtitle">Quick win: add one income transaction.</p><div class="onboarding-grid"><input id="obIncomeAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Income amount"><select id="obIncomeCategory" class="form-input"><option>Salary</option><option>Freelance</option><option>Business</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingIncome()">Continue</button></div>`;
+            if (onboardingState.step === 4) content.innerHTML = `<h2 class="onboarding-title">Add first expense 🧾</h2><p class="onboarding-subtitle">Now log one expense so your insights activate.</p><div class="onboarding-grid"><input id="obExpenseAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Expense amount"><select id="obExpenseCategory" class="form-input"><option>Food</option><option>Transport</option><option>Bills</option><option>Shopping</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingExpense()">Continue</button></div>`;
+            if (onboardingState.step === 5) content.innerHTML = `<h2 class="onboarding-title">Create first savings goal 🎯</h2><p class="onboarding-subtitle">Optional but recommended for momentum.</p><div class="onboarding-grid"><input id="obGoalName" class="form-input" placeholder="Goal name"><input id="obGoalAmount" class="form-input" type="number" min="0" step="0.01" placeholder="Target amount"></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="skipOnboardingGoal()">Skip</button><button class="btn btn-primary" onclick="saveOnboardingGoal()">Save Goal</button></div>`;
+            if (onboardingState.step === 6) content.innerHTML = `<h2 class="onboarding-title">You’re all set ✅</h2><p class="onboarding-subtitle">Amazing start. You already built a healthy money baseline.</p><div class="onboarding-metrics"><div class="onboarding-metric"><div class="card-label">Wallet</div><div style="font-weight:700">${onboardingState.wallet}</div></div><div class="onboarding-metric"><div class="card-label">Income</div><div style="font-weight:700">₹${onboardingState.income.toLocaleString('en-IN')}</div></div><div class="onboarding-metric"><div class="card-label">Expense</div><div style="font-weight:700">₹${onboardingState.expense.toLocaleString('en-IN')}</div></div></div><div class="onboarding-actions"><button class="btn btn-primary" onclick="finishOnboarding()">View My Dashboard</button></div>`;
+        }
+
+        async function saveOnboardingWallet() { onboardingState.wallet = document.getElementById('obWalletName')?.value?.trim() || 'Main Wallet'; nextOnboardingStep(); }
+        async function saveOnboardingIncome() {
+            const amount = Number(document.getElementById('obIncomeAmount')?.value || 0); if (amount <= 0) return showToast('Enter income amount.', 'warning');
+            const category = document.getElementById('obIncomeCategory')?.value || 'Salary'; const vaultId = vaults[0]?._id || '';
+            await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '09:00', type: 'income', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding income' });
+            onboardingState.income += amount; await loadAllData(); onboardingState.step = 4; renderOnboardingStep();
+        }
+        async function saveOnboardingExpense() {
+            const amount = Number(document.getElementById('obExpenseAmount')?.value || 0); if (amount <= 0) return showToast('Enter expense amount.', 'warning');
+            const category = document.getElementById('obExpenseCategory')?.value || 'Food'; const vaultId = vaults[0]?._id || '';
+            await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '19:00', type: 'expense', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding expense' });
+            onboardingState.expense += amount; await loadAllData(); onboardingState.step = 5; renderOnboardingStep();
+        }
+        async function saveOnboardingGoal() {
+            const name = document.getElementById('obGoalName')?.value?.trim(); const targetAmount = Number(document.getElementById('obGoalAmount')?.value || 0);
+            if (!name || targetAmount <= 0) return skipOnboardingGoal();
+            await apiCall('/api/goals', 'POST', { name, targetAmount, currentAmount: 0, notes: 'Onboarding goal' });
+            onboardingState.goal = targetAmount; await loadAllData(); onboardingState.step = 6; renderOnboardingStep();
+        }
+        function skipOnboardingGoal() { onboardingState.step = 6; renderOnboardingStep(); }
 
         let vaults = [];
         let transactions = [];
@@ -2306,10 +2433,13 @@
             if (data.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">💳</div>
-                        <h3 class="empty-title">No transactions yet</h3>
-                        <p class="empty-text">Start tracking your income and expenses</p>
-                        <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                        <div class="empty-icon">🚀</div>
+                        <h3 class="empty-title">Your money story starts here</h3>
+                        <p class="empty-text">Start tracking your money in under 30 seconds and unlock live insights.</p>
+                        <div class="empty-cta-row">
+                            <button class="btn btn-primary guided-pulse" onclick="showTransactionModal()">+ Add Transaction</button>
+                            <button class="btn btn-secondary" onclick="switchPage('reports')">See Demo-style Reports</button>
+                        </div>
                     </div>
                 `;
                 return;
@@ -2548,8 +2678,11 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">🎯</div>
-                        <h3 class="empty-title">No goals yet</h3>
-                        <p class="empty-text">Set financial goals to track your progress</p>
+                        <h3 class="empty-title">Set your first money target</h3>
+                        <p class="empty-text">Goals create momentum and help build your savings habit.</p>
+                        <div class="empty-cta-row">
+                            <button class="btn btn-primary" onclick="showGoalModal()">+ Add Goal</button>
+                        </div>
                     </div>
                 `;
                 return;
