@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VaultFlow - Personal Finance Manager</title>
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="VaultFlow">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <style>
         /* Your original theme colors and design */
@@ -33,7 +40,9 @@
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            overscroll-behavior-y: contain;
         }
+        html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
 
         .app-container {
             display: flex;
@@ -775,6 +784,21 @@
             z-index: 5000; display: none; padding: 16px; align-items: center; justify-content: center;
         }
         .onboarding-overlay.active { display:flex; }
+        .pwa-install-banner {
+            position: fixed; left: 12px; right: 12px; bottom: calc(env(safe-area-inset-bottom,0px) + 14px);
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg);
+            z-index: 4500; padding: 12px; display: none;
+        }
+        .pwa-install-banner.active { display: block; }
+        .pwa-banner-row { display:flex; justify-content: space-between; gap: 10px; align-items: center; }
+        .pwa-banner-title { font-size: 14px; font-weight: 700; }
+        .pwa-banner-text { font-size: 12px; color: var(--text-secondary); }
+        .offline-banner {
+            position: fixed; top: calc(env(safe-area-inset-top,0px) + 8px); right: 12px; left: 12px;
+            background: #111827; color: #fff; padding: 9px 12px; border-radius: 10px;
+            z-index: 4600; font-size: 13px; display: none; text-align:center;
+        }
+        .offline-banner.active { display:block; }
         .onboarding-card {
             width: min(620px, 100%); background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-lg);
             padding: 20px; max-height: min(92dvh, 760px); overflow-y: auto;
@@ -1587,6 +1611,19 @@
         <button class="fab" onclick="showTransactionModal()">+</button>
     </div>
 
+    <div id="offlineBanner" class="offline-banner">You’re offline. VaultFlow shell is available, but live data updates are paused.</div>
+    <div id="pwaInstallBanner" class="pwa-install-banner">
+        <div class="pwa-banner-row">
+            <div>
+                <div class="pwa-banner-title">Install VaultFlow</div>
+                <div class="pwa-banner-text">Use VaultFlow like a native finance app.</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="dismissInstallBtn" style="padding:8px 10px;">Later</button>
+                <button class="btn btn-primary" id="installAppBtn" style="padding:8px 10px;">Install</button>
+            </div>
+        </div>
+    </div>
     <div id="onboardingOverlay" class="onboarding-overlay">
         <div class="onboarding-card">
             <div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
@@ -1811,6 +1848,8 @@
         let isRefreshingToken = false;
         let onboardingState = { step: 1, wallet: 'Main Wallet', income: 0, expense: 0, goal: 0 };
         const ONBOARDING_KEY = 'vf_onboarding_completed';
+        let deferredInstallPrompt = null;
+        const INSTALL_DISMISS_KEY = 'vf_install_dismissed_at';
         
         // Wallets (NEW)
         let wallets = {
@@ -1841,6 +1880,9 @@
             setupEventListeners();
             setDefaultDateTime();
             handleResetTokenFromUrl();
+            registerServiceWorker();
+            setupPWAInstallFlow();
+            setupOfflineStatusBanner();
         });
 
         function checkAuth() {
@@ -1961,6 +2003,57 @@
                     }
                 });
             });
+            document.getElementById('installAppBtn')?.addEventListener('click', triggerInstallPrompt);
+            document.getElementById('dismissInstallBtn')?.addEventListener('click', dismissInstallBanner);
+        }
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch((e) => console.error('SW registration failed:', e));
+            });
+        }
+        function isStandaloneAppMode() {
+            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        }
+        function setupPWAInstallFlow() {
+            window.addEventListener('beforeinstallprompt', (event) => {
+                event.preventDefault();
+                deferredInstallPrompt = event;
+                maybeShowInstallBanner();
+            });
+            window.addEventListener('appinstalled', () => {
+                deferredInstallPrompt = null;
+                document.getElementById('pwaInstallBanner')?.classList.remove('active');
+            });
+            setTimeout(maybeShowInstallBanner, 1500);
+        }
+        function maybeShowInstallBanner() {
+            if (isStandaloneAppMode()) return;
+            const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISS_KEY) || 0);
+            const dayMs = 24 * 60 * 60 * 1000;
+            if (Date.now() - dismissedAt < dayMs) return;
+            if (!deferredInstallPrompt) return;
+            document.getElementById('pwaInstallBanner')?.classList.add('active');
+        }
+        async function triggerInstallPrompt() {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            if (choice?.outcome !== 'accepted') localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+            deferredInstallPrompt = null;
+            document.getElementById('pwaInstallBanner')?.classList.remove('active');
+        }
+        function dismissInstallBanner() {
+            localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+            document.getElementById('pwaInstallBanner')?.classList.remove('active');
+        }
+        function setupOfflineStatusBanner() {
+            const banner = document.getElementById('offlineBanner');
+            if (!banner) return;
+            const sync = () => banner.classList.toggle('active', !navigator.onLine);
+            window.addEventListener('online', sync);
+            window.addEventListener('offline', sync);
+            sync();
         }
 
         // API Functions
