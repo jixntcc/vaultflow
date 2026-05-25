@@ -799,6 +799,13 @@
             z-index: 4600; font-size: 13px; display: none; text-align:center;
         }
         .offline-banner.active { display:block; }
+        .notif-card { border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; background: var(--surface); }
+        .notif-row { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:8px 0; }
+        .notif-help { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+        .notif-switch { width: 44px; height: 24px; appearance: none; background: #d1d5db; border-radius:999px; position:relative; cursor:pointer; }
+        .notif-switch:checked { background: var(--primary); }
+        .notif-switch::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; background:white; border-radius:50%; transition:left .2s; }
+        .notif-switch:checked::after { left:23px; }
         .onboarding-card {
             width: min(620px, 100%); background: var(--surface); border-radius: 18px; box-shadow: var(--shadow-lg);
             padding: 20px; max-height: min(92dvh, 760px); overflow-y: auto;
@@ -1333,6 +1340,14 @@
                     <h1 class="page-title">Dashboard</h1>
                     <p class="page-subtitle">Welcome back! Here's your financial overview.</p>
                 </div>
+                <div class="notif-card">
+                    <div style="font-weight:700; margin-bottom:4px;">🔔 Smart Reminders</div>
+                    <div class="notif-help">Helpful nudges only. No spam. You can change this anytime.</div>
+                    <button class="btn btn-secondary" id="notifEnableBtn" style="margin-bottom:8px;">Enable Notifications</button>
+                    <div class="notif-row"><span>Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
+                    <div class="notif-row"><span>Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
+                    <div class="notif-row"><span>Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
+                </div>
 
                 <div class="cards-grid">
                     <div class="card">
@@ -1850,6 +1865,8 @@
         const ONBOARDING_KEY = 'vf_onboarding_completed';
         let deferredInstallPrompt = null;
         const INSTALL_DISMISS_KEY = 'vf_install_dismissed_at';
+        const NOTIF_PREFS_KEY = 'vf_notification_prefs_v1';
+        let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, lastDailyAt: 0, lastWeeklyAt: 0 };
         
         // Wallets (NEW)
         let wallets = {
@@ -1883,6 +1900,7 @@
             registerServiceWorker();
             setupPWAInstallFlow();
             setupOfflineStatusBanner();
+            initNotificationPrefs();
         });
 
         function checkAuth() {
@@ -2005,11 +2023,90 @@
             });
             document.getElementById('installAppBtn')?.addEventListener('click', triggerInstallPrompt);
             document.getElementById('dismissInstallBtn')?.addEventListener('click', dismissInstallBanner);
+            document.getElementById('notifEnableBtn')?.addEventListener('click', promptNotificationPermissionFlow);
+            ['notifDaily','notifWeekly','notifSavings'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', syncNotificationPrefToggles);
+            });
+        }
+        function initNotificationPrefs() {
+            try {
+                notificationPrefs = { ...notificationPrefs, ...(JSON.parse(localStorage.getItem(NOTIF_PREFS_KEY) || '{}')) };
+            } catch (_) {}
+            renderNotificationPrefsUI();
+        }
+        function persistNotificationPrefs() { localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(notificationPrefs)); }
+        function renderNotificationPrefsUI() {
+            const permission = Notification?.permission || 'default';
+            const btn = document.getElementById('notifEnableBtn');
+            if (btn) btn.textContent = permission === 'granted' ? 'Notifications Enabled' : 'Enable Notifications';
+            const daily = document.getElementById('notifDaily');
+            const weekly = document.getElementById('notifWeekly');
+            const savings = document.getElementById('notifSavings');
+            if (daily) daily.checked = !!notificationPrefs.dailyReminder;
+            if (weekly) weekly.checked = !!notificationPrefs.weeklySummary;
+            if (savings) savings.checked = !!notificationPrefs.savingsInsights;
+        }
+        function syncNotificationPrefToggles() {
+            notificationPrefs.dailyReminder = !!document.getElementById('notifDaily')?.checked;
+            notificationPrefs.weeklySummary = !!document.getElementById('notifWeekly')?.checked;
+            notificationPrefs.savingsInsights = !!document.getElementById('notifSavings')?.checked;
+            persistNotificationPrefs();
+            maybeScheduleSmartLocalNotifications();
+        }
+        async function promptNotificationPermissionFlow() {
+            if (!('Notification' in window)) return showToast('Notifications are not supported on this browser.', 'warning');
+            const allow = confirm('Would you like helpful finance reminders from VaultFlow?');
+            if (!allow) return;
+            const result = await Notification.requestPermission();
+            notificationPrefs.enabled = result === 'granted';
+            persistNotificationPrefs();
+            renderNotificationPrefsUI();
+            if (result === 'granted') {
+                showToast('Finance reminders enabled.', 'success');
+                maybeScheduleSmartLocalNotifications(true);
+            } else {
+                showToast('Notification permission not granted.', 'warning');
+            }
+        }
+        async function sendLocalFinanceNotification(title, body, data = {}) {
+            if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return;
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) return;
+            if (reg.active) reg.active.postMessage({ type: 'VF_LOCAL_NOTIFY', payload: { title, body, data } });
+        }
+        function maybeScheduleSmartLocalNotifications(forceNow = false) {
+            if (Notification.permission !== 'granted' || !notificationPrefs.enabled) return;
+            const now = Date.now();
+            const dayMs = 24 * 60 * 60 * 1000;
+            const weekMs = 7 * dayMs;
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount || 0), 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount || 0), 0);
+            const savings = Math.max(0, totalIncome - totalExpense);
+            const byCategory = {};
+            transactions.filter(t => t.type === 'expense').forEach(t => { byCategory[t.category || 'Other'] = (byCategory[t.category || 'Other'] || 0) + Number(t.amount || 0); });
+            const topCategory = Object.entries(byCategory).sort((a,b)=>b[1]-a[1])[0];
+            if ((forceNow || now - (notificationPrefs.lastDailyAt || 0) > dayMs) && notificationPrefs.dailyReminder) {
+                sendLocalFinanceNotification('Track today in VaultFlow', 'A quick expense update now keeps your weekly insights accurate.', { page: 'transactions' });
+                notificationPrefs.lastDailyAt = now;
+            }
+            if ((forceNow || now - (notificationPrefs.lastWeeklyAt || 0) > weekMs) && notificationPrefs.weeklySummary) {
+                const summary = topCategory ? `Top expense: ${topCategory[0]}. Savings so far: ₹${savings.toLocaleString('en-IN')}.` : `Savings so far: ₹${savings.toLocaleString('en-IN')}.`;
+                sendLocalFinanceNotification('Your weekly money snapshot', summary, { page: 'reports' });
+                notificationPrefs.lastWeeklyAt = now;
+            }
+            if (notificationPrefs.savingsInsights && savings > 0 && totalIncome > 0) {
+                const rate = ((savings / totalIncome) * 100).toFixed(1);
+                if (forceNow) sendLocalFinanceNotification('Nice progress this period', `You are saving ${rate}% of your income. Keep the streak going.`, { page: 'dashboard' });
+            }
+            persistNotificationPrefs();
         }
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch((e) => console.error('SW registration failed:', e));
+            });
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data?.type === 'VF_NAVIGATE' && event.data?.page) switchPage(event.data.page);
             });
         }
         function isStandaloneAppMode() {
@@ -2337,6 +2434,7 @@
                 renderDashboard();
                 renderCurrentPage();
                 maybeStartOnboarding();
+                maybeScheduleSmartLocalNotifications();
             } catch (error) {
                 console.error('Error loading data:', error);
             }
@@ -2360,6 +2458,7 @@
             document.getElementById('onboardingOverlay')?.classList.remove('active');
             applyGuidedHighlights();
             showToast('Setup complete. Your dashboard is ready!', 'success');
+            setTimeout(() => promptNotificationPermissionFlow(), 900);
         }
 
         function applyGuidedHighlights() {

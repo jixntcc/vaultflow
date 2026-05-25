@@ -60,3 +60,52 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+self.addEventListener('message', (event) => {
+  const msg = event.data || {};
+  if (msg.type !== 'VF_LOCAL_NOTIFY') return;
+  const payload = msg.payload || {};
+  self.registration.showNotification(payload.title || 'VaultFlow', {
+    body: payload.body || 'You have a new finance reminder.',
+    icon: '/icons/icon-192.svg',
+    badge: '/icons/icon-192.svg',
+    data: payload.data || { page: 'dashboard' },
+    tag: 'vf-local-reminder',
+    renotify: false,
+    actions: [
+      { action: 'open', title: 'Open VaultFlow' },
+      { action: 'dismiss', title: 'Dismiss' }
+    ]
+  });
+});
+
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try { payload = event.data ? event.data.json() : {}; } catch (_) {}
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'VaultFlow', {
+      body: payload.body || 'Your finance update is ready.',
+      icon: '/icons/icon-192.svg',
+      badge: '/icons/icon-192.svg',
+      data: payload.data || { page: 'dashboard' }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  if (event.action === 'dismiss') return;
+  const page = event.notification?.data?.page || 'dashboard';
+  const targetUrl = `/${page === 'dashboard' ? '' : `#${page}`}`;
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.postMessage({ type: 'VF_NAVIGATE', page });
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
