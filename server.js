@@ -268,7 +268,9 @@ res.status(201).json({
   token,
   user: {
     id: user._id,
-    username: user.username
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt
   }
 });
 
@@ -335,7 +337,9 @@ res.json({
   token,
   user: {
     id: user._id,
-    username: user.username
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt
   }
 });
 
