@@ -35,6 +35,16 @@
             --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
         }
 
+        :root[data-theme="dark"] {
+            --bg: #0f172a;
+            --surface: #111827;
+            --text: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --shadow: 0 1px 3px rgba(0,0,0,0.35);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.35);
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
@@ -918,6 +928,63 @@
             display: none !important;
         }
 
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .settings-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .settings-section h3 {
+            font-size: 18px;
+            margin-bottom: 2px;
+            color: var(--text);
+        }
+
+        .settings-help {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .settings-row:first-of-type { border-top: none; }
+
+        .settings-label {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .settings-value {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .settings-row .filter-select,
+        .settings-row .btn {
+            min-width: 170px;
+        }
+
+        .placeholder-note {
+            color: var(--text-secondary);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -1231,6 +1298,12 @@
                 right: 14px;
                 bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
             }
+
+            .settings-grid { grid-template-columns: 1fr; gap: 12px; }
+            .settings-row { align-items: flex-start; flex-direction: column; }
+            .settings-row .filter-select,
+            .settings-row .btn { width: 100%; min-width: 0; }
+            .settings-value { text-align: left; }
         }
 
         @media (max-width: 480px) {
@@ -1249,7 +1322,7 @@
         <div class="auth-box">
             <div class="auth-logo">💰 VaultFlow</div>
             <div class="auth-subtitle">Your Personal Finance Vault Manager</div>
-            
+
             <div class="auth-tabs">
                 <div class="auth-tab active" data-tab="login">Login</div>
                 <div class="auth-tab" data-tab="signup">Sign Up</div>
@@ -1298,7 +1371,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar" aria-hidden="true">
             <div class="logo">💰 VaultFlow</div>
-            
+
             <nav>
                 <div class="nav-item active" data-page="dashboard">
                     <span>📊</span>
@@ -1324,6 +1397,10 @@
                     <span>📈</span>
                     <span>Reports</span>
                 </div>
+                <div class="nav-item" data-page="settings">
+                    <span>⚙</span>
+                    <span>Settings</span>
+                </div>
             </nav>
 
             <div class="user-info">
@@ -1340,39 +1417,30 @@
                     <h1 class="page-title">Dashboard</h1>
                     <p class="page-subtitle">Welcome back! Here's your financial overview.</p>
                 </div>
-                <div class="notif-card">
-                    <div style="font-weight:700; margin-bottom:4px;">🔔 Smart Reminders</div>
-                    <div class="notif-help">Helpful nudges only. No spam. You can change this anytime.</div>
-                    <button class="btn btn-secondary" id="notifEnableBtn" style="margin-bottom:8px;">Enable Notifications</button>
-                    <div class="notif-row"><span>Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
-                    <div class="notif-row"><span>Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
-                    <div class="notif-row"><span>Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
-                </div>
-
                 <div class="cards-grid">
                     <div class="card">
                         <div class="card-label">HR Wallet Balance</div>
-                        <div class="card-value" id="hrWalletBalance">₹0</div>
+                        <div class="card-value" id="hrWalletBalance">0</div>
                         <div class="card-change">Wallet 1</div>
                     </div>
                     <div class="card">
                         <div class="card-label">HL Wallet Balance</div>
-                        <div class="card-value" id="hlWalletBalance">₹0</div>
+                        <div class="card-value" id="hlWalletBalance">0</div>
                         <div class="card-change">Wallet 2</div>
                     </div>
                     <div class="card">
                         <div class="card-label">Total Income</div>
-                        <div class="card-value" id="totalIncome">₹0</div>
+                        <div class="card-value" id="totalIncome">0</div>
                         <div class="card-change positive">This month</div>
                     </div>
                     <div class="card">
                         <div class="card-label">Total Expenses</div>
-                        <div class="card-value" id="totalExpenses">₹0</div>
+                        <div class="card-value" id="totalExpenses">0</div>
                         <div class="card-change negative">This month</div>
                     </div>
                     <div class="card">
                         <div class="card-label">Net Savings</div>
-                        <div class="card-value" id="netSavings">₹0</div>
+                        <div class="card-value" id="netSavings">0</div>
                         <div class="card-change positive" id="savingsRate">0% rate</div>
                     </div>
                     <div class="card">
@@ -1433,7 +1501,7 @@
         <h1 class="page-title">Wallet Balances</h1>
         <p class="page-subtitle">Track your wallet balances by payment method</p>
     </div>
-    
+
     <!-- HR Wallet Card -->
     <div class="card" style="margin-bottom: 24px; padding: 24px;">
         <div style="display: flex; align-items: center; margin-bottom: 20px;">
@@ -1443,15 +1511,15 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
             <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
-                <div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+                <div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
             </div>
             <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
-                <div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+                <div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
             </div>
             <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
-                <div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">₹0</div>
+                <div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
             </div>
         </div>
     </div>
@@ -1465,15 +1533,15 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
             <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
-                <div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+                <div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
             </div>
             <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
-                <div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">₹0</div>
+                <div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
             </div>
             <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
                 <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
-                <div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">₹0</div>
+                <div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
             </div>
         </div>
     </div>
@@ -1482,15 +1550,15 @@
     <div class="cards-grid" style="margin-top: 32px;">
         <div class="card" style="padding: 24px; text-align: center;">
             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💳 Total Online Balance</div>
-            <div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">₹0</div>
+            <div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">0</div>
         </div>
         <div class="card" style="padding: 24px; text-align: center;">
             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💵 Total By-Hand Balance</div>
-            <div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">₹0</div>
+            <div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">0</div>
         </div>
         <div class="card" style="padding: 24px; text-align: center;">
             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">📊 Grand Total</div>
-            <div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">₹0</div>
+            <div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">0</div>
         </div>
     </div>
 </div>
@@ -1505,6 +1573,102 @@
                 <button class="btn btn-primary" onclick="showGoalModal()" style="margin-bottom: 20px;">+ Add Goal</button>
 
                 <div id="goalsList"></div>
+            </div>
+
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                    <p class="page-subtitle">Manage global profile, preferences, notifications, security, and app information.</p>
+                </div>
+
+                <div class="settings-grid">
+                    <section class="card settings-section">
+                        <h3>👤 Profile</h3>
+                        <p class="settings-help">Account information for your VaultFlow workspace.</p>
+                        <div class="settings-row"><span class="settings-label">Username</span><span class="settings-value" id="settingsUsername">User</span></div>
+                        <div class="settings-row"><span class="settings-label">Email</span><span class="settings-value" id="settingsEmail">Not available</span></div>
+                        <div class="settings-row"><span class="settings-label">Account Created</span><span class="settings-value" id="settingsCreatedAt">Not available</span></div>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🎛 Preferences</h3>
+                        <p class="settings-help">Global display preferences used by Dashboard, Reports, Transactions, Wallets, Goals, Exports, and Smart Insights.</p>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsCurrency">Currency</label>
+                            <select class="filter-select" id="settingsCurrency">
+                                <option value="INR">INR ₹</option>
+                                <option value="USD">USD $</option>
+                                <option value="EUR">EUR €</option>
+                                <option value="GBP">GBP £</option>
+                                <option value="AED">AED د.إ</option>
+                                <option value="SAR">SAR ﷼</option>
+                                <option value="SGD">SGD S$</option>
+                                <option value="MYR">MYR RM</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsLanguage">Language</label>
+                            <select class="filter-select" id="settingsLanguage">
+                                <option value="en-IN">English (India)</option>
+                                <option value="en-US">English (US)</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsTheme">Theme</label>
+                            <select class="filter-select" id="settingsTheme">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsDateFormat">Date Format</label>
+                            <select class="filter-select" id="settingsDateFormat">
+                                <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+                                <option value="MM-DD-YYYY">MM-DD-YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔔 Notifications</h3>
+                        <p class="settings-help">Helpful nudges only. No spam.</p>
+                        <button class="btn btn-secondary" id="notifEnableBtn" type="button">Enable Notifications</button>
+                        <div class="settings-row"><span class="settings-label">Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔐 Security</h3>
+                        <p class="settings-help">Account protection controls.</p>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Logout All Devices')">Logout All Devices</button>
+                        <p class="placeholder-note">Logout all devices is prepared for backend support.</p>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>📦 Data & Backup</h3>
+                        <p class="settings-help">Export and restore tools for future data portability.</p>
+                        <button class="btn btn-secondary" type="button" onclick="exportTransactionsCsv()">Export CSV</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Export PDF')">Export PDF</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Backup')">Backup</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Restore')">Restore</button>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>ℹ About</h3>
+                        <p class="settings-help">VaultFlow app and policy information.</p>
+                        <div class="settings-row"><span class="settings-label">App Version</span><span class="settings-value">1.0.0</span></div>
+                        <div class="settings-row"><span class="settings-label">PWA Status</span><span class="settings-value" id="pwaStatus">Checking...</span></div>
+                        <div class="settings-row"><span class="settings-label">Privacy Policy</span><a class="settings-value" href="#" onclick="showPlaceholder('Privacy Policy'); return false;">View</a></div>
+                        <div class="settings-row"><span class="settings-label">Terms</span><a class="settings-value" href="#" onclick="showPlaceholder('Terms'); return false;">View</a></div>
+                    </section>
+                </div>
             </div>
 
  <!-- Reports Page -->
@@ -1532,41 +1696,29 @@
                 <input type="date" class="search-box" id="reportFromDate">
                 <input type="date" class="search-box" id="reportToDate">
             </div>
-            <div class="report-filter-row">
-                <select class="filter-select" id="reportLocale">
-                    <option value="en-IN">English (India)</option>
-                    <option value="en-US">English (US)</option>
-                    <option value="en-GB">English (UK)</option>
-                </select>
-                <select class="filter-select" id="reportCurrency">
-                    <option value="INR">INR ₹</option>
-                    <option value="USD">USD $</option>
-                    <option value="EUR">EUR €</option>
-                </select>
-            </div>
             <div class="report-filter-row single">
                 <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
             </div>
         </div>
     </div>
-    
+
     <!-- Summary Cards -->
     <div class="cards-grid reports-summary-grid">
         <div class="card">
             <div class="card-label" id="monthIncomeLabel">This Month Income</div>
-            <div class="card-value" id="monthIncomeDisplay">₹0</div>
+            <div class="card-value" id="monthIncomeDisplay">0</div>
         </div>
         <div class="card">
             <div class="card-label" id="monthExpenseLabel">This Month Expenses</div>
-            <div class="card-value" id="monthExpensesDisplay">₹0</div>
+            <div class="card-value" id="monthExpensesDisplay">0</div>
         </div>
         <div class="card">
             <div class="card-label" id="monthSavingsLabel">This Month Savings</div>
-            <div class="card-value" id="monthSavingsDisplay">₹0</div>
+            <div class="card-value" id="monthSavingsDisplay">0</div>
         </div>
         <div class="card">
             <div class="card-label" id="annualLabel">Annual Total</div>
-            <div class="card-value" id="annualDisplay">₹0</div>
+            <div class="card-value" id="annualDisplay">0</div>
         </div>
     </div>
 
@@ -1653,9 +1805,9 @@
                 <h3 class="modal-title" id="transactionModalTitle">Add Transaction</h3>
                 <button class="close-modal" onclick="closeModal('transactionModal')">×</button>
             </div>
-            
+
             <form id="transactionForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
-                
+
                 <div class="modal-body">
                     <div class="form-row">
                         <div class="form-group">
@@ -1667,7 +1819,7 @@
                             <input type="time" class="form-input" id="txnTime" required>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label class="form-label">Type</label>
                         <select class="form-input" id="txnType" required>
@@ -1677,7 +1829,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Amount (₹)</label>
+                        <label class="form-label">Amount</label>
                         <input type="number" class="form-input" id="txnAmount" required min="0" step="0.01">
                     </div>
 
@@ -1716,7 +1868,7 @@
                         <label class="form-label">Notes</label>
                         <textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
                     </div>
-                    
+
                     <input type="hidden" id="txnId">
                 </div>
 
@@ -1774,11 +1926,11 @@
                         <input type="text" class="form-input" id="goalName" required placeholder="e.g., New Laptop">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Target Amount (₹)</label>
+                        <label class="form-label">Target Amount</label>
                         <input type="number" class="form-input" id="goalTarget" required min="0" step="0.01">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Current Amount (₹)</label>
+                        <label class="form-label">Current Amount</label>
                         <input type="number" class="form-input" id="goalCurrent" min="0" step="0.01" value="0">
                     </div>
                     <div class="form-group">
@@ -1854,7 +2006,7 @@
     <script>
         // Configuration
         const API_BASE_URL = window.location.origin;
-        
+
         // State
         let authToken = null;
         let refreshToken = null;
@@ -1866,14 +2018,18 @@
         let deferredInstallPrompt = null;
         const INSTALL_DISMISS_KEY = 'vf_install_dismissed_at';
         const NOTIF_PREFS_KEY = 'vf_notification_prefs_v1';
+        const PREF_KEYS = { currency: 'vf_currency', language: 'vf_language', theme: 'vf_theme', dateFormat: 'vf_date_format' };
+        const CURRENCY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼', SGD: 'S$', MYR: 'RM' };
+        const CURRENCY_LOCALES = { INR: 'en-IN', USD: 'en-US', EUR: 'en-US', GBP: 'en-GB', AED: 'en-AE', SAR: 'en-SA', SGD: 'en-SG', MYR: 'en-MY' };
         let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, lastDailyAt: 0, lastWeeklyAt: 0 };
-        
+        let appPreferences = { currency: 'INR', language: 'en-IN', theme: 'light', dateFormat: 'DD-MM-YYYY' };
+
         // Wallets (NEW)
         let wallets = {
             HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
             HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
         };
-        
+
         // Demo Data
         let demoData = {
             vaults: [
@@ -1893,6 +2049,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            initAppPreferences();
             checkAuth();
             setupEventListeners();
             setDefaultDateTime();
@@ -1907,7 +2064,7 @@
             authToken = localStorage.getItem('vf_token');
             refreshToken = localStorage.getItem('vf_refresh_token');
             currentUser = localStorage.getItem('vf_username');
-            
+
             if (authToken && currentUser) {
                 if (isTokenExpired(authToken)) {
                     logout('Session expired. Please login again.', 'warning');
@@ -1938,6 +2095,7 @@
             document.getElementById('authContainer').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
             document.getElementById('userName').textContent = currentUser || 'User';
+            renderSettingsPage();
             loadAllData();
         }
 
@@ -2027,7 +2185,138 @@
             ['notifDaily','notifWeekly','notifSavings'].forEach((id) => {
                 document.getElementById(id)?.addEventListener('change', syncNotificationPrefToggles);
             });
+            ['settingsCurrency','settingsLanguage','settingsTheme','settingsDateFormat'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', persistSettingsFromForm);
+            });
+            window.matchMedia?.('(prefers-color-scheme: dark)')?.addEventListener?.('change', () => {
+                if (appPreferences.theme === 'system') applyThemePreference();
+            });
         }
+
+        function initAppPreferences() {
+            appPreferences = {
+                currency: localStorage.getItem(PREF_KEYS.currency) || 'INR',
+                language: localStorage.getItem(PREF_KEYS.language) || 'en-IN',
+                theme: localStorage.getItem(PREF_KEYS.theme) || 'light',
+                dateFormat: localStorage.getItem(PREF_KEYS.dateFormat) || 'DD-MM-YYYY'
+            };
+            applyThemePreference();
+            renderSettingsPage();
+        }
+
+        function getCurrentCurrency() { return appPreferences.currency || 'INR'; }
+        function getCurrencySymbol(currency = getCurrentCurrency()) { return CURRENCY_SYMBOLS[currency] || currency; }
+        function getCurrentLocale() { return appPreferences.language || CURRENCY_LOCALES[getCurrentCurrency()] || 'en-IN'; }
+
+        function formatMoney(value, options = {}) {
+            const amount = Number(value || 0);
+            const currency = options.currency || getCurrentCurrency();
+            const symbol = getCurrencySymbol(currency);
+            const locale = options.locale || CURRENCY_LOCALES[currency] || getCurrentLocale();
+            const abs = Math.abs(amount).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            const formatted = ['AED', 'SAR'].includes(currency) ? `${symbol} ${abs}` : `${symbol}${abs}`;
+            return amount < 0 ? `-${formatted}` : formatted;
+        }
+
+        function formatCurrency(amount) { return formatMoney(amount); }
+
+        function formatAppDate(value) {
+            if (!value) return '-';
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '-';
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = String(date.getFullYear());
+            if (appPreferences.dateFormat === 'MM-DD-YYYY') return `${mm}-${dd}-${yyyy}`;
+            if (appPreferences.dateFormat === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`;
+            return `${dd}-${mm}-${yyyy}`;
+        }
+
+        function applyThemePreference() {
+            const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
+            const effectiveTheme = appPreferences.theme === 'system' ? (prefersDark ? 'dark' : 'light') : appPreferences.theme;
+            document.documentElement.dataset.theme = effectiveTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function persistSettingsFromForm() {
+            appPreferences.currency = document.getElementById('settingsCurrency')?.value || appPreferences.currency;
+            appPreferences.language = document.getElementById('settingsLanguage')?.value || appPreferences.language;
+            appPreferences.theme = document.getElementById('settingsTheme')?.value || appPreferences.theme;
+            appPreferences.dateFormat = document.getElementById('settingsDateFormat')?.value || appPreferences.dateFormat;
+            localStorage.setItem(PREF_KEYS.currency, appPreferences.currency);
+            localStorage.setItem(PREF_KEYS.language, appPreferences.language);
+            localStorage.setItem(PREF_KEYS.theme, appPreferences.theme);
+            localStorage.setItem(PREF_KEYS.dateFormat, appPreferences.dateFormat);
+            applyThemePreference();
+            renderAllPreferenceSensitiveViews();
+            showToast('Preferences updated.', 'success');
+        }
+
+        function renderAllPreferenceSensitiveViews() {
+            renderSettingsPage();
+            renderDashboard();
+            renderCurrentPage();
+            if (document.getElementById('reports')?.classList.contains('active')) applyReportFilters();
+        }
+
+        function getAccountCreatedDate() {
+            const payload = authToken && authToken !== 'demo-token' ? parseJwt(authToken) : null;
+            return payload?.iat ? formatAppDate(new Date(payload.iat * 1000)) : 'Not available';
+        }
+
+        function renderSettingsPage() {
+            const setValue = (id, value) => { const el = document.getElementById(id); if (el) el.value = value; };
+            setValue('settingsCurrency', appPreferences.currency);
+            setValue('settingsLanguage', appPreferences.language);
+            setValue('settingsTheme', appPreferences.theme);
+            setValue('settingsDateFormat', appPreferences.dateFormat);
+            const username = document.getElementById('settingsUsername');
+            if (username) username.textContent = currentUser || 'User';
+            const email = document.getElementById('settingsEmail');
+            if (email) email.textContent = localStorage.getItem('vf_email') || (String(currentUser || '').includes('@') ? currentUser : 'Not available');
+            const created = document.getElementById('settingsCreatedAt');
+            if (created) created.textContent = isDemoMode ? 'Demo session' : getAccountCreatedDate();
+            const pwa = document.getElementById('pwaStatus');
+            if (pwa) pwa.textContent = isStandaloneAppMode() ? 'Installed' : ('serviceWorker' in navigator ? 'Available' : 'Not supported');
+            renderNotificationPrefsUI();
+        }
+
+        function openChangePasswordFlow() {
+            const email = localStorage.getItem('vf_email') || (String(currentUser || '').includes('@') ? currentUser : '');
+            if (email) document.getElementById('forgotIdentifier').value = email;
+            document.getElementById('forgotPasswordModal').classList.add('active');
+        }
+
+        function showPlaceholder(label) {
+            showToast(`${label} will be available in a future VaultFlow update.`, 'warning');
+        }
+
+        function exportTransactionsCsv() {
+            if (!transactions.length) return showToast('No transactions to export.', 'warning');
+            const headers = ['Date', 'Time', 'Type', 'Amount', 'Category', 'Location', 'Wallet', 'Payment Method', 'Vault', 'Notes'];
+            const rows = transactions.map(t => [
+                formatAppDate(t.date),
+                t.time || '',
+                t.type || '',
+                formatMoney(t.amount || 0),
+                t.category || '',
+                t.location || '',
+                t.wallet || '',
+                t.paymentMethod || '',
+                t.vaultName || '',
+                t.notes || ''
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `vaultflow-transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showToast('CSV export downloaded.', 'success');
+        }
+
         function initNotificationPrefs() {
             try {
                 notificationPrefs = { ...notificationPrefs, ...(JSON.parse(localStorage.getItem(NOTIF_PREFS_KEY) || '{}')) };
@@ -2036,7 +2325,7 @@
         }
         function persistNotificationPrefs() { localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(notificationPrefs)); }
         function renderNotificationPrefsUI() {
-            const permission = Notification?.permission || 'default';
+            const permission = ('Notification' in window) ? Notification.permission : 'default';
             const btn = document.getElementById('notifEnableBtn');
             if (btn) btn.textContent = permission === 'granted' ? 'Notifications Enabled' : 'Enable Notifications';
             const daily = document.getElementById('notifDaily');
@@ -2069,13 +2358,13 @@
             }
         }
         async function sendLocalFinanceNotification(title, body, data = {}) {
-            if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return;
+            if (!('serviceWorker' in navigator) || !('Notification' in window) || Notification.permission !== 'granted') return;
             const reg = await navigator.serviceWorker.getRegistration();
             if (!reg) return;
             if (reg.active) reg.active.postMessage({ type: 'VF_LOCAL_NOTIFY', payload: { title, body, data } });
         }
         function maybeScheduleSmartLocalNotifications(forceNow = false) {
-            if (Notification.permission !== 'granted' || !notificationPrefs.enabled) return;
+            if (!('Notification' in window) || Notification.permission !== 'granted' || !notificationPrefs.enabled) return;
             const now = Date.now();
             const dayMs = 24 * 60 * 60 * 1000;
             const weekMs = 7 * dayMs;
@@ -2090,7 +2379,7 @@
                 notificationPrefs.lastDailyAt = now;
             }
             if ((forceNow || now - (notificationPrefs.lastWeeklyAt || 0) > weekMs) && notificationPrefs.weeklySummary) {
-                const summary = topCategory ? `Top expense: ${topCategory[0]}. Savings so far: ₹${savings.toLocaleString('en-IN')}.` : `Savings so far: ₹${savings.toLocaleString('en-IN')}.`;
+                const summary = topCategory ? `Top expense: ${topCategory[0]}. Savings so far: ${formatMoney(savings)}.` : `Savings so far: ${formatMoney(savings)}.`;
                 sendLocalFinanceNotification('Your weekly money snapshot', summary, { page: 'reports' });
                 notificationPrefs.lastWeeklyAt = now;
             }
@@ -2205,12 +2494,12 @@
                     } else if (endpoint === '/api/transactions' && method === 'POST') {
                         const txn = { ...data, _id: Date.now().toString() };
                         demoData.transactions.push(txn);
-                        
+
                         // Update wallets and vaults
                         if (txn.type === 'income') {
                             demoData.wallets[txn.wallet].balance += txn.amount;
                             demoData.wallets[txn.wallet].totalIncome += txn.amount;
-                            
+
                             demoData.vaults.forEach(vault => {
                                 const allocation = (txn.amount * vault.percentage) / 100;
                                 vault.totalIncome += allocation;
@@ -2225,7 +2514,7 @@
                             demoData.wallets[txn.wallet].balance -= txn.amount;
                             demoData.wallets[txn.wallet].totalSpent += txn.amount;
                         }
-                        
+
                         resolve(txn);
                     } else if (endpoint.startsWith('/api/transactions/') && method === 'DELETE') {
                         const id = endpoint.split('/').pop();
@@ -2285,6 +2574,7 @@
                 localStorage.setItem('vf_token', authToken);
                 localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
+                localStorage.setItem('vf_email', result.user.email || (String(username).includes('@') ? username : ''));
                 isDemoMode = false;
                 showToast('Login successful!', 'success');
                 showApp();
@@ -2301,6 +2591,7 @@
                 localStorage.setItem('vf_token', authToken);
                 localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
+                localStorage.setItem('vf_email', result.user.email || email);
                 isDemoMode = false;
                 showToast('Account created successfully!', 'success');
                 showApp();
@@ -2312,6 +2603,7 @@
         function startDemoMode() {
             isDemoMode = true;
             currentUser = 'Demo User';
+            localStorage.setItem('vf_email', 'demo@vaultflow.local');
             authToken = 'demo-token';
             localStorage.setItem(ONBOARDING_KEY, 'completed');
             seedDemoShowcaseData();
@@ -2339,6 +2631,7 @@
             localStorage.removeItem('vf_token');
             localStorage.removeItem('vf_refresh_token');
             localStorage.removeItem('vf_username');
+            localStorage.removeItem('vf_email');
             authToken = null;
             refreshToken = null;
             currentUser = null;
@@ -2482,7 +2775,7 @@
             if (onboardingState.step === 3) content.innerHTML = `<h2 class="onboarding-title">Add first income 💰</h2><p class="onboarding-subtitle">Quick win: add one income transaction.</p><div class="onboarding-grid"><input id="obIncomeAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Income amount"><select id="obIncomeCategory" class="form-input"><option>Salary</option><option>Freelance</option><option>Business</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingIncome()">Continue</button></div>`;
             if (onboardingState.step === 4) content.innerHTML = `<h2 class="onboarding-title">Add first expense 🧾</h2><p class="onboarding-subtitle">Now log one expense so your insights activate.</p><div class="onboarding-grid"><input id="obExpenseAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Expense amount"><select id="obExpenseCategory" class="form-input"><option>Food</option><option>Transport</option><option>Bills</option><option>Shopping</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingExpense()">Continue</button></div>`;
             if (onboardingState.step === 5) content.innerHTML = `<h2 class="onboarding-title">Create first savings goal 🎯</h2><p class="onboarding-subtitle">Optional but recommended for momentum.</p><div class="onboarding-grid"><input id="obGoalName" class="form-input" placeholder="Goal name"><input id="obGoalAmount" class="form-input" type="number" min="0" step="0.01" placeholder="Target amount"></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="skipOnboardingGoal()">Skip</button><button class="btn btn-primary" onclick="saveOnboardingGoal()">Save Goal</button></div>`;
-            if (onboardingState.step === 6) content.innerHTML = `<h2 class="onboarding-title">You’re all set ✅</h2><p class="onboarding-subtitle">Amazing start. You already built a healthy money baseline.</p><div class="onboarding-metrics"><div class="onboarding-metric"><div class="card-label">Wallet</div><div style="font-weight:700">${onboardingState.wallet}</div></div><div class="onboarding-metric"><div class="card-label">Income</div><div style="font-weight:700">₹${onboardingState.income.toLocaleString('en-IN')}</div></div><div class="onboarding-metric"><div class="card-label">Expense</div><div style="font-weight:700">₹${onboardingState.expense.toLocaleString('en-IN')}</div></div></div><div class="onboarding-actions"><button class="btn btn-primary" onclick="finishOnboarding()">View My Dashboard</button></div>`;
+            if (onboardingState.step === 6) content.innerHTML = `<h2 class="onboarding-title">You’re all set ✅</h2><p class="onboarding-subtitle">Amazing start. You already built a healthy money baseline.</p><div class="onboarding-metrics"><div class="onboarding-metric"><div class="card-label">Wallet</div><div style="font-weight:700">${onboardingState.wallet}</div></div><div class="onboarding-metric"><div class="card-label">Income</div><div style="font-weight:700">${formatMoney(onboardingState.income)}</div></div><div class="onboarding-metric"><div class="card-label">Expense</div><div style="font-weight:700">${formatMoney(onboardingState.expense)}</div></div></div><div class="onboarding-actions"><button class="btn btn-primary" onclick="finishOnboarding()">View My Dashboard</button></div>`;
         }
 
         async function saveOnboardingWallet() { onboardingState.wallet = document.getElementById('obWalletName')?.value?.trim() || 'Main Wallet'; nextOnboardingStep(); }
@@ -2530,14 +2823,14 @@
                     HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
                     HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
                 };
-                
+
                 console.log('Calculating wallet balances from transactions:', transactions.length);
-                
+
                 transactions.forEach(txn => {
                     console.log('Transaction:', txn.type, txn.amount, 'Wallet:', txn.wallet);
-                    
+
                     const walletKey = txn.wallet || 'HR'; // Default to HR if not specified
-                    
+
                     if (wallets[walletKey]) {
                         if (txn.type === 'income') {
                             wallets[walletKey].balance += txn.amount;
@@ -2548,7 +2841,7 @@
                         }
                     }
                 });
-                
+
                 console.log('Final wallet balances:', wallets);
             }
         }
@@ -2557,12 +2850,12 @@
         function switchPage(pageName) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
+
             document.getElementById(pageName).classList.add('active');
             document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
-            
+
             renderCurrentPage();
-            
+
             if (window.innerWidth <= 768) {
                 closeMobileMenu();
             }
@@ -2570,7 +2863,7 @@
 
         function renderCurrentPage() {
             const activePage = document.querySelector('.page.active').id;
-            
+
             switch(activePage) {
                 case 'dashboard':
                     renderDashboard();
@@ -2590,13 +2883,16 @@
                 case 'reports':
                     renderReportsPage();
                     break;
+                case 'settings':
+                    renderSettingsPage();
+                    break;
             }
         }
 
         // Dashboard
         function renderDashboard() {
             calculateWalletBalances();
-            
+
             const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
             const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
             const netSavings = totalIncome - totalExpenses;
@@ -2621,7 +2917,7 @@
 
         function renderTransactionTable(data, containerId) {
             const container = document.getElementById(containerId);
-            
+
             if (data.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -2642,7 +2938,7 @@
                 let mobileHtml = '<div class="mobile-txn-list">';
                 data.forEach(txn => {
                     const dateObj = new Date(txn.date);
-                    const dateStr = dateObj.toLocaleDateString('en-GB');
+                    const dateStr = formatAppDate(dateObj);
                     mobileHtml += `
                         <div class="mobile-txn-card">
                             <div class="mobile-txn-top">
@@ -2659,7 +2955,7 @@
                                     </div>
                                 </div>
                                 <div style="text-align:right;">
-                                    <div style="font-weight:700; font-size:20px;">₹${Number(txn.amount || 0).toLocaleString('en-IN')}</div>
+                                    <div style="font-weight:700; font-size:20px;">${formatMoney(txn.amount || 0)}</div>
                                 </div>
                             </div>
                         </div>
@@ -2685,14 +2981,14 @@
 
             data.forEach(txn => {
                 const dateObj = new Date(txn.date);
-                const dateStr = dateObj.toLocaleDateString();
+                const dateStr = formatAppDate(dateObj);
                 const timeStr = txn.time;
-                
+
                 // FIX: Changed txn.id to txn._id in the buttons below
                 html += `<tr>`;
                 html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
                 html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
-                html += `<td><strong>${txn.amount.toLocaleString()}</strong></td>`;
+                html += `<td><strong>${formatMoney(txn.amount || 0)}</strong></td>`;
                 html += `<td>${txn.category}</td>`;
                 html += `<td>${txn.location ? txn.location : '-'}</td>`;
                 html += `<td>${txn.wallet}</td>`;
@@ -2700,7 +2996,7 @@
                 html += `<td>${txn.vaultName || '-'}</td>`;
                 html += `<td>${txn.notes || '-'}</td>`;
                 html += `<td>`;
-                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>`; 
+                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>`;
                 html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>`;
                 html += `</td>`;
                 html += `</tr>`;
@@ -2721,7 +3017,7 @@
             }
 
             if (search) {
-                filtered = filtered.filter(t => 
+                filtered = filtered.filter(t =>
                     t.category.toLowerCase().includes(search) ||
                     (t.location && t.location.toLowerCase().includes(search)) ||
                     (t.notes && t.notes.toLowerCase().includes(search))
@@ -2734,7 +3030,7 @@
         // Vaults Page
         function renderVaultsPage() {
             const container = document.getElementById('vaultsList');
-            
+
             if (vaults.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -2760,15 +3056,15 @@
                         <div class="vault-stats">
                             <div class="vault-stat">
                                 <div class="vault-stat-label">Income</div>
-                                <div class="vault-stat-value">₹${vault.totalIncome.toLocaleString()}</div>
+                                <div class="vault-stat-value">${formatMoney(vault.totalIncome)}</div>
                             </div>
                             <div class="vault-stat">
                                 <div class="vault-stat-label">Spent</div>
-                                <div class="vault-stat-value">₹${vault.totalSpent.toLocaleString()}</div>
+                                <div class="vault-stat-value">${formatMoney(vault.totalSpent)}</div>
                             </div>
                             <div class="vault-stat">
                                 <div class="vault-stat-label">Balance</div>
-                                <div class="vault-stat-value" style="color: ${vault.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">₹${vault.balance.toLocaleString()}</div>
+                                <div class="vault-stat-value" style="color: ${vault.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${formatMoney(vault.balance)}</div>
                             </div>
                         </div>
                         <div class="vault-actions">
@@ -2823,41 +3119,33 @@
     const totalByHand = walletStats.HR.byhand + walletStats.HL.byhand;
     const grandTotal = walletStats.HR.total + walletStats.HL.total;
 
-    // Format currency function
-    const formatMoney = (amount) => {
-        return '₹' + Math.abs(amount).toLocaleString('en-IN', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        });
-    };
-
     // Update HR Wallet
     document.getElementById('hrOnlineBalance').textContent = formatMoney(walletStats.HR.online);
     document.getElementById('hrOnlineBalance').style.color = walletStats.HR.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
-    
+
     document.getElementById('hrByHandBalance').textContent = formatMoney(walletStats.HR.byhand);
     document.getElementById('hrByHandBalance').style.color = walletStats.HR.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
-    
+
     document.getElementById('hrTotalBalance').textContent = formatMoney(walletStats.HR.total);
     document.getElementById('hrTotalBalance').style.color = walletStats.HR.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
 
     // Update HL Wallet
     document.getElementById('hlOnlineBalance').textContent = formatMoney(walletStats.HL.online);
     document.getElementById('hlOnlineBalance').style.color = walletStats.HL.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
-    
+
     document.getElementById('hlByHandBalance').textContent = formatMoney(walletStats.HL.byhand);
     document.getElementById('hlByHandBalance').style.color = walletStats.HL.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
-    
+
     document.getElementById('hlTotalBalance').textContent = formatMoney(walletStats.HL.total);
     document.getElementById('hlTotalBalance').style.color = walletStats.HL.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
 
     // Update Summary Cards
     document.getElementById('totalOnlineBalance').textContent = formatMoney(totalOnline);
     document.getElementById('totalOnlineBalance').style.color = totalOnline >= 0 ? 'var(--secondary)' : 'var(--danger)';
-    
+
     document.getElementById('totalByHandBalance').textContent = formatMoney(totalByHand);
     document.getElementById('totalByHandBalance').style.color = totalByHand >= 0 ? 'var(--warning)' : 'var(--danger)';
-    
+
     document.getElementById('grandTotalBalance').textContent = formatMoney(grandTotal);
     document.getElementById('grandTotalBalance').style.color = grandTotal >= 0 ? 'var(--primary)' : 'var(--danger)';
 };
@@ -2865,7 +3153,7 @@
         // Goals Page
         function renderGoalsPage() {
             const container = document.getElementById('goalsList');
-            
+
             if (goals.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -2883,14 +3171,14 @@
             let html = '';
             goals.forEach(goal => {
                 const progress = goal.targetAmount > 0 ? ((goal.currentAmount / goal.targetAmount) * 100).toFixed(1) : 0;
-                
+
                 html += `
                     <div class="goal-card">
                         <div class="goal-header">
                             <div>
                                 <div class="goal-name">${goal.name}</div>
-                                <div class="goal-amount">₹${goal.currentAmount.toLocaleString()} / ₹${goal.targetAmount.toLocaleString()}</div>
-                                ${goal.deadline ? `<div class="goal-amount">Due: ${new Date(goal.deadline).toLocaleDateString()}</div>` : ''}
+                                <div class="goal-amount">${formatMoney(goal.currentAmount)} / ${formatMoney(goal.targetAmount)}</div>
+                                ${goal.deadline ? `<div class="goal-amount">Due: ${formatAppDate(goal.deadline)}</div>` : ''}
                             </div>
                             <div class="goal-progress">${progress}%</div>
                         </div>
@@ -2920,11 +3208,11 @@
             transactions.forEach(txn => {
                 const date = new Date(txn.date);
                 const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-                
+
                 if (!monthlyData[key]) {
                     monthlyData[key] = { income: 0, expense: 0 };
                 }
-                
+
                 if (txn.type === 'income') {
                     monthlyData[key].income += txn.amount;
                 } else {
@@ -2945,10 +3233,10 @@
             const modal = document.getElementById('transactionModal');
             const form = document.getElementById('transactionForm');
             const title = document.getElementById('transactionModalTitle');
-            
+
             form.reset();
             document.getElementById('txnId').value = '';
-            
+
             if (id) {
                 // FIX: Changed t.id to t._id here
                 const txn = transactions.find(t => t._id == id);
@@ -2969,7 +3257,7 @@
             } else {
                 title.textContent = 'Add Transaction';
             }
-            
+
             setDefaultDateTime();
             populateVaultSelect();
             toggleVaultSelect();
@@ -2980,10 +3268,10 @@
             const modal = document.getElementById('vaultModal');
             const form = document.getElementById('vaultForm');
             const title = document.getElementById('vaultModalTitle');
-            
+
             form.reset();
             document.getElementById('vaultId').value = '';
-            
+
             if (id) {
                 const vault = vaults.find(v => v._id === id);
                 if (vault) {
@@ -2996,7 +3284,7 @@
             } else {
                 title.textContent = 'Add Vault';
             }
-            
+
             modal.classList.add('active');
         }
 
@@ -3004,10 +3292,10 @@
             const modal = document.getElementById('goalModal');
             const form = document.getElementById('goalForm');
             const title = document.getElementById('goalModalTitle');
-            
+
             form.reset();
             document.getElementById('goalId').value = '';
-            
+
             if (id) {
                 const goal = goals.find(g => g._id === id);
                 if (goal) {
@@ -3023,7 +3311,7 @@
             } else {
                 title.textContent = 'Add Goal';
             }
-            
+
             populateGoalVaultSelect();
             modal.classList.add('active');
         }
@@ -3057,12 +3345,12 @@
         // Form Handlers
         async function handleTransactionSubmit(e) {
     e.preventDefault();
-    
+
     const id = document.getElementById('txnId').value;
     const type = document.getElementById('txnType').value;
     const vaultIdValue = document.getElementById('txnVault').value;
     const paymentMethod = document.getElementById('txnPaymentMethod').value;
-    
+
     const data = {
         date: document.getElementById('txnDate').value,
         time: document.getElementById('txnTime').value,
@@ -3089,7 +3377,7 @@
                     await apiCall('/api/transactions', 'POST', data);
                     showToast('Transaction added!', 'success');
                 }
-                
+
                 await loadTransactions();
                 await loadVaults();
                 closeModal('transactionModal');
@@ -3102,7 +3390,7 @@
 
         async function handleVaultSubmit(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('vaultId').value;
             const data = {
                 name: document.getElementById('vaultName').value,
@@ -3118,7 +3406,7 @@
                     await apiCall('/api/vaults', 'POST', data);
                     showToast('Vault created!', 'success');
                 }
-                
+
                 await loadVaults();
                 closeModal('vaultModal');
                 renderCurrentPage();
@@ -3129,7 +3417,7 @@
 
         async function handleGoalSubmit(e) {
             e.preventDefault();
-            
+
             const id = document.getElementById('goalId').value;
             const vaultId = document.getElementById('goalVault').value;
             const data = {
@@ -3151,7 +3439,7 @@
                     await apiCall('/api/goals', 'POST', data);
                     showToast('Goal created!', 'success');
                 }
-                
+
                 await loadGoals();
                 closeModal('goalModal');
                 renderCurrentPage();
@@ -3167,7 +3455,7 @@
 
         async function deleteTransaction(id) {
             if (!confirm('Delete this transaction?')) return;
-            
+
             try {
                 await apiCall(`/api/transactions/${id}`, 'DELETE');
                 await loadTransactions();
@@ -3186,7 +3474,7 @@
 
         async function deleteVault(id) {
             if (!confirm('Delete this vault?')) return;
-            
+
             try {
                 await apiCall(`/api/vaults/${id}`, 'DELETE');
                 await loadVaults();
@@ -3203,7 +3491,7 @@
 
         async function deleteGoal(id) {
             if (!confirm('Delete this goal?')) return;
-            
+
             try {
                 await apiCall(`/api/goals/${id}`, 'DELETE');
                 await loadGoals();
@@ -3216,7 +3504,7 @@
 
         // Utility Functions
         function formatCurrency(amount) {
-            return '₹' + amount.toLocaleString('en-IN');
+            return formatMoney(amount);
         }
 
         function setDefaultDateTime() {
@@ -3225,7 +3513,7 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const time = `${hours}:${minutes}`;
-            
+
             document.getElementById('txnDate').value = today;
             document.getElementById('txnTime').value = time;
         }
@@ -3234,7 +3522,7 @@
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type + ' show';
-            
+
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
@@ -3265,7 +3553,6 @@
 // Global charts object to store chart instances
 const chartsInstance = {};
 let reportsRawData = null;
-let reportFormat = { locale: 'en-IN', currency: 'INR', fxRates: { INR: 1, USD: 0.012, EUR: 0.011 } };
 
 // Load reports when page opens
 function loadReports() {
@@ -3319,16 +3606,8 @@ function setupReportFilterDefaults() {
     const fromIso = from.toISOString().slice(0, 10);
     if (document.getElementById('reportFromDate')) document.getElementById('reportFromDate').value = fromIso;
     if (document.getElementById('reportToDate')) document.getElementById('reportToDate').value = toIso;
-    const defaults = detectDefaultCurrency();
-    const currencyEl = document.getElementById('reportCurrency');
-    const localeEl = document.getElementById('reportLocale');
-    if (currencyEl && [...currencyEl.options].some(o => o.value === defaults.currency)) currencyEl.value = defaults.currency;
-    if (localeEl && [...localeEl.options].some(o => o.value === defaults.locale)) localeEl.value = defaults.locale;
 }
 
-function formatMoney(value) {
-    return new Intl.NumberFormat(reportFormat.locale, { style: 'currency', currency: reportFormat.currency, maximumFractionDigits: 0 }).format(Number(value || 0));
-}
 function toggleReportFilters(forceExpand) {
     const card = document.getElementById('reportFiltersCard');
     const icon = document.getElementById('reportFilterToggleIcon');
@@ -3378,19 +3657,8 @@ function renderSmartInsights(data, txns) {
     container.innerHTML = insights.map(i => `<article class="insight-card"><div class="insight-kicker">${i.kicker}</div><div class="insight-text">${i.text}</div></article>`).join('');
 }
 
-async function loadFxRates(base = 'INR') {
-    try {
-        const res = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-        const data = await res.json();
-        if (data?.rates) reportFormat.fxRates = data.rates;
-    } catch (_) {}
-}
-
 async function applyReportFilters() {
     if (!reportsRawData) return;
-    reportFormat.locale = document.getElementById('reportLocale')?.value || 'en-IN';
-    reportFormat.currency = document.getElementById('reportCurrency')?.value || 'INR';
-    await loadFxRates('INR');
 
     const preset = document.getElementById('reportPreset')?.value || 'all';
     const fromInput = document.getElementById('reportFromDate')?.value;
@@ -3434,11 +3702,10 @@ async function applyReportFilters() {
 }
 
 function buildAnalyticsFromTransactions(txns) {
-    const conversion = reportFormat.currency === 'INR' ? 1 : (reportFormat.fxRates?.[reportFormat.currency] || 1);
     const byCategory = {}, byVault = {}, byMonth = {}, incomeByCategory = {};
     let totalIncome = 0, totalExpenses = 0;
     txns.forEach(t => {
-        const amt = Number(t.amount || 0) * conversion;
+        const amt = Number(t.amount || 0);
         const d = new Date(t.date);
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         if (!byMonth[key]) byMonth[key] = { income: 0, expenses: 0 };
@@ -3505,11 +3772,11 @@ async function renderCharts(data) {
                 <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#374151;">
                     <span style="display:flex; align-items:center; gap:6px;">
                         <span style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-                        ₹${income.toLocaleString('en-IN')}
+                        ${formatMoney(income)}
                     </span>
                     <span style="display:flex; align-items:center; gap:6px;">
                         <span style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
-                        ₹${expenses.toLocaleString('en-IN')}
+                        ${formatMoney(expenses)}
                     </span>
                 </div>
             `;
@@ -3529,7 +3796,7 @@ async function renderCharts(data) {
                 data: {
                     labels: categories,
                     datasets: [{
-                        label: 'Expenses (₹)',
+                        label: `Expenses (${getCurrencySymbol()})`,
                         data: categoryValues,
                         backgroundColor: '#6366f1',
                         borderRadius: 4
@@ -3567,7 +3834,7 @@ async function renderCharts(data) {
                 data: {
                     labels: vaults,
                     datasets: [{
-                        label: 'Expenses (₹)',
+                        label: `Expenses (${getCurrencySymbol()})`,
                         data: vaultValues,
                         backgroundColor: '#f59e0b',
                         borderRadius: 4
@@ -3704,7 +3971,7 @@ async function renderCharts(data) {
                 data: {
                     labels: incomeCategories,
                     datasets: [{
-                        label: 'Income (₹)',
+                        label: `Income (${getCurrencySymbol()})`,
                         data: incomeValues,
                         backgroundColor: '#22c55e',
                         borderRadius: 4
@@ -3785,11 +4052,11 @@ function renderIncomeFlowChart(data) {
         <rect x="${midX}" y="${expenseY}" width="${nodeW}" height="${expenseH}" fill="#a3a3a3"></rect>
         ${savings > 0 ? `<rect x="${midX}" y="${savingsY}" width="${nodeW}" height="${savingsH}" fill="#a3a3a3"></rect>` : ''}
         ${deficit > 0 ? `<rect x="${leftX}" y="${deficitY}" width="${nodeW}" height="${deficitH}" fill="#a3a3a3"></rect>` : ''}
-        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (₹${n.value.toLocaleString('en-IN')})</text>`).join('')}
-        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (₹${income.toLocaleString('en-IN')})</text>
-        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (₹${expenses.toLocaleString('en-IN')})</text>
-        ${savings > 0 ? `<text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (₹${savings.toLocaleString('en-IN')})</text>` : ''}
-        ${deficit > 0 ? `<text x="${leftX + 30}" y="${deficitY + deficitH / 2}" font-size="13" font-weight="600" fill="#991b1b">Deficit Funding ${income > 0 ? ((deficit / income) * 100).toFixed(1) : '0.0'}% (₹${deficit.toLocaleString('en-IN')})</text>` : ''}
+        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (${formatMoney(n.value)})</text>`).join('')}
+        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (${formatMoney(income)})</text>
+        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(expenses)})</text>
+        ${savings > 0 ? `<text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(savings)})</text>` : ''}
+        ${deficit > 0 ? `<text x="${leftX + 30}" y="${deficitY + deficitH / 2}" font-size="13" font-weight="600" fill="#991b1b">Deficit Funding ${income > 0 ? ((deficit / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(deficit)})</text>` : ''}
       </svg>`;
 }
 
@@ -3817,18 +4084,18 @@ function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
 
     let html = `<div style="margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap;">
         <span class="tag">Months: ${rows.length}</span>
-        <span class="tag">Total Income: ₹${totalIncome.toLocaleString('en-IN')}</span>
-        <span class="tag">Total Expenses: ₹${totalExpenses.toLocaleString('en-IN')}</span>
+        <span class="tag">Total Income: ${formatMoney(totalIncome)}</span>
+        <span class="tag">Total Expenses: ${formatMoney(totalExpenses)}</span>
         <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
     </div>`;
     html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
     rows.forEach((r) => {
         const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
         html += `<tr><td><strong>${r.month}</strong></td>
-            <td>₹${r.openingBalance.toLocaleString('en-IN')}</td>
-            <td style="color:var(--secondary)"><strong>₹${r.income.toLocaleString('en-IN')}</strong></td>
-            <td style="color:var(--danger)"><strong>₹${r.expenses.toLocaleString('en-IN')}</strong></td>
-            <td style="color:${r.closingBalance >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>₹${r.closingBalance.toLocaleString('en-IN')}</strong></td>
+            <td>${formatMoney(r.openingBalance)}</td>
+            <td style="color:var(--secondary)"><strong>${formatMoney(r.income)}</strong></td>
+            <td style="color:var(--danger)"><strong>${formatMoney(r.expenses)}</strong></td>
+            <td style="color:${r.closingBalance >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>${formatMoney(r.closingBalance)}</strong></td>
             <td style="color:${savingsRate >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${savingsRate.toFixed(1)}%</td></tr>`;
     });
     html += '</tbody></table>';
