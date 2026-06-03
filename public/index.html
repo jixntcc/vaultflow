@@ -1032,6 +1032,174 @@
             font-weight: 700;
         }
 
+        .retention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .retention-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 16px;
+        }
+
+        .retention-card-title {
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .retention-metric {
+            color: var(--text);
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .retention-subtext {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .goal-progress-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goal-progress-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin: 14px 0;
+        }
+
+        .goal-progress-stat {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .goal-progress-stat span {
+            color: var(--text-secondary);
+            display: block;
+            font-size: 12px;
+        }
+
+        .goal-progress-stat strong {
+            color: var(--text);
+            display: block;
+            font-size: 16px;
+            margin-top: 2px;
+        }
+
+        .goal-progress-track {
+            background: var(--border);
+            border-radius: 999px;
+            height: 14px;
+            margin: 16px 0 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .goal-progress-fill {
+            animation: progressGrow 700ms ease-out;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: inherit;
+            height: 100%;
+            transform-origin: left center;
+            transition: width 700ms ease;
+        }
+
+        @keyframes progressGrow {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+
+        .milestone-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 10px 0 12px;
+        }
+
+        .milestone-pill {
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+            display: inline-flex;
+            font-size: 12px;
+            font-weight: 700;
+            justify-content: center;
+            min-height: 28px;
+        }
+
+        .milestone-pill.achieved {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.35);
+            color: var(--secondary);
+        }
+
+        .monthly-review-strip {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .monthly-review-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            flex: 0 0 min(340px, 86vw);
+            padding: 16px;
+            scroll-snap-align: start;
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .review-item span {
+            color: var(--text-secondary);
+            display: block;
+            font-size: 12px;
+        }
+
+        .review-item strong {
+            color: var(--text);
+            font-size: 15px;
+        }
+
+        .insight-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .insight-item {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.16);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 14px;
+            padding: 10px 12px;
+        }
+
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -1352,6 +1520,10 @@
             .settings-row .btn { width: 100%; min-width: 0; }
             .settings-value { text-align: left; }
             .backup-actions, .restore-summary { grid-template-columns: 1fr; }
+            .retention-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px; }
+            .goal-progress-meta { grid-template-columns: 1fr 1fr; }
+            .milestone-row { gap: 6px; }
+            .monthly-review-card { flex-basis: 88vw; }
         }
 
         @media (max-width: 480px) {
@@ -1496,6 +1668,15 @@
                         <div class="card-value" id="totalTransactions">0</div>
                         <div class="card-change">All time</div>
                     </div>
+                </div>
+
+                <div class="retention-grid" id="dashboardRetentionGrid"></div>
+
+                <div class="card" id="dashboardMonthlyReviewsCard" style="margin-bottom: 24px; display:none;">
+                    <div class="table-header" style="padding: 0 0 12px 0; border-bottom: none;">
+                        <h3 class="table-title">Monthly Review</h3>
+                    </div>
+                    <div class="monthly-review-strip" id="dashboardMonthlyReviews"></div>
                 </div>
 
                 <div class="table-container">
@@ -1681,6 +1862,14 @@
                                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                             </select>
                         </div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🧭 Retention Preferences</h3>
+                        <p class="settings-help">Control habit-building widgets without changing your financial data.</p>
+                        <div class="settings-row"><span class="settings-label">Show streaks</span><input id="retentionShowStreaks" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show monthly reviews</span><input id="retentionShowReviews" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show motivational insights</span><input id="retentionShowInsights" class="notif-switch" type="checkbox"></div>
                     </section>
 
                     <section class="card settings-section">
@@ -2092,11 +2281,15 @@
         const PREF_KEYS = { currency: 'vf_currency', language: 'vf_language', theme: 'vf_theme', dateFormat: 'vf_date_format' };
         const LAST_BACKUP_KEY = 'vf_last_backup';
         const MEMBER_SINCE_KEY = 'vf_member_since';
+        const RETENTION_PREFS_KEY = 'vf_retention_prefs';
+        const MONTHLY_REVIEWS_KEY = 'vf_monthly_reviews';
         const CURRENCY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼', SGD: 'S$', MYR: 'RM' };
         const CURRENCY_LOCALES = { INR: 'en-IN', USD: 'en-US', EUR: 'en-US', GBP: 'en-GB', AED: 'en-AE', SAR: 'en-SA', SGD: 'en-SG', MYR: 'en-MY' };
         let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, lastDailyAt: 0, lastWeeklyAt: 0 };
         let appPreferences = { currency: 'INR', language: 'en-IN', theme: 'light', dateFormat: 'DD-MM-YYYY' };
         let pendingRestoreBackup = null;
+        let retentionPrefs = { showStreaks: true, showMonthlyReviews: true, showMotivationalInsights: true };
+        let retentionCache = { signature: '', data: null };
 
         // Wallets (NEW)
         let wallets = {
@@ -2132,6 +2325,7 @@
             setupPWAInstallFlow();
             setupOfflineStatusBanner();
             initNotificationPrefs();
+            initRetentionPrefs();
         });
 
         function checkAuth() {
@@ -2263,6 +2457,9 @@
                 document.getElementById(id)?.addEventListener('change', persistSettingsFromForm);
             });
             document.getElementById('restoreBackupInput')?.addEventListener('change', handleRestoreBackupFile);
+            ['retentionShowStreaks','retentionShowReviews','retentionShowInsights'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', syncRetentionPrefToggles);
+            });
             window.matchMedia?.('(prefers-color-scheme: dark)')?.addEventListener?.('change', () => {
                 if (appPreferences.theme === 'system') applyThemePreference();
             });
@@ -2392,6 +2589,7 @@
             if (backupStatus) backupStatus.textContent = `Last backup: ${getLastBackupDisplay()}`;
             const pwa = document.getElementById('pwaStatus');
             if (pwa) pwa.textContent = isStandaloneAppMode() ? 'Installed' : ('serviceWorker' in navigator ? 'Available' : 'Not supported');
+            renderRetentionPrefsUI();
             renderNotificationPrefsUI();
         }
 
@@ -2462,6 +2660,8 @@
                     state: { ...onboardingState }
                 },
                 notificationPreferences: { ...notificationPrefs },
+                retentionPreferences: { ...retentionPrefs },
+                monthlyReviews: JSON.parse(localStorage.getItem(MONTHLY_REVIEWS_KEY) || '{}'),
                 lastBackup: localStorage.getItem(LAST_BACKUP_KEY) || null
             };
         }
@@ -2632,6 +2832,11 @@
                 notificationPrefs = { ...notificationPrefs, ...backup.notificationPreferences };
                 persistNotificationPrefs();
             }
+            if (backup.retentionPreferences) {
+                retentionPrefs = { ...retentionPrefs, ...backup.retentionPreferences };
+                persistRetentionPrefs();
+            }
+            if (backup.monthlyReviews) localStorage.setItem(MONTHLY_REVIEWS_KEY, JSON.stringify(backup.monthlyReviews));
             if (backup.onboarding?.completed) localStorage.setItem(ONBOARDING_KEY, 'completed');
             else localStorage.removeItem(ONBOARDING_KEY);
             if (backup.profile?.memberSince) localStorage.setItem(MEMBER_SINCE_KEY, backup.profile.memberSince);
@@ -2750,6 +2955,282 @@
             } finally {
                 setButtonLoading(button, false);
             }
+        }
+
+        function initRetentionPrefs() {
+            try {
+                retentionPrefs = { ...retentionPrefs, ...(JSON.parse(localStorage.getItem(RETENTION_PREFS_KEY) || '{}')) };
+            } catch (_) {}
+            renderRetentionPrefsUI();
+        }
+
+        function persistRetentionPrefs() {
+            localStorage.setItem(RETENTION_PREFS_KEY, JSON.stringify(retentionPrefs));
+        }
+
+        function renderRetentionPrefsUI() {
+            const streaks = document.getElementById('retentionShowStreaks');
+            const reviews = document.getElementById('retentionShowReviews');
+            const insights = document.getElementById('retentionShowInsights');
+            if (streaks) streaks.checked = !!retentionPrefs.showStreaks;
+            if (reviews) reviews.checked = !!retentionPrefs.showMonthlyReviews;
+            if (insights) insights.checked = !!retentionPrefs.showMotivationalInsights;
+        }
+
+        function syncRetentionPrefToggles() {
+            retentionPrefs.showStreaks = !!document.getElementById('retentionShowStreaks')?.checked;
+            retentionPrefs.showMonthlyReviews = !!document.getElementById('retentionShowReviews')?.checked;
+            retentionPrefs.showMotivationalInsights = !!document.getElementById('retentionShowInsights')?.checked;
+            persistRetentionPrefs();
+            renderDashboardRetention();
+            showToast('Retention preferences updated.', 'success');
+        }
+
+        function toDateKey(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toISOString().slice(0, 10);
+        }
+
+        function monthKeyFromDate(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function formatMonthLabel(monthKey, short = false) {
+            const [year, month] = String(monthKey).split('-').map(Number);
+            if (!year || !month) return monthKey || '-';
+            return new Date(year, month - 1, 1).toLocaleDateString(getCurrentLocale(), { month: short ? 'short' : 'long', year: 'numeric' });
+        }
+
+        function addDays(date, days) {
+            const next = new Date(date);
+            next.setDate(next.getDate() + days);
+            return next;
+        }
+
+        function getWeekStartKey(value) {
+            const date = value instanceof Date ? new Date(value) : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const day = (date.getDay() + 6) % 7;
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() - day);
+            return toDateKey(date);
+        }
+
+        function getRetentionSignature() {
+            return [
+                transactions.length,
+                goals.length,
+                transactions.map(t => `${t._id || ''}:${t.date}:${t.type}:${t.amount}:${t.category}:${t.wallet}`).join('|'),
+                goals.map(g => `${g._id || ''}:${g.currentAmount}:${g.targetAmount}:${g.deadline}`).join('|')
+            ].join('::');
+        }
+
+        function getRetentionAnalytics() {
+            const signature = getRetentionSignature();
+            if (retentionCache.signature === signature && retentionCache.data) return retentionCache.data;
+            const data = {
+                trackingStreak: calculateTrackingStreak(transactions),
+                savingsStreak: calculateSavingsStreak(transactions),
+                monthlyReviews: generateMonthlyReviews(transactions),
+                goalSummaries: goals.map(goal => buildGoalProgressModel(goal)),
+                insights: []
+            };
+            data.insights = generateRetentionInsights(data);
+            retentionCache = { signature, data };
+            persistHistoricalReviews(data.monthlyReviews);
+            return data;
+        }
+
+        function calculateTrackingStreak(txns) {
+            const days = [...new Set(txns.map(t => toDateKey(t.date)).filter(Boolean))].sort();
+            if (!days.length) return { current: 0, longest: 0, lastTracked: null };
+            let longest = 1;
+            let run = 1;
+            for (let i = 1; i < days.length; i++) {
+                const prev = new Date(days[i - 1]);
+                const curr = new Date(days[i]);
+                const diff = Math.round((curr - prev) / 86400000);
+                run = diff === 1 ? run + 1 : 1;
+                longest = Math.max(longest, run);
+            }
+            let current = 1;
+            for (let i = days.length - 1; i > 0; i--) {
+                const curr = new Date(days[i]);
+                const prev = new Date(days[i - 1]);
+                const diff = Math.round((curr - prev) / 86400000);
+                if (diff === 1) current += 1;
+                else break;
+            }
+            const daysSinceLastTrack = Math.floor((new Date(toDateKey(new Date())) - new Date(days[days.length - 1])) / 86400000);
+            if (daysSinceLastTrack > 1) current = 0;
+            return { current, longest, lastTracked: days[days.length - 1] };
+        }
+
+        function calculateSavingsStreak(txns) {
+            const weekly = {};
+            txns.forEach(t => {
+                const key = getWeekStartKey(t.date);
+                if (!key) return;
+                if (!weekly[key]) weekly[key] = { income: 0, expenses: 0 };
+                if (t.type === 'income') weekly[key].income += Number(t.amount || 0);
+                if (t.type === 'expense') weekly[key].expenses += Number(t.amount || 0);
+            });
+            const positiveWeeks = Object.keys(weekly).filter(k => weekly[k].income - weekly[k].expenses > 0).sort();
+            if (!positiveWeeks.length) return { current: 0, longest: 0, lastWeek: null };
+            let longest = 1;
+            let run = 1;
+            for (let i = 1; i < positiveWeeks.length; i++) {
+                const diffWeeks = Math.round((new Date(positiveWeeks[i]) - new Date(positiveWeeks[i - 1])) / (7 * 86400000));
+                run = diffWeeks === 1 ? run + 1 : 1;
+                longest = Math.max(longest, run);
+            }
+            let current = 1;
+            for (let i = positiveWeeks.length - 1; i > 0; i--) {
+                const diffWeeks = Math.round((new Date(positiveWeeks[i]) - new Date(positiveWeeks[i - 1])) / (7 * 86400000));
+                if (diffWeeks === 1) current += 1;
+                else break;
+            }
+            const weeksSinceLastPositive = Math.floor((new Date(getWeekStartKey(new Date())) - new Date(positiveWeeks[positiveWeeks.length - 1])) / (7 * 86400000));
+            if (weeksSinceLastPositive > 1) current = 0;
+            return { current, longest, lastWeek: positiveWeeks[positiveWeeks.length - 1] };
+        }
+
+        function generateMonthlyReviews(txns) {
+            const byMonth = {};
+            txns.forEach(t => {
+                const month = monthKeyFromDate(t.date);
+                if (!month) return;
+                if (!byMonth[month]) byMonth[month] = { month, income: 0, expenses: 0, byCategory: {}, byWallet: {}, byDay: {} };
+                const amount = Number(t.amount || 0);
+                const dayName = new Date(t.date).toLocaleDateString('en-US', { weekday: 'long' });
+                byMonth[month].byDay[dayName] = (byMonth[month].byDay[dayName] || 0) + 1;
+                if (t.type === 'income') byMonth[month].income += amount;
+                if (t.type === 'expense') {
+                    byMonth[month].expenses += amount;
+                    byMonth[month].byCategory[t.category || 'Uncategorized'] = (byMonth[month].byCategory[t.category || 'Uncategorized'] || 0) + amount;
+                    byMonth[month].byWallet[t.wallet || 'Main Wallet'] = (byMonth[month].byWallet[t.wallet || 'Main Wallet'] || 0) + amount;
+                }
+            });
+            const months = Object.keys(byMonth).sort();
+            return months.map((month, index) => {
+                const row = byMonth[month];
+                const savings = row.income - row.expenses;
+                const savingsRate = row.income > 0 ? (savings / row.income) * 100 : 0;
+                const prev = index > 0 ? byMonth[months[index - 1]] : null;
+                const spendingTrend = prev && prev.expenses > 0 ? ((row.expenses - prev.expenses) / prev.expenses) * 100 : null;
+                return {
+                    month,
+                    label: `${formatMonthLabel(month)} Review`,
+                    income: row.income,
+                    expenses: row.expenses,
+                    savings,
+                    savingsRate,
+                    highestCategory: rankHighestEntry(Object.entries(row.byCategory || {}))?.[0] || 'None',
+                    topWallet: rankHighestEntry(Object.entries(row.byWallet || {}))?.[0] || 'None',
+                    mostActiveDay: rankHighestEntry(Object.entries(row.byDay || {}))?.[0] || 'None',
+                    spendingTrend
+                };
+            }).reverse();
+        }
+
+        function persistHistoricalReviews(reviews) {
+            try {
+                const existing = JSON.parse(localStorage.getItem(MONTHLY_REVIEWS_KEY) || '{}');
+                reviews.forEach(review => { existing[review.month] = review; });
+                localStorage.setItem(MONTHLY_REVIEWS_KEY, JSON.stringify(existing));
+            } catch (_) {}
+        }
+
+        function getAverageMonthlySavings() {
+            const reviews = generateMonthlyReviews(transactions);
+            const positives = reviews.slice(0, 3).map(r => r.savings).filter(v => v > 0);
+            if (!positives.length) return 0;
+            return positives.reduce((sum, value) => sum + value, 0) / positives.length;
+        }
+
+        function buildGoalProgressModel(goal) {
+            const target = Number(goal.targetAmount || 0);
+            const current = Number(goal.currentAmount || 0);
+            const remaining = Math.max(target - current, 0);
+            const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+            const avgMonthlySavings = getAverageMonthlySavings();
+            let estimatedDate = goal.deadline ? new Date(goal.deadline) : null;
+            if (!estimatedDate && remaining > 0 && avgMonthlySavings > 0) {
+                estimatedDate = new Date();
+                estimatedDate.setMonth(estimatedDate.getMonth() + Math.ceil(remaining / avgMonthlySavings));
+            }
+            const daysRemaining = estimatedDate ? Math.max(Math.ceil((estimatedDate - new Date()) / 86400000), 0) : null;
+            return { goal, target, current, remaining, percentage, estimatedDate, daysRemaining };
+        }
+
+        function renderMilestones(percentage) {
+            return [25, 50, 75, 100].map(milestone => `
+                <span class="milestone-pill ${percentage >= milestone ? 'achieved' : ''}">${percentage >= milestone ? '✓ ' : ''}${milestone}%</span>
+            `).join('');
+        }
+
+        function generateRetentionInsights(data) {
+            const insights = [];
+            if (data.trackingStreak.current > 0) insights.push(`You maintained a ${data.trackingStreak.current}-day tracking streak.`);
+            if (data.savingsStreak.current > 0) insights.push(`Your savings streak is ${data.savingsStreak.current} week${data.savingsStreak.current === 1 ? '' : 's'}.`);
+            const reachedMilestone = data.goalSummaries.find(g => [25, 50, 75, 100].some(m => Math.floor(g.percentage) >= m && Math.floor(g.percentage) < m + 10));
+            if (reachedMilestone) insights.push(`You reached ${Math.floor(reachedMilestone.percentage)}% of your ${reachedMilestone.goal.name} goal.`);
+            if (data.monthlyReviews.length >= 2) {
+                const [latest, previous] = data.monthlyReviews;
+                const improvement = latest.savingsRate - previous.savingsRate;
+                if (Math.abs(improvement) >= 1) insights.push(`You ${improvement >= 0 ? 'improved' : 'changed'} your savings rate by ${Math.abs(improvement).toFixed(1)}%.`);
+            }
+            return insights.slice(0, 3);
+        }
+
+        function renderDashboardRetention() {
+            const container = document.getElementById('dashboardRetentionGrid');
+            if (!container) return;
+            const data = getRetentionAnalytics();
+            const cards = [];
+            if (retentionPrefs.showStreaks) {
+                cards.push(`<div class="retention-card"><div class="retention-card-title">🔥 Tracking Streak</div><div class="retention-metric">${data.trackingStreak.current}-Day Streak</div><div class="retention-subtext">Best: ${data.trackingStreak.longest} days</div></div>`);
+                cards.push(`<div class="retention-card"><div class="retention-card-title">💰 Savings Streak</div><div class="retention-metric">${data.savingsStreak.current} Weeks</div><div class="retention-subtext">Best: ${data.savingsStreak.longest} weeks</div></div>`);
+            }
+            if (retentionPrefs.showMonthlyReviews && data.monthlyReviews.length) {
+                const review = data.monthlyReviews[0];
+                cards.push(`<div class="retention-card"><div class="retention-card-title">📅 ${review.label}</div><div class="retention-metric">${formatMoney(review.savings)} saved</div><div class="retention-subtext">Savings rate ${review.savingsRate.toFixed(1)}% • Top spend: ${review.highestCategory}</div></div>`);
+            }
+            if (retentionPrefs.showMotivationalInsights && data.insights.length) {
+                cards.push(`<div class="retention-card"><div class="retention-card-title">✨ Progress Nudge</div><div class="retention-subtext">${data.insights[0]}</div></div>`);
+            }
+            const topGoal = data.goalSummaries.sort((a, b) => b.percentage - a.percentage)[0];
+            if (topGoal) cards.push(`<div class="retention-card"><div class="retention-card-title">🎯 Goal Snapshot</div><div class="retention-metric">${topGoal.percentage.toFixed(0)}% Complete</div><div class="retention-subtext">${topGoal.goal.name}: ${formatMoney(topGoal.remaining)} remaining</div></div>`);
+            container.innerHTML = cards.join('');
+            renderDashboardMonthlyReviews(data);
+        }
+
+        function renderDashboardMonthlyReviews(data = getRetentionAnalytics()) {
+            const card = document.getElementById('dashboardMonthlyReviewsCard');
+            const container = document.getElementById('dashboardMonthlyReviews');
+            if (!card || !container) return;
+            const shouldShow = retentionPrefs.showMonthlyReviews && data.monthlyReviews.length > 0;
+            card.style.display = shouldShow ? 'block' : 'none';
+            if (!shouldShow) return;
+            container.innerHTML = data.monthlyReviews.slice(0, 6).map(review => {
+                const trendText = review.spendingTrend === null ? 'First tracked month' : `${review.spendingTrend <= 0 ? 'Down' : 'Up'} ${Math.abs(review.spendingTrend).toFixed(1)}%`;
+                return `<article class="monthly-review-card">
+                    <div class="retention-card-title">${review.label}</div>
+                    <div class="retention-metric">${formatMoney(review.savings)} saved</div>
+                    <div class="review-grid">
+                        <div class="review-item"><span>Income</span><strong>${formatMoney(review.income)}</strong></div>
+                        <div class="review-item"><span>Expenses</span><strong>${formatMoney(review.expenses)}</strong></div>
+                        <div class="review-item"><span>Savings Rate</span><strong>${review.savingsRate.toFixed(1)}%</strong></div>
+                        <div class="review-item"><span>Top Category</span><strong>${review.highestCategory}</strong></div>
+                        <div class="review-item"><span>Top Wallet</span><strong>${review.topWallet}</strong></div>
+                        <div class="review-item"><span>Most Active Day</span><strong>${review.mostActiveDay}</strong></div>
+                    </div>
+                    <div class="retention-subtext">Spending trend: ${trendText}</div>
+                </article>`;
+            }).join('');
         }
 
         function initNotificationPrefs() {
@@ -3347,6 +3828,7 @@
             document.getElementById('totalTransactions').textContent = transactions.length;
 
             const recent = transactions.slice(0, 5);
+            renderDashboardRetention();
             renderTransactionTable(recent, 'recentTransactionsTable');
         }
 
@@ -3608,33 +4090,33 @@
                 return;
             }
 
-            let html = '';
-            goals.forEach(goal => {
-                const progress = goal.targetAmount > 0 ? ((goal.currentAmount / goal.targetAmount) * 100).toFixed(1) : 0;
-
-                html += `
-                    <div class="goal-card">
-                        <div class="goal-header">
-                            <div>
-                                <div class="goal-name">${goal.name}</div>
-                                <div class="goal-amount">${formatMoney(goal.currentAmount)} / ${formatMoney(goal.targetAmount)}</div>
-                                ${goal.deadline ? `<div class="goal-amount">Due: ${formatAppDate(goal.deadline)}</div>` : ''}
-                            </div>
-                            <div class="goal-progress">${progress}%</div>
+            const models = goals.map(goal => buildGoalProgressModel(goal));
+            container.innerHTML = models.map(({ goal, target, current, remaining, percentage, estimatedDate, daysRemaining }) => `
+                <div class="goal-card goal-progress-card">
+                    <div class="goal-header">
+                        <div>
+                            <div class="goal-name">${goal.name}</div>
+                            <div class="goal-amount">${percentage.toFixed(0)}% Complete</div>
                         </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
-                        </div>
-                        ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${goal.notes}</p>` : ''}
-                        <div class="vault-actions" style="margin-top: 16px;">
-                            <button class="btn btn-secondary" onclick="editGoal('${goal._id}')">Edit</button>
-                            <button class="btn btn-secondary" onclick="deleteGoal('${goal._id}')">Delete</button>
-                        </div>
+                        <div class="goal-progress">${percentage.toFixed(1)}%</div>
                     </div>
-                `;
-            });
-
-            container.innerHTML = html;
+                    <div class="goal-progress-meta">
+                        <div class="goal-progress-stat"><span>Current Progress</span><strong>${formatMoney(current)} / ${formatMoney(target)}</strong></div>
+                        <div class="goal-progress-stat"><span>Remaining</span><strong>${formatMoney(remaining)}</strong></div>
+                        <div class="goal-progress-stat"><span>Estimated Completion</span><strong>${estimatedDate ? formatMonthLabel(monthKeyFromDate(estimatedDate), true) : 'Add more data'}</strong></div>
+                        <div class="goal-progress-stat"><span>Days Remaining</span><strong>${daysRemaining !== null ? `${daysRemaining} days` : 'Calculating'}</strong></div>
+                    </div>
+                    <div class="goal-progress-track" aria-label="${goal.name} progress ${percentage.toFixed(1)}%">
+                        <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="milestone-row">${renderMilestones(percentage)}</div>
+                    ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${goal.notes}</p>` : ''}
+                    <div class="vault-actions" style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="editGoal('${goal._id}')">Edit</button>
+                        <button class="btn btn-secondary" onclick="deleteGoal('${goal._id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Reports Page
