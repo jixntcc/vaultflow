@@ -1,0 +1,964 @@
+/**
+* VaultFlow Financial Tracker - Backend Server (Vercel Optimized)
+* Node.js + Express + MongoDB
+*/
+
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+require('dotenv').config();
+
+const app = express();
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+const mailTransporter = nodemailer.createTransport({
+service: 'gmail',
+auth: {
+user: EMAIL_USER,
+pass: EMAIL_PASS
+}
+});
+const AUTH_TOKEN_TTL = process.env.AUTH_TOKEN_TTL || '30d';
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve index.html for all non-API routes
+app.get('*', (req, res, next) => {
+if (!req.path.startsWith('/api/')) {
+res.sendFile(path.join(__dirname, 'public', 'index.html'));
+} else {
+next();
+}
+});
+
+// ============================================
+// MONGODB CONNECTION (VERCEL OPTIMIZED)
+// ============================================
+
+let cachedConnection = null;
+let connectingPromise = null;
+
+async function connectToDatabase() {
+if (cachedConnection && mongoose.connection.readyState === 1) {
+console.log('✅ Using cached MongoDB connection');
+return cachedConnection;
+}
+if (connectingPromise) {
+console.log('⏳ Awaiting in-flight MongoDB connection');
+await connectingPromise;
+if (mongoose.connection.readyState !== 1) {
+throw new Error('MongoDB connection not ready after awaiting in-flight connect');
+}
+return cachedConnection || mongoose.connection;
+}
+
+try {
+const opts = {
+useNewUrlParser: true,
+useUnifiedTopology: true,
+serverSelectionTimeoutMS: 10000, // 10 second timeout
+socketTimeoutMS: 45000, // 45 second timeout
+maxPoolSize: 10,
+minPoolSize: 2,
+bufferCommands: false
+};
+
+console.log('🔄 Connecting to MongoDB...');
+connectingPromise = mongoose.connect(process.env.MONGODB_URI, opts);
+const conn = await connectingPromise;
+cachedConnection = conn;
+connectingPromise = null;
+console.log('✅ MongoDB Connected');
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB readyState is ${mongoose.connection.readyState} after connect`);
+}
+return conn;
+} catch (err) {
+connectingPromise = null;
+console.error('❌ MongoDB Connection Error:', err);
+throw err;
+}
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+// User Schema
+const userSchema = new mongoose.Schema({
+username: { type: String, required: true, unique: true },
+email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
+password: { type: String, required: true },
+passwordResetTokenHash: { type: String },
+passwordResetExpiresAt: { type: Date },
+passwordResetTokenType: { type: String },
+createdAt: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Vault Schema
+const vaultSchema = new mongoose.Schema({
+userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+name: { type: String, required: true },
+percentage: { type: Number, required: true },
+description: { type: String },
+totalIncome: { type: Number, default: 0 },
+totalSpent: { type: Number, default: 0 },
+balance: { type: Number, default: 0 },
+createdAt: { type: Date, default: Date.now }
+});
+
+const Vault = mongoose.model('Vault', vaultSchema);
+
+// Transaction Schema
+const transactionSchema = new mongoose.Schema({
+userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+date: { type: Date, required: true },
+time: { type: String },
+type: { type: String, enum: ['income', 'expense'], required: true },
+amount: { type: Number, required: true },
+category: { type: String, required: true },
+location: { type: String },
+wallet: { type: String, enum: ['HR', 'HL'] },
+paymentMethod: { type: String, enum: ['online', 'byhand'], default: 'online' },
+vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' },
+vaultName: { type: String },
+notes: { type: String },
+createdAt: { type: Date, default: Date.now }
+});
+
+const Transaction = mongoose.model('Transaction', transactionSchema);
+
+// Goal Schema (FIXED)
+const goalSchema = new mongoose.Schema({
+userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+name: { type: String, required: true },
+targetAmount: { type: Number, required: true },
+currentAmount: { type: Number, default: 0 },
+vaultId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vault' }, // Made optional
+vaultName: { type: String },
+deadline: { type: Date },
+status: { type: String, enum: ['active', 'completed', 'archived'], default: 'active' },
+notes: { type: String },
+createdAt: { type: Date, default: Date.now }
+});
+
+const Goal = mongoose.model('Goal', goalSchema);
+
+// ============================================
+// MIDDLEWARE
+// ============================================
+
+// Database connection middleware
+const ensureConnection = async (req, res, next) => {
+try {
+await connectToDatabase();
+if (mongoose.connection.readyState !== 1) {
+throw new Error(`MongoDB connection not ready in middleware. readyState=${mongoose.connection.readyState}`);
+}
+next();
+} catch (error) {
+console.error('Database connection failed:', error);
+return res.status(503).json({ error: 'Database connection failed' });
+}
+};
+
+// Authentication Middleware
+const authenticateToken = (req, res, next) => {
+const authHeader = req.headers['authorization'];
+const token = authHeader && authHeader.split(' ')[1];
+
+if (!token) {
+return res.status(401).json({ error: 'Access token required' });
+}
+
+jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+if (err) {
+return res.status(403).json({ error: 'Invalid or expired token' });
+}
+req.user = user;
+next();
+});
+};
+
+// ============================================
+// AUTHENTICATION ROUTES
+// ============================================
+const forgotPasswordRateMap = new Map();
+function isRateLimited(key, max = 5, windowMs = 15 * 60 * 1000) {
+const now = Date.now();
+const entry = forgotPasswordRateMap.get(key) || { count: 0, resetAt: now + windowMs };
+if (now > entry.resetAt) {
+entry.count = 0;
+entry.resetAt = now + windowMs;
+}
+entry.count += 1;
+forgotPasswordRateMap.set(key, entry);
+return entry.count > max;
+}
+
+// Register
+app.post('/api/auth/register', ensureConnection, async (req, res) => {
+try {
+const { username, email, password } = req.body;
+
+if (!username || !email || !password) {
+return res.status(400).json({ error: 'Username, email and password required' });
+}
+
+if (password.length < 6) {
+return res.status(400).json({ error: 'Password must be at least 6 characters' });
+}
+
+const existingUser = await User.findOne({ username });
+if (existingUser) {
+return res.status(400).json({ error: 'Username already exists' });
+}
+const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
+if (existingEmail) {
+return res.status(400).json({ error: 'Email already exists' });
+}
+
+const hashedPassword = await bcrypt.hash(password, 10);
+
+const user = new User({
+username,
+email: email.toLowerCase().trim(),
+password: hashedPassword
+});
+
+await user.save();
+
+// Create default vaults
+const defaultVaults = [
+{ name: 'Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building' },
+{ name: 'Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments' },
+{ name: 'Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books' },
+{ name: 'Core Survival Vault', percentage: 10, description: 'Essential needs' },
+{ name: 'Chaos Play Vault', percentage: 10, description: 'Spend freely' }
+];
+
+for (const vaultData of defaultVaults) {
+const vault = new Vault({
+userId: user._id,
+...vaultData
+});
+await vault.save();
+}
+
+const token = jwt.sign(
+{ userId: user._id, username: user.username },
+process.env.JWT_SECRET,
+{ expiresIn: AUTH_TOKEN_TTL }
+);
+
+res.status(201).json({
+  message: 'User registered successfully',
+  token,
+  user: {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt
+  }
+});
+
+} catch (error) {
+console.error('Register error:', error);
+res.status(500).json({ error: 'Server error during registration' });
+}
+});
+
+// Login
+app.post('/api/auth/login', ensureConnection, async (req, res) => {
+try {
+const { username, password } = req.body;
+console.log('LOGIN DEBUG req.body:', {
+hasBody: !!req.body,
+usernameType: typeof username,
+usernamePreview: typeof username === 'string' ? username.slice(0, 3) + '***' : null,
+hasPassword: !!password,
+passwordType: typeof password
+});
+
+if (!username || !password) {
+return res.status(400).json({ error: 'Username and password required' });
+}
+
+const identifier = username.trim().toLowerCase();
+const user = await User.findOne({
+$or: [{ username: username.trim() }, { email: identifier }]
+});
+console.log('LOGIN DEBUG user lookup:', {
+identifier,
+found: !!user,
+userId: user?._id?.toString?.(),
+hasPasswordHash: !!user?.password
+});
+if (!user) {
+return res.status(401).json({ error: 'Invalid credentials' });
+}
+
+const validPassword = await bcrypt.compare(password, user.password);
+console.log('LOGIN DEBUG password compare result:', { validPassword });
+if (!validPassword) {
+return res.status(401).json({ error: 'Invalid credentials' });
+}
+
+if (!process.env.JWT_SECRET) {
+console.error('LOGIN DEBUG missing JWT_SECRET');
+return res.status(500).json({ error: 'Server auth configuration error' });
+}
+
+const token = jwt.sign(
+{ userId: user._id, username: user.username },
+process.env.JWT_SECRET,
+{ expiresIn: AUTH_TOKEN_TTL }
+);
+console.log('LOGIN DEBUG jwt.sign success:', {
+tokenLength: token?.length,
+ttl: AUTH_TOKEN_TTL,
+userId: user._id?.toString?.()
+});
+
+res.json({
+  message: 'Login successful',
+  token,
+  user: {
+    id: user._id,
+    username: user.username,
+    email: user.email,
+    createdAt: user.createdAt
+  }
+});
+
+} catch (error) {
+console.error('LOGIN ERROR DETAILS:', error);
+console.error('LOGIN ERROR:', error);
+console.error('Login error:', error);
+res.status(500).json({ error: 'Server error during login' });
+}
+});
+
+
+app.post('/api/auth/forgot-password', ensureConnection, async (req, res) => {
+try {
+const { email } = req.body || {};
+const generic = { message: 'If an account exists, a reset link has been sent.' };
+if (!email || typeof email !== 'string') return res.json(generic);
+const normalizedEmail = email.toLowerCase().trim();
+const rlKey = `${req.ip}:${normalizedEmail}`;
+if (isRateLimited(rlKey)) return res.status(429).json(generic);
+
+const user = await User.findOne({ email: normalizedEmail });
+if (!user) return res.json(generic);
+
+const rawToken = crypto.randomBytes(32).toString('hex');
+const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+user.passwordResetTokenHash = tokenHash;
+user.passwordResetTokenType = 'password_reset';
+user.passwordResetExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
+await user.save();
+
+const resetUrl = `${req.protocol}://${req.get('host')}/reset-password?token=${rawToken}`;
+console.log(`[SECURITY] Password reset requested for user=${user.username} at ${new Date().toISOString()}`);
+if (EMAIL_USER && EMAIL_PASS) {
+await mailTransporter.sendMail({
+from: `"VaultFlow Security" <${EMAIL_USER}>`,
+to: user.email,
+subject: 'VaultFlow Password Reset',
+html: `<div style="font-family:Arial,sans-serif"><h2>Reset your VaultFlow password</h2><p>Click below to reset your password (valid for 15 minutes):</p><p><a href="${resetUrl}" style="padding:10px 14px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a></p><p>If you did not request this, ignore this email.</p></div>`
+});
+} else {
+console.log(`[MOCK EMAIL] Send reset link to ${user.email}: ${resetUrl}`);
+}
+return res.json(generic);
+} catch (error) {
+console.error('Forgot password error:', error);
+return res.json({ message: 'If an account exists, a reset link has been sent.' });
+}
+});
+
+app.post('/api/auth/reset-password', ensureConnection, async (req, res) => {
+try {
+const { token, password, confirmPassword } = req.body || {};
+if (!token || !password || !confirmPassword) return res.status(400).json({ error: 'Token and password are required' });
+if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords do not match' });
+if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+return res.status(400).json({ error: 'Password must be 8+ chars with upper, lower, and number' });
+}
+const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+const user = await User.findOne({
+passwordResetTokenHash: tokenHash,
+passwordResetTokenType: 'password_reset',
+passwordResetExpiresAt: { $gt: new Date() }
+});
+if (!user) return res.status(400).json({ error: 'Invalid or expired reset token' });
+
+user.password = await bcrypt.hash(password, 10);
+user.passwordResetTokenHash = undefined;
+user.passwordResetTokenType = undefined;
+user.passwordResetExpiresAt = undefined;
+await user.save();
+console.log(`[SECURITY] Password reset completed for user=${user.username} at ${new Date().toISOString()}`);
+return res.json({ message: 'Password reset successful. Please login with your new password.' });
+} catch (error) {
+console.error('Reset password error:', error);
+return res.status(500).json({ error: 'Server error during password reset' });
+}
+});
+
+// ============================================
+// VAULT ROUTES (OPTIMIZED)
+// ============================================
+
+// Get all vaults
+app.get('/api/vaults', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const vaults = await Vault.find({ userId: req.user.userId })
+.sort({ createdAt: 1 })
+.lean()
+.maxTimeMS(10000);
+
+res.json(vaults);
+} catch (error) {
+console.error('Get vaults error:', error);
+res.status(500).json({ error: 'Server error fetching vaults' });
+}
+});
+
+// Create vault
+app.post('/api/vaults', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const { name, percentage, description } = req.body;
+
+if (!name || percentage === undefined) {
+return res.status(400).json({ error: 'Name and percentage required' });
+}
+
+const vault = new Vault({
+userId: req.user.userId,
+name,
+percentage,
+description
+});
+
+await vault.save();
+res.status(201).json(vault);
+
+} catch (error) {
+console.error('Create vault error:', error);
+res.status(500).json({ error: 'Server error creating vault' });
+}
+});
+
+// Update vault
+app.put('/api/vaults/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const { name, percentage, description } = req.body;
+
+const vault = await Vault.findOneAndUpdate(
+{ _id: req.params.id, userId: req.user.userId },
+{ name, percentage, description },
+{ new: true }
+);
+
+if (!vault) {
+return res.status(404).json({ error: 'Vault not found' });
+}
+
+res.json(vault);
+
+} catch (error) {
+console.error('Update vault error:', error);
+res.status(500).json({ error: 'Server error updating vault' });
+}
+});
+
+// Delete vault
+app.delete('/api/vaults/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const vault = await Vault.findOneAndDelete({
+_id: req.params.id,
+userId: req.user.userId
+});
+
+if (!vault) {
+return res.status(404).json({ error: 'Vault not found' });
+}
+
+res.json({ message: 'Vault deleted successfully' });
+
+} catch (error) {
+console.error('Delete vault error:', error);
+res.status(500).json({ error: 'Server error deleting vault' });
+}
+});
+
+// ============================================
+// TRANSACTION ROUTES
+// ============================================
+
+// Get all transactions
+app.get('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const transactions = await Transaction.find({ userId: req.user.userId })
+.sort({ date: -1, time: -1 })
+.lean()
+.maxTimeMS(10000);
+
+res.json(transactions);
+} catch (error) {
+console.error('Get transactions error:', error);
+res.status(500).json({ error: 'Server error fetching transactions' });
+}
+});
+
+// Create transaction
+app.post('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
+
+if (!date || !type || !amount || !category) {
+return res.status(400).json({ error: 'Date, type, amount, and category required' });
+}
+
+const transaction = new Transaction({
+userId: req.user.userId,
+date,
+time,
+type,
+amount,
+category,
+location,
+wallet,
+paymentMethod: paymentMethod || 'online',
+vaultId: vaultId || null,
+vaultName,
+notes
+});
+
+await transaction.save();
+
+// Update vault balances
+if (type === 'income') {
+const vaults = await Vault.find({ userId: req.user.userId });
+for (const vault of vaults) {
+const allocation = (amount * vault.percentage) / 100;
+vault.totalIncome += allocation;
+vault.balance += allocation;
+await vault.save();
+}
+} else if (type === 'expense' && vaultId) {
+const vault = await Vault.findById(vaultId);
+if (vault) {
+vault.totalSpent += amount;
+vault.balance -= amount;
+await vault.save();
+}
+}
+
+res.status(201).json(transaction);
+
+} catch (error) {
+console.error('Create transaction error:', error);
+res.status(500).json({ error: 'Server error creating transaction' });
+}
+});
+
+// Update transaction
+app.put('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
+
+const oldTransaction = await Transaction.findOne({ _id: req.params.id, userId: req.user.userId });
+
+if (!oldTransaction) {
+return res.status(404).json({ error: 'Transaction not found' });
+}
+
+// Reverse old effects
+if (oldTransaction.type === 'income') {
+const vaults = await Vault.find({ userId: req.user.userId });
+for (const vault of vaults) {
+const allocation = (oldTransaction.amount * vault.percentage) / 100;
+vault.totalIncome -= allocation;
+vault.balance -= allocation;
+await vault.save();
+}
+} else if (oldTransaction.type === 'expense' && oldTransaction.vaultId) {
+const vault = await Vault.findById(oldTransaction.vaultId);
+if (vault) {
+vault.totalSpent -= oldTransaction.amount;
+vault.balance += oldTransaction.amount;
+await vault.save();
+}
+}
+
+// Update transaction
+const transaction = await Transaction.findOneAndUpdate(
+{ _id: req.params.id, userId: req.user.userId },
+{ date, time, type, amount, category, location, wallet, paymentMethod: paymentMethod || 'online', vaultId: vaultId || null, vaultName, notes },
+{ new: true }
+);
+
+// Apply new effects
+if (type === 'income') {
+const vaults = await Vault.find({ userId: req.user.userId });
+for (const vault of vaults) {
+const allocation = (amount * vault.percentage) / 100;
+vault.totalIncome += allocation;
+vault.balance += allocation;
+await vault.save();
+}
+} else if (type === 'expense' && vaultId) {
+const vault = await Vault.findById(vaultId);
+if (vault) {
+vault.totalSpent += amount;
+vault.balance -= amount;
+await vault.save();
+}
+}
+
+res.json(transaction);
+
+} catch (error) {
+console.error('Update transaction error:', error);
+res.status(500).json({ error: 'Server error updating transaction' });
+}
+});
+
+// Delete transaction
+app.delete('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const transaction = await Transaction.findOne({
+_id: req.params.id,
+userId: req.user.userId
+});
+
+if (!transaction) {
+return res.status(404).json({ error: 'Transaction not found' });
+}
+
+// Reverse effects
+if (transaction.type === 'income') {
+const vaults = await Vault.find({ userId: req.user.userId });
+for (const vault of vaults) {
+const allocation = (transaction.amount * vault.percentage) / 100;
+vault.totalIncome -= allocation;
+vault.balance -= allocation;
+await vault.save();
+}
+} else if (transaction.type === 'expense' && transaction.vaultId) {
+const vault = await Vault.findById(transaction.vaultId);
+if (vault) {
+vault.totalSpent -= transaction.amount;
+vault.balance += transaction.amount;
+await vault.save();
+}
+}
+
+await Transaction.findByIdAndDelete(req.params.id);
+res.json({ message: 'Transaction deleted successfully' });
+
+} catch (error) {
+console.error('Delete transaction error:', error);
+res.status(500).json({ error: 'Server error deleting transaction' });
+}
+});
+
+// ============================================
+// GOAL ROUTES (AUTO-UPDATE CURRENT AMOUNT)
+// ============================================
+
+// Get all goals (auto-link vault balance as currentAmount)
+app.get('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const goals = await Goal.find({ userId: req.user.userId })
+.sort({ createdAt: -1 })
+.lean()
+.maxTimeMS(10000);
+
+// Get map of vaultId => balance for this user
+const vaults = await Vault.find({ userId: req.user.userId }).lean();
+const vaultMap = {};
+vaults.forEach(vault => {
+vaultMap[String(vault._id)] = vault.balance || 0;
+});
+
+// Overwrite each goal.currentAmount with vault balance (if linked)
+goals.forEach(g => {
+if (g.vaultId && vaultMap[String(g.vaultId)]) {
+g.currentAmount = vaultMap[String(g.vaultId)];
+}
+});
+
+res.json(goals);
+} catch (error) {
+console.error('Get goals error:', error);
+res.status(500).json({ error: 'Server error fetching goals' });
+}
+});
+
+// Create goal (FIXED)
+app.post('/api/goals', ensureConnection, authenticateToken, async (req, res) => {
+try {
+let { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
+
+if (!name || !targetAmount) {
+return res.status(400).json({ error: 'Name and target amount required' });
+}
+
+// FIX: Handle empty vaultId
+if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
+vaultId = null;
+}
+
+const goal = new Goal({
+userId: req.user.userId,
+name,
+targetAmount,
+currentAmount: currentAmount || 0,
+vaultId: vaultId || null,
+vaultName,
+deadline,
+status: status || 'active',
+notes
+});
+
+await goal.save();
+res.status(201).json(goal);
+
+} catch (error) {
+console.error('Create goal error:', error);
+res.status(500).json({ error: 'Server error creating goal' });
+}
+});
+
+// Update goal (FIXED)
+app.put('/api/goals/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+let { name, targetAmount, currentAmount, vaultId, vaultName, deadline, status, notes } = req.body;
+
+// FIX: Handle empty vaultId
+if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
+vaultId = null;
+}
+
+const goal = await Goal.findOneAndUpdate(
+{ _id: req.params.id, userId: req.user.userId },
+{ name, targetAmount, currentAmount, vaultId: vaultId || null, vaultName, deadline, status, notes },
+{ new: true }
+);
+
+if (!goal) {
+return res.status(404).json({ error: 'Goal not found' });
+}
+
+res.json(goal);
+
+} catch (error) {
+console.error('Update goal error:', error);
+res.status(500).json({ error: 'Server error updating goal' });
+}
+});
+
+// Delete goal
+app.delete('/api/goals/:id', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const goal = await Goal.findOneAndDelete({
+_id: req.params.id,
+userId: req.user.userId
+});
+
+if (!goal) {
+return res.status(404).json({ error: 'Goal not found' });
+}
+
+res.json({ message: 'Goal deleted successfully' });
+
+} catch (error) {
+console.error('Delete goal error:', error);
+res.status(500).json({ error: 'Server error deleting goal' });
+}
+});
+
+// ============================================
+// ANALYTICS ROUTES (ENHANCED WITH CHARTS)
+// ============================================
+
+// Get dashboard summary
+app.get('/api/analytics/summary', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const transactions = await Transaction.find({ userId: req.user.userId }).lean();
+
+const totalIncome = transactions
+.filter(t => t.type === 'income')
+.reduce((sum, t) => sum + t.amount, 0);
+
+const totalExpenses = transactions
+.filter(t => t.type === 'expense')
+.reduce((sum, t) => sum + t.amount, 0);
+
+const netSavings = totalIncome - totalExpenses;
+const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : 0;
+
+res.json({
+totalIncome,
+totalExpenses,
+netSavings,
+savingsRate,
+transactionCount: transactions.length
+});
+
+} catch (error) {
+console.error('Get summary error:', error);
+res.status(500).json({ error: 'Server error fetching summary' });
+}
+});
+
+// Get full analytics for reports (with chart data)
+app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, res) => {
+try {
+const userId = req.user.userId;
+const transactions = await Transaction.find({ userId }).lean();
+const vaults = await Vault.find({ userId }).lean();
+
+// CHART 1: Income vs Expenses (Pie)
+const totalIncome = transactions
+.filter(t => t.type === 'income')
+.reduce((sum, t) => sum + t.amount, 0);
+const totalExpenses = transactions
+.filter(t => t.type === 'expense')
+.reduce((sum, t) => sum + t.amount, 0);
+
+// CHART 2: Spending by Category (Bar)
+const byCategory = {};
+transactions
+.filter(t => t.type === 'expense')
+.forEach(t => {
+if (!byCategory[t.category]) byCategory[t.category] = 0;
+byCategory[t.category] += t.amount;
+});
+
+        // CHART 2B: Income by Category / Stream (Bar)
+        const incomeByCategory = {};
+        transactions
+            .filter(t => t.type === 'income')
+            .forEach(t => {
+                const key = t.category || 'Uncategorized';
+                if (!incomeByCategory[key]) incomeByCategory[key] = 0;
+                incomeByCategory[key] += t.amount;
+            });
+
+// CHART 3: Spending by Vault (Bar)
+const byVault = {};
+transactions
+.filter(t => t.type === 'expense' && t.vaultId)
+.forEach(t => {
+const key = t.vaultName || 'Unassigned';
+if (!byVault[key]) byVault[key] = 0;
+byVault[key] += t.amount;
+});
+
+// CHART 4: Monthly Trends (Line)
+const byMonth = {};
+transactions.forEach(t => {
+const d = new Date(t.date);
+const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+if (!byMonth[key]) {
+byMonth[key] = { income: 0, expenses: 0 };
+}
+if (t.type === 'income') byMonth[key].income += t.amount;
+if (t.type === 'expense') byMonth[key].expenses += t.amount;
+});
+
+const monthly = Object.keys(byMonth)
+.sort()
+.slice(-12) // Last 12 months only
+.map(key => ({
+month: key,
+income: byMonth[key].income,
+expenses: byMonth[key].expenses,
+savings: byMonth[key].income - byMonth[key].expenses
+}));
+
+        // CHART 5: Savings Portfolio Trend (Cumulative Savings)
+        let runningSavings = 0;
+        const savingsPortfolio = monthly.map(item => {
+            runningSavings += item.savings;
+            return {
+                month: item.month,
+                value: runningSavings
+            };
+        });
+
+// Current month data
+const now = new Date();
+const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+const currentMonthData = byMonth[currentMonthKey] || { income: 0, expenses: 0 };
+
+res.json({
+currentMonth: {
+income: currentMonthData.income,
+expenses: currentMonthData.expenses,
+savings: currentMonthData.income - currentMonthData.expenses
+},
+incomeVsExpenses: {
+income: totalIncome,
+expenses: totalExpenses
+},
+byCategory: Object.keys(byCategory).length > 0
+  ? byCategory
+  : { 'No data': 0 },
+
+incomeByCategory: Object.keys(incomeByCategory).length > 0
+  ? incomeByCategory
+  : { 'No income': 0 },
+
+byVault: Object.keys(byVault).length > 0
+  ? byVault
+  : { 'No expenses': 0 },
+
+monthly: monthly.length > 0 ? monthly : [],
+
+savingsPortfolio: savingsPortfolio
+});
+
+} catch (error) {
+console.error('Full analytics error:', error);
+res.status(500).json({ error: 'Server error fetching analytics' });
+}
+});
+
+// Health check
+app.get('/health', (req, res) => {
+res.json({ status: 'ok', message: 'VaultFlow API is running' });
+});
+
+// ============================================
+// START SERVER
+// ============================================
+
+const PORT = process.env.PORT || 3000;
+
+if (process.env.NODE_ENV !== 'production') {
+app.listen(PORT, () => {
+console.log(`🚀 VaultFlow server running on port ${PORT}`);
+});
+}
+
+// Export for Vercel
+module.exports = app;
+module.exports = app;

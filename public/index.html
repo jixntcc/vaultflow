@@ -1,0 +1,3518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>VaultFlow - Personal Finance Manager</title>
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="VaultFlow">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <style>
+    <link rel="stylesheet" href="/assets/css/core/variables.css">
+    <link rel="stylesheet" href="/assets/css/core/reset.css">
+    <link rel="stylesheet" href="/assets/css/layout/layout.css">cvvvvv
+</style>
+</head>
+<body>
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">💰 VaultFlow</div>
+            <div class="auth-subtitle">Your Personal Finance Vault Manager</div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                <button type="button" class="btn btn-secondary" id="forgotPasswordLink" style="width:100%; margin-top:10px;">Forgot Password?</button>
+                <button type="button" class="btn demo-btn" id="demoBtn">Try Demo Mode</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password (min 6 characters)</label>
+                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-hidden="true">
+            <div class="logo">💰 VaultFlow</div>
+
+            <nav>
+                <div class="nav-item active" data-page="dashboard">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="transactions">
+                    <span>💳</span>
+                    <span>Transactions</span>
+                </div>
+                <div class="nav-item" data-page="vaults">
+                    <span>🏦</span>
+                    <span>Vaults</span>
+                </div>
+                <div class="nav-item" data-page="wallets">
+                    <span>👛</span>
+                    <span>Wallets</span>
+                </div>
+                <div class="nav-item" data-page="goals">
+                    <span>🎯</span>
+                    <span>Future Goals</span>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <span>📈</span>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span>⚙</span>
+                    <span>Settings</span>
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-name" id="userName">User</div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back! Here's your financial overview.</p>
+                </div>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-label">HR Wallet Balance</div>
+                        <div class="card-value" id="hrWalletBalance">0</div>
+                        <div class="card-change">Wallet 1</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">HL Wallet Balance</div>
+                        <div class="card-value" id="hlWalletBalance">0</div>
+                        <div class="card-change">Wallet 2</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Income</div>
+                        <div class="card-value" id="totalIncome">0</div>
+                        <div class="card-change positive">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Expenses</div>
+                        <div class="card-value" id="totalExpenses">0</div>
+                        <div class="card-change negative">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Net Savings</div>
+                        <div class="card-value" id="netSavings">0</div>
+                        <div class="card-change positive" id="savingsRate">0% rate</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Transactions</div>
+                        <div class="card-value" id="totalTransactions">0</div>
+                        <div class="card-change">All time</div>
+                    </div>
+                </div>
+
+                <div class="retention-grid" id="dashboardRetentionGrid"></div>
+
+                <div class="card" id="dashboardMonthlyReviewsCard" style="margin-bottom: 24px; display:none;">
+                    <div class="table-header" style="padding: 0 0 12px 0; border-bottom: none;">
+                        <h3 class="table-title">Monthly Review</h3>
+                    </div>
+                    <div class="monthly-review-strip" id="dashboardMonthlyReviews"></div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Transactions</h3>
+                        <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                    </div>
+                    <div id="recentTransactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Transactions Page -->
+            <div id="transactions" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="page-subtitle">View and manage all your income and expenses</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">All Transactions</h3>
+                        <div class="table-actions">
+                            <input type="text" class="search-box" id="searchTransactions" placeholder="Search transactions...">
+                            <select class="filter-select" id="filterType">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                        </div>
+                    </div>
+                    <div id="transactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Vaults Page -->
+            <div id="vaults" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Vault Management</h1>
+                    <p class="page-subtitle">Manage your budget vaults and allocation percentages</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showVaultModal()" style="margin-bottom: 20px;">+ Add Vault</button>
+
+                <div id="vaultsList"></div>
+            </div>
+
+            <!-- Wallets Page (NEW) -->
+            <div id="wallets" class="page">
+    <div class="page-header">
+        <h1 class="page-title">Wallet Balances</h1>
+        <p class="page-subtitle">Track your wallet balances by payment method</p>
+    </div>
+
+    <!-- HR Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🔴</span>
+            <h3 style="margin: 0; font-size: 20px;">HR Wallet</h3>
+        </div>
+        <div class="wallet-balance-grid">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HL Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🟠</span>
+            <h3 style="margin: 0; font-size: 20px;">HL Wallet</h3>
+        </div>
+        <div class="wallet-balance-grid">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="cards-grid" style="margin-top: 32px;">
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💳 Total Online Balance</div>
+            <div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💵 Total By-Hand Balance</div>
+            <div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">📊 Grand Total</div>
+            <div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">0</div>
+        </div>
+    </div>
+</div>
+
+            <!-- Goals Page -->
+            <div id="goals" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Future Goals</h1>
+                    <p class="page-subtitle">Track your financial goals and progress</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showGoalModal()" style="margin-bottom: 20px;">+ Add Goal</button>
+
+                <div id="goalsList"></div>
+            </div>
+
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                    <p class="page-subtitle">Manage global profile, preferences, notifications, security, and app information.</p>
+                </div>
+
+                <div class="settings-grid">
+                    <section class="card settings-section">
+                        <h3>👤 Profile</h3>
+                        <p class="settings-help">Account information for your VaultFlow workspace.</p>
+                        <div class="settings-row"><span class="settings-label">Username</span><span class="settings-value" id="settingsUsername">User</span></div>
+                        <div class="settings-row"><span class="settings-label">Email</span><a class="settings-value" id="settingsEmail" href="#">Not available</a></div>
+                        <div class="settings-row"><span class="settings-label">Member Since</span><span class="settings-value" id="settingsMemberSince">Not available</span></div>
+                        <div class="settings-row"><span class="settings-label">Last Backup</span><span class="settings-value" id="settingsLastBackup">Never</span></div>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🎛 Preferences</h3>
+                        <p class="settings-help">Global display preferences used by Dashboard, Reports, Transactions, Wallets, Goals, Exports, and Smart Insights.</p>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsCurrency">Currency</label>
+                            <select class="filter-select" id="settingsCurrency">
+                                <option value="INR">INR ₹</option>
+                                <option value="USD">USD $</option>
+                                <option value="EUR">EUR €</option>
+                                <option value="GBP">GBP £</option>
+                                <option value="AED">AED د.إ</option>
+                                <option value="SAR">SAR ﷼</option>
+                                <option value="SGD">SGD S$</option>
+                                <option value="MYR">MYR RM</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsLanguage">Language</label>
+                            <select class="filter-select" id="settingsLanguage">
+                                <option value="en-IN">English (India)</option>
+                                <option value="en-US">English (US)</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsTheme">Theme</label>
+                            <select class="filter-select" id="settingsTheme">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsDateFormat">Date Format</label>
+                            <select class="filter-select" id="settingsDateFormat">
+                                <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+                                <option value="MM-DD-YYYY">MM-DD-YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🧭 Retention Preferences</h3>
+                        <p class="settings-help">Control habit-building widgets without changing your financial data.</p>
+                        <div class="settings-row"><span class="settings-label">Show streaks</span><input id="retentionShowStreaks" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show monthly reviews</span><input id="retentionShowReviews" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show motivational insights</span><input id="retentionShowInsights" class="notif-switch" type="checkbox"></div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔔 Notifications</h3>
+                        <p class="settings-help">Helpful nudges only. No spam.</p>
+                        <button class="btn btn-secondary" id="notifEnableBtn" type="button">Enable Notifications</button>
+                        <div class="settings-row"><span class="settings-label">Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔐 Security</h3>
+                        <p class="settings-help">Account protection controls.</p>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Logout All Devices')">Logout All Devices</button>
+                        <p class="placeholder-note">Logout all devices is prepared for backend support.</p>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>📦 Data & Backup</h3>
+                        <p class="settings-help">Your financial data belongs to you. Export, restore, and keep a safety copy before changes.</p>
+                        <div class="backup-actions">
+                            <button class="btn btn-secondary" id="exportCsvBtn" type="button" onclick="exportTransactionsCsv(this)">Export CSV</button>
+                            <button class="btn btn-secondary" id="exportPdfBtn" type="button" onclick="exportPdfReport(this)">Export PDF Report</button>
+                            <button class="btn btn-primary" id="exportBackupBtn" type="button" onclick="exportBackupJson(this)">Export Backup</button>
+                            <button class="btn btn-secondary" id="restoreBackupBtn" type="button" onclick="openRestoreBackupPicker(this)">Restore Backup</button>
+                        </div>
+                        <input type="file" id="restoreBackupInput" accept="application/json,.json" class="hidden">
+                        <div class="trust-status" id="backupStatusText">Last backup: Never</div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>ℹ About</h3>
+                        <p class="settings-help">VaultFlow app and policy information.</p>
+                        <div class="settings-row"><span class="settings-label">App Version</span><span class="settings-value">1.0.0</span></div>
+                        <div class="settings-row"><span class="settings-label">PWA Status</span><span class="settings-value" id="pwaStatus">Checking...</span></div>
+                        <div class="settings-row"><span class="settings-label">Privacy Policy</span><a class="settings-value" href="#" onclick="showPlaceholder('Privacy Policy'); return false;">View</a></div>
+                        <div class="settings-row"><span class="settings-label">Terms</span><a class="settings-value" href="#" onclick="showPlaceholder('Terms'); return false;">View</a></div>
+                    </section>
+                </div>
+            </div>
+
+ <!-- Reports Page -->
+<div id="reports" class="page">
+    <div class="page-header">
+        <h1 class="page-title">Financial Reports</h1>
+        <p class="page-subtitle">Monthly and annual financial summaries</p>
+    </div>
+    <div class="card reports-filters collapsed" id="reportFiltersCard">
+        <button class="report-filter-toggle" type="button" onclick="toggleReportFilters()">
+            <span>Filters</span>
+            <span id="reportFilterToggleIcon">▾</span>
+        </button>
+        <div class="report-filter-groups">
+            <div class="report-filter-row single">
+                <select class="filter-select" id="reportPreset">
+                <option value="all">All time</option>
+                <option value="week">This week</option>
+                <option value="month" selected>This month</option>
+                <option value="year">This year</option>
+                <option value="custom">Custom range</option>
+            </select>
+            </div>
+            <div class="report-filter-row">
+                <input type="date" class="search-box" id="reportFromDate">
+                <input type="date" class="search-box" id="reportToDate">
+            </div>
+            <div class="report-filter-row single">
+                <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="cards-grid reports-summary-grid">
+        <div class="card">
+            <div class="card-label" id="monthIncomeLabel">This Month Income</div>
+            <div class="card-value" id="monthIncomeDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="monthExpenseLabel">This Month Expenses</div>
+            <div class="card-value" id="monthExpensesDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="monthSavingsLabel">This Month Savings</div>
+            <div class="card-value" id="monthSavingsDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="annualLabel">Annual Total</div>
+            <div class="card-value" id="annualDisplay">0</div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:14px; margin-bottom: 16px;">
+        <h3 class="section-title">✨ Smart Insights</h3>
+        <div id="smartInsights" class="insights-grid"></div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-primary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
+            <div id="incomeExpensesProgress"></div>
+        </div>
+        <div class="card report-chart-card chart-primary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📅 Monthly Trends</h3>
+            <div class="chart-canvas-wrap"><canvas id="trendsChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="categoryChart"></canvas></div>
+        </div>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
+            <div class="chart-canvas-wrap"><canvas id="vaultChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
+            <div class="chart-canvas-wrap"><canvas id="savingsPortfolioChart"></canvas></div>
+        </div>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="incomeCategoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="card report-chart-card chart-secondary" style="margin-bottom: 24px;">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
+        <div class="sankey-scroll"><div id="incomeFlowChart"></div></div>
+    </div>
+
+    <!-- Monthly Breakdown Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Breakdown</h3>
+        </div>
+        <div class="monthly-breakdown-scroll"><div id="monthlyBreakdown"></div></div>
+    </div>
+</div>
+        </main>
+
+        <!-- FAB Button -->
+        <button class="fab" onclick="showTransactionModal()">+</button>
+    </div>
+
+    <div id="offlineBanner" class="offline-banner">You’re offline. VaultFlow shell is available, but live data updates are paused.</div>
+    <div id="pwaInstallBanner" class="pwa-install-banner">
+        <div class="pwa-banner-row">
+            <div>
+                <div class="pwa-banner-title">Install VaultFlow</div>
+                <div class="pwa-banner-text">Use VaultFlow like a native finance app.</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="dismissInstallBtn" style="padding:8px 10px;">Later</button>
+                <button class="btn btn-primary" id="installAppBtn" style="padding:8px 10px;">Install</button>
+            </div>
+        </div>
+    </div>
+    <div id="onboardingOverlay" class="onboarding-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
+            <div id="onboardingContent"></div>
+        </div>
+    </div>
+
+    <!-- Restore Backup Confirmation Modal -->
+    <div id="restoreBackupModal" class="modal">
+        <div class="modal-content" style="max-width:520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Restore Backup?</h3>
+                <button class="close-modal" onclick="cancelRestoreBackup()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary); margin-bottom: 8px;">This will replace your current VaultFlow data. A temporary backup of your current state will download first for recovery safety.</p>
+                <div class="restore-summary" id="restoreBackupSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" onclick="cancelRestoreBackup()">Cancel</button>
+                <button class="btn btn-primary" id="confirmRestoreBackupBtn" type="button" onclick="confirmRestoreBackup(this)">Restore</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="transactionModalTitle">Add Transaction</h3>
+                <button class="close-modal" onclick="closeModal('transactionModal')">×</button>
+            </div>
+
+            <form id="transactionForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="txnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time</label>
+                            <input type="time" class="form-input" id="txnTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-input" id="txnType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="txnAmount" required min="0" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <input type="text" class="form-input" id="txnCategory" required placeholder="e.g., Salary, Food, Transport">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" id="txnLocation" placeholder="e.g., Delhi, Juma Masjid">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Wallet</label>
+                        <select class="form-input" id="txnWallet" required>
+                            <option value="HR">HR Wallet</option>
+                            <option value="HL">HL Wallet</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-input" id="txnPaymentMethod" required>
+                            <option value="online">💳 Online (UPI, Bank Transfer)</option>
+                            <option value="byhand">💵 By Hand (Cash)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="vaultSelectGroup">
+                        <label class="form-label">Vault for expenses</label>
+                        <select class="form-input" id="txnVault"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
+                    </div>
+
+                    <input type="hidden" id="txnId">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeTransactionModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Vault Modal -->
+    <div id="vaultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="vaultModalTitle">Add Vault</h3>
+                <button class="close-modal" onclick="closeModal('vaultModal')">×</button>
+            </div>
+            <form id="vaultForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Vault Name</label>
+                        <input type="text" class="form-input" id="vaultName" required placeholder="e.g., 💰 Emergency Fund">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Allocation Percentage (%)</label>
+                        <input type="number" class="form-input" id="vaultPercentage" required min="0" max="100" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="vaultDescription" placeholder="Purpose of this vault..."></textarea>
+                    </div>
+                    <input type="hidden" id="vaultId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('vaultModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="goalModalTitle">Add Goal</h3>
+                <button class="close-modal" onclick="closeModal('goalModal')">×</button>
+            </div>
+            <form id="goalForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Goal Name</label>
+                        <input type="text" class="form-input" id="goalName" required placeholder="e.g., New Laptop">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Amount</label>
+                        <input type="number" class="form-input" id="goalTarget" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Amount</label>
+                        <input type="number" class="form-input" id="goalCurrent" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Linked Vault</label>
+                        <select class="form-input" id="goalVault"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" class="form-input" id="goalDeadline">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="goalNotes" placeholder="Goal details..."></textarea>
+                    </div>
+                    <input type="hidden" id="goalId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Forgot Password</h3>
+                <button class="close-modal" onclick="closeModal('forgotPasswordModal')">×</button>
+            </div>
+            <form id="forgotPasswordForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="forgotIdentifier" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content" style="max-width:460px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Reset Password</h3>
+            </div>
+            <form id="resetPasswordForm">
+                <div class="modal-body">
+                    <input type="hidden" id="resetTokenInput">
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-input" id="resetPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" id="resetConfirmPassword" required>
+                    </div>
+                    <small id="resetPwdHint" style="color:var(--text-secondary);">Use 8+ chars with uppercase, lowercase, and number.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = window.location.origin;
+
+        // State
+        let authToken = null;
+        let refreshToken = null;
+        let currentUser = null;
+        let isDemoMode = false;
+        let isRefreshingToken = false;
+        let onboardingState = { step: 1, wallet: 'Main Wallet', income: 0, expense: 0, goal: 0 };
+        const ONBOARDING_KEY = 'vf_onboarding_completed';
+        let deferredInstallPrompt = null;
+        const INSTALL_DISMISS_KEY = 'vf_install_dismissed_at';
+        const NOTIF_PREFS_KEY = 'vf_notification_prefs_v1';
+        const PREF_KEYS = { currency: 'vf_currency', language: 'vf_language', theme: 'vf_theme', dateFormat: 'vf_date_format' };
+        const LAST_BACKUP_KEY = 'vf_last_backup';
+        const MEMBER_SINCE_KEY = 'vf_member_since';
+        const RETENTION_PREFS_KEY = 'vf_retention_prefs';
+        const MONTHLY_REVIEWS_KEY = 'vf_monthly_reviews';
+        const CURRENCY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼', SGD: 'S$', MYR: 'RM' };
+        const CURRENCY_LOCALES = { INR: 'en-IN', USD: 'en-US', EUR: 'en-US', GBP: 'en-GB', AED: 'en-AE', SAR: 'en-SA', SGD: 'en-SG', MYR: 'en-MY' };
+        let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, lastDailyAt: 0, lastWeeklyAt: 0 };
+        let appPreferences = { currency: 'INR', language: 'en-IN', theme: 'light', dateFormat: 'DD-MM-YYYY' };
+        let pendingRestoreBackup = null;
+        let retentionPrefs = { showStreaks: true, showMonthlyReviews: true, showMotivationalInsights: true };
+        let retentionCache = { signature: '', data: null };
+
+        // Wallets (NEW)
+        let wallets = {
+            HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+            HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+        };
+
+        // Demo Data
+        let demoData = {
+            vaults: [
+                { _id: '1', name: '👑 Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '2', name: '🧪 Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '3', name: '🧱 Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '4', name: '🔒 Core Survival Vault', percentage: 10, description: 'Essential needs', totalIncome: 0, totalSpent: 0, balance: 0 },
+                { _id: '5', name: '🎭 Chaos Play Vault', percentage: 10, description: 'Spend freely', totalIncome: 0, totalSpent: 0, balance: 0 }
+            ],
+            transactions: [],
+            goals: [],
+            wallets: {
+                HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initAppPreferences();
+            checkAuth();
+            setupEventListeners();
+            setDefaultDateTime();
+            handleResetTokenFromUrl();
+            registerServiceWorker();
+            setupPWAInstallFlow();
+            setupOfflineStatusBanner();
+            initNotificationPrefs();
+            initRetentionPrefs();
+        });
+
+        function checkAuth() {
+            authToken = localStorage.getItem('vf_token');
+            refreshToken = localStorage.getItem('vf_refresh_token');
+            currentUser = localStorage.getItem('vf_username');
+
+            if (authToken && currentUser) {
+                if (isTokenExpired(authToken)) {
+                    logout('Session expired. Please login again.', 'warning');
+                    return;
+                }
+                showApp();
+            } else {
+                showAuth();
+            }
+        }
+
+        function parseJwt(token) {
+            try {
+                const payload = token.split('.')[1];
+                return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function isTokenExpired(token) {
+            const data = parseJwt(token);
+            if (!data?.exp) return true;
+            return Math.floor(Date.now() / 1000) >= data.exp;
+        }
+
+        function showApp() {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser || 'User';
+            renderSettingsPage();
+            loadAllData();
+        }
+
+        function showAuth() {
+            document.getElementById('authContainer').classList.remove('hidden');
+            document.getElementById('appContainer').classList.add('hidden');
+        }
+
+        function setupEventListeners() {
+            // Auth tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(tabName + 'Form').classList.add('active');
+                });
+            });
+
+            // Forms
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+                await login(username, password);
+            });
+
+            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('signupUsername').value;
+                const email = document.getElementById('signupEmail').value.trim();
+                const password = document.getElementById('signupPassword').value;
+                const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                if (!emailOk) return showToast('Please enter a valid email', 'error');
+                await signup(username, email, password);
+            });
+
+            document.getElementById('demoBtn').addEventListener('click', startDemoMode);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('forgotPasswordLink').addEventListener('click', () => document.getElementById('forgotPasswordModal').classList.add('active'));
+            document.getElementById('forgotPasswordForm').addEventListener('submit', handleForgotPasswordSubmit);
+            document.getElementById('resetPasswordForm').addEventListener('submit', handleResetPasswordSubmit);
+
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const page = this.dataset.page;
+                    switchPage(page);
+                });
+            });
+
+            document.getElementById('mobileMenuBtn').addEventListener('click', () => toggleMobileMenu());
+            document.getElementById('mobileOverlay').addEventListener('click', closeMobileMenu);
+            let wasMobileLayout = window.innerWidth <= 768;
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) closeMobileMenu();
+                const isMobileLayout = window.innerWidth <= 768;
+                if (isMobileLayout !== wasMobileLayout) {
+                    wasMobileLayout = isMobileLayout;
+                    renderDashboard();
+                    renderTransactionsPage();
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMobileMenu();
+            });
+
+            // Transaction form
+            document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
+            document.getElementById('txnType').addEventListener('change', toggleVaultSelect);
+
+            // Vault form
+            document.getElementById('vaultForm').addEventListener('submit', handleVaultSubmit);
+
+            // Goal form
+            document.getElementById('goalForm').addEventListener('submit', handleGoalSubmit);
+
+            // Search and filter
+            document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
+            document.getElementById('filterType').addEventListener('change', filterTransactions);
+
+            // Close modal on outside click
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+            document.getElementById('installAppBtn')?.addEventListener('click', triggerInstallPrompt);
+            document.getElementById('dismissInstallBtn')?.addEventListener('click', dismissInstallBanner);
+            document.getElementById('notifEnableBtn')?.addEventListener('click', promptNotificationPermissionFlow);
+            ['notifDaily','notifWeekly','notifSavings'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', syncNotificationPrefToggles);
+            });
+            ['settingsCurrency','settingsLanguage','settingsTheme','settingsDateFormat'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', persistSettingsFromForm);
+            });
+            document.getElementById('restoreBackupInput')?.addEventListener('change', handleRestoreBackupFile);
+            ['retentionShowStreaks','retentionShowReviews','retentionShowInsights'].forEach((id) => {
+                document.getElementById(id)?.addEventListener('change', syncRetentionPrefToggles);
+            });
+            window.matchMedia?.('(prefers-color-scheme: dark)')?.addEventListener?.('change', () => {
+                if (appPreferences.theme === 'system') applyThemePreference();
+            });
+        }
+
+        function initAppPreferences() {
+            appPreferences = {
+                currency: localStorage.getItem(PREF_KEYS.currency) || 'INR',
+                language: localStorage.getItem(PREF_KEYS.language) || 'en-IN',
+                theme: localStorage.getItem(PREF_KEYS.theme) || 'light',
+                dateFormat: localStorage.getItem(PREF_KEYS.dateFormat) || 'DD-MM-YYYY'
+            };
+            applyThemePreference();
+            renderSettingsPage();
+        }
+
+        function getCurrentCurrency() { return appPreferences.currency || 'INR'; }
+        function getCurrencySymbol(currency = getCurrentCurrency()) { return CURRENCY_SYMBOLS[currency] || currency; }
+        function getCurrentLocale() { return appPreferences.language || CURRENCY_LOCALES[getCurrentCurrency()] || 'en-IN'; }
+
+        function formatMoney(value, options = {}) {
+            const amount = Number(value || 0);
+            const currency = options.currency || getCurrentCurrency();
+            const symbol = getCurrencySymbol(currency);
+            const locale = options.locale || CURRENCY_LOCALES[currency] || getCurrentLocale();
+            const abs = Math.abs(amount).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            const formatted = ['AED', 'SAR'].includes(currency) ? `${symbol} ${abs}` : `${symbol}${abs}`;
+            return amount < 0 ? `-${formatted}` : formatted;
+        }
+
+        function formatCurrency(amount) { return formatMoney(amount); }
+
+        function formatAppDate(value) {
+            if (!value) return '-';
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '-';
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = String(date.getFullYear());
+            if (appPreferences.dateFormat === 'MM-DD-YYYY') return `${mm}-${dd}-${yyyy}`;
+            if (appPreferences.dateFormat === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`;
+            return `${dd}-${mm}-${yyyy}`;
+        }
+
+        function applyThemePreference() {
+            const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches;
+            const effectiveTheme = appPreferences.theme === 'system' ? (prefersDark ? 'dark' : 'light') : appPreferences.theme;
+            document.documentElement.dataset.theme = effectiveTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function persistSettingsFromForm() {
+            appPreferences.currency = document.getElementById('settingsCurrency')?.value || appPreferences.currency;
+            appPreferences.language = document.getElementById('settingsLanguage')?.value || appPreferences.language;
+            appPreferences.theme = document.getElementById('settingsTheme')?.value || appPreferences.theme;
+            appPreferences.dateFormat = document.getElementById('settingsDateFormat')?.value || appPreferences.dateFormat;
+            localStorage.setItem(PREF_KEYS.currency, appPreferences.currency);
+            localStorage.setItem(PREF_KEYS.language, appPreferences.language);
+            localStorage.setItem(PREF_KEYS.theme, appPreferences.theme);
+            localStorage.setItem(PREF_KEYS.dateFormat, appPreferences.dateFormat);
+            applyThemePreference();
+            renderAllPreferenceSensitiveViews();
+            showToast('Preferences updated.', 'success');
+        }
+
+        function renderAllPreferenceSensitiveViews() {
+            renderSettingsPage();
+            renderDashboard();
+            renderCurrentPage();
+            if (document.getElementById('reports')?.classList.contains('active')) applyReportFilters();
+        }
+
+        function formatProfileDate(value, includeTime = false) {
+            if (!value) return 'Not available';
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return 'Not available';
+            return date.toLocaleString(getCurrentLocale(), {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                ...(includeTime ? { hour: '2-digit', minute: '2-digit' } : {})
+            });
+        }
+
+        function getMemberSinceDate() {
+            if (isDemoMode) return 'Demo session';
+            const stored = localStorage.getItem(MEMBER_SINCE_KEY);
+            if (stored) return formatProfileDate(stored);
+            const payload = authToken && authToken !== 'demo-token' ? parseJwt(authToken) : null;
+            if (payload?.iat) {
+                const fallback = new Date(payload.iat * 1000).toISOString();
+                localStorage.setItem(MEMBER_SINCE_KEY, fallback);
+                return formatProfileDate(fallback);
+            }
+            return 'Not available';
+        }
+
+        function getLastBackupDisplay() {
+            const lastBackup = localStorage.getItem(LAST_BACKUP_KEY);
+            return lastBackup ? formatProfileDate(lastBackup, true) : 'Never';
+        }
+
+        function markSuccessfulBackup() {
+            localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
+            renderSettingsPage();
+        }
+
+        function renderSettingsPage() {
+            const setValue = (id, value) => { const el = document.getElementById(id); if (el) el.value = value; };
+            setValue('settingsCurrency', appPreferences.currency);
+            setValue('settingsLanguage', appPreferences.language);
+            setValue('settingsTheme', appPreferences.theme);
+            setValue('settingsDateFormat', appPreferences.dateFormat);
+            const username = document.getElementById('settingsUsername');
+            if (username) username.textContent = currentUser || 'User';
+            const emailValue = localStorage.getItem('vf_email') || (String(currentUser || '').includes('@') ? currentUser : '');
+            const email = document.getElementById('settingsEmail');
+            if (email) {
+                email.textContent = emailValue || 'Not available';
+                email.href = emailValue ? `mailto:${emailValue}` : '#';
+                email.toggleAttribute('aria-disabled', !emailValue);
+            }
+            const memberSince = document.getElementById('settingsMemberSince');
+            if (memberSince) memberSince.textContent = getMemberSinceDate();
+            const lastBackup = document.getElementById('settingsLastBackup');
+            if (lastBackup) lastBackup.textContent = getLastBackupDisplay();
+            const backupStatus = document.getElementById('backupStatusText');
+            if (backupStatus) backupStatus.textContent = `Last backup: ${getLastBackupDisplay()}`;
+            const pwa = document.getElementById('pwaStatus');
+            if (pwa) pwa.textContent = isStandaloneAppMode() ? 'Installed' : ('serviceWorker' in navigator ? 'Available' : 'Not supported');
+            renderRetentionPrefsUI();
+            renderNotificationPrefsUI();
+        }
+
+        function openChangePasswordFlow() {
+            const email = localStorage.getItem('vf_email') || (String(currentUser || '').includes('@') ? currentUser : '');
+            if (email) document.getElementById('forgotIdentifier').value = email;
+            document.getElementById('forgotPasswordModal').classList.add('active');
+        }
+
+        function showPlaceholder(label) {
+            showToast(`${label} will be available in a future VaultFlow update.`, 'warning');
+        }
+
+        function setButtonLoading(button, isLoading, label = 'Working...') {
+            if (!button) return;
+            if (isLoading) {
+                button.dataset.originalText = button.textContent;
+                button.textContent = label;
+                button.disabled = true;
+                button.classList.add('loading');
+            } else {
+                button.textContent = button.dataset.originalText || button.textContent;
+                button.disabled = false;
+                button.classList.remove('loading');
+                delete button.dataset.originalText;
+            }
+        }
+
+        function downloadTextFile(filename, content, type = 'application/json;charset=utf-8;') {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 250);
+        }
+
+        function getPreferenceSnapshot() {
+            return {
+                currency: appPreferences.currency,
+                language: appPreferences.language,
+                theme: appPreferences.theme,
+                dateFormat: appPreferences.dateFormat
+            };
+        }
+
+        function buildBackupPayload(reason = 'manual') {
+            return {
+                version: '1.0',
+                app: 'VaultFlow',
+                reason,
+                exportedAt: new Date().toISOString(),
+                profile: {
+                    username: currentUser || 'User',
+                    email: localStorage.getItem('vf_email') || '',
+                    memberSince: localStorage.getItem(MEMBER_SINCE_KEY) || null
+                },
+                transactions: transactions.map(({ _id, userId, __v, ...txn }) => ({ ...txn, sourceId: _id || txn.sourceId || null })),
+                wallets: JSON.parse(JSON.stringify(wallets || {})),
+                vaults: vaults.map(({ _id, userId, __v, ...vault }) => ({ ...vault, sourceId: _id || vault.sourceId || null })),
+                goals: goals.map(({ _id, userId, __v, ...goal }) => ({ ...goal, sourceId: _id || goal.sourceId || null })),
+                settings: getPreferenceSnapshot(),
+                onboarding: {
+                    completed: localStorage.getItem(ONBOARDING_KEY) === 'completed',
+                    state: { ...onboardingState }
+                },
+                notificationPreferences: { ...notificationPrefs },
+                retentionPreferences: { ...retentionPrefs },
+                monthlyReviews: JSON.parse(localStorage.getItem(MONTHLY_REVIEWS_KEY) || '{}'),
+                lastBackup: localStorage.getItem(LAST_BACKUP_KEY) || null
+            };
+        }
+
+        function exportBackupJson(button = null, { silent = false, filenamePrefix = 'vaultflow-backup', reason = 'manual', markBackup = true } = {}) {
+            setButtonLoading(button, true, 'Exporting...');
+            try {
+                const payload = buildBackupPayload(reason);
+                const today = new Date().toISOString().slice(0, 10);
+                downloadTextFile(`${filenamePrefix}-${today}.json`, JSON.stringify(payload, null, 2));
+                if (markBackup) markSuccessfulBackup();
+                if (!silent) showToast('Backup exported successfully.', 'success');
+                return payload;
+            } catch (error) {
+                console.error('Backup export failed:', error);
+                if (!silent) showToast('Could not export backup.', 'error');
+                return null;
+            } finally {
+                setButtonLoading(button, false);
+            }
+        }
+
+        function validateBackupStructure(data) {
+            const errors = [];
+            if (!data || typeof data !== 'object' || Array.isArray(data)) errors.push('Backup must be a JSON object.');
+            if (data && !data.version) errors.push('Missing version field.');
+            ['transactions', 'vaults', 'goals'].forEach((key) => {
+                if (!Array.isArray(data?.[key])) errors.push(`${key} must be an array.`);
+            });
+            if (!data?.wallets || typeof data.wallets !== 'object' || Array.isArray(data.wallets)) errors.push('wallets must be an object.');
+            if (!data?.settings || typeof data.settings !== 'object' || Array.isArray(data.settings)) errors.push('settings must be an object.');
+            (data?.transactions || []).forEach((txn, index) => {
+                if (!txn || typeof txn !== 'object') errors.push(`Transaction ${index + 1} is invalid.`);
+                if (!txn.date || !txn.type || Number.isNaN(Number(txn.amount))) errors.push(`Transaction ${index + 1} is missing date, type, or amount.`);
+                if (txn.type && !['income', 'expense'].includes(txn.type)) errors.push(`Transaction ${index + 1} has an invalid type.`);
+            });
+            (data?.vaults || []).forEach((vault, index) => {
+                if (!vault?.name || Number.isNaN(Number(vault.percentage))) errors.push(`Vault ${index + 1} is missing name or percentage.`);
+            });
+            (data?.goals || []).forEach((goal, index) => {
+                if (!goal?.name || Number.isNaN(Number(goal.targetAmount))) errors.push(`Goal ${index + 1} is missing name or target amount.`);
+            });
+            return { valid: errors.length === 0, errors };
+        }
+
+        function openRestoreBackupPicker(button = null) {
+            setButtonLoading(button, true, 'Opening...');
+            const input = document.getElementById('restoreBackupInput');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+            setTimeout(() => setButtonLoading(button, false), 350);
+        }
+
+        async function handleRestoreBackupFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const parsed = JSON.parse(text);
+                const validation = validateBackupStructure(parsed);
+                if (!validation.valid) {
+                    showToast(`Invalid backup: ${validation.errors[0]}`, 'error');
+                    return;
+                }
+                pendingRestoreBackup = parsed;
+                renderRestoreSummary(parsed);
+                document.getElementById('restoreBackupModal')?.classList.add('active');
+            } catch (error) {
+                console.error('Restore file read failed:', error);
+                showToast('Invalid JSON backup file.', 'error');
+            }
+        }
+
+        function renderRestoreSummary(backup) {
+            const container = document.getElementById('restoreBackupSummary');
+            if (!container) return;
+            const items = [
+                ['Transactions', backup.transactions?.length || 0],
+                ['Vaults', backup.vaults?.length || 0],
+                ['Goals', backup.goals?.length || 0],
+                ['Exported', formatProfileDate(backup.exportedAt, true)]
+            ];
+            container.innerHTML = items.map(([label, value]) => `
+                <div class="restore-summary-item">
+                    <div class="restore-summary-label">${label}</div>
+                    <div class="restore-summary-value">${value}</div>
+                </div>
+            `).join('');
+        }
+
+        function cancelRestoreBackup() {
+            pendingRestoreBackup = null;
+            document.getElementById('restoreBackupModal')?.classList.remove('active');
+        }
+
+        function sanitizeVaultForRestore(vault) {
+            return {
+                name: vault.name,
+                percentage: Number(vault.percentage || 0),
+                description: vault.description || ''
+            };
+        }
+
+        function sanitizeTransactionForRestore(txn, vaultIdMap = {}) {
+            const mappedVaultId = txn.vaultId ? vaultIdMap[String(txn.vaultId)] : null;
+            return {
+                date: String(txn.date || '').slice(0, 10),
+                time: txn.time || '00:00',
+                type: txn.type,
+                amount: Number(txn.amount || 0),
+                category: txn.category || 'Uncategorized',
+                location: txn.location || '',
+                wallet: txn.wallet || 'HR',
+                paymentMethod: txn.paymentMethod || 'online',
+                vaultId: mappedVaultId || '',
+                notes: txn.notes || ''
+            };
+        }
+
+        function sanitizeGoalForRestore(goal, vaultIdMap = {}) {
+            const mappedVaultId = goal.vaultId ? vaultIdMap[String(goal.vaultId)] : null;
+            return {
+                name: goal.name,
+                targetAmount: Number(goal.targetAmount || 0),
+                currentAmount: Number(goal.currentAmount || 0),
+                vaultId: mappedVaultId || '',
+                vaultName: goal.vaultName || '',
+                deadline: goal.deadline ? String(goal.deadline).slice(0, 10) : '',
+                status: goal.status || 'active',
+                notes: goal.notes || ''
+            };
+        }
+
+        async function confirmRestoreBackup(button = null) {
+            if (!pendingRestoreBackup) return;
+            setButtonLoading(button, true, 'Restoring...');
+            try {
+                exportBackupJson(null, { silent: true, filenamePrefix: 'vaultflow-auto-backup-before-restore', reason: 'pre-restore-safety', markBackup: true });
+                await new Promise(resolve => setTimeout(resolve, 80));
+                await restoreBackupData(pendingRestoreBackup);
+                cancelRestoreBackup();
+                await loadAllData();
+                renderAllPreferenceSensitiveViews();
+                showToast('Backup restored successfully.', 'success');
+            } catch (error) {
+                console.error('Restore failed:', error);
+                showToast(error.message || 'Could not restore backup.', 'error');
+            } finally {
+                setButtonLoading(button, false);
+            }
+        }
+
+        async function restoreBackupData(backup) {
+            const validation = validateBackupStructure(backup);
+            if (!validation.valid) throw new Error(validation.errors[0]);
+
+            if (backup.settings) {
+                appPreferences = { ...appPreferences, ...backup.settings };
+                localStorage.setItem(PREF_KEYS.currency, appPreferences.currency);
+                localStorage.setItem(PREF_KEYS.language, appPreferences.language);
+                localStorage.setItem(PREF_KEYS.theme, appPreferences.theme);
+                localStorage.setItem(PREF_KEYS.dateFormat, appPreferences.dateFormat);
+                applyThemePreference();
+            }
+            if (backup.notificationPreferences) {
+                notificationPrefs = { ...notificationPrefs, ...backup.notificationPreferences };
+                persistNotificationPrefs();
+            }
+            if (backup.retentionPreferences) {
+                retentionPrefs = { ...retentionPrefs, ...backup.retentionPreferences };
+                persistRetentionPrefs();
+            }
+            if (backup.monthlyReviews) localStorage.setItem(MONTHLY_REVIEWS_KEY, JSON.stringify(backup.monthlyReviews));
+            if (backup.onboarding?.completed) localStorage.setItem(ONBOARDING_KEY, 'completed');
+            else localStorage.removeItem(ONBOARDING_KEY);
+            if (backup.profile?.memberSince) localStorage.setItem(MEMBER_SINCE_KEY, backup.profile.memberSince);
+
+            if (isDemoMode) {
+                demoData.transactions = backup.transactions.map((txn, index) => ({ ...txn, _id: txn.sourceId || `rt${Date.now()}${index}` }));
+                demoData.vaults = backup.vaults.map((vault, index) => ({ ...vault, _id: vault.sourceId || `rv${Date.now()}${index}` }));
+                demoData.goals = backup.goals.map((goal, index) => ({ ...goal, _id: goal.sourceId || `rg${Date.now()}${index}` }));
+                demoData.wallets = backup.wallets || demoData.wallets;
+                await loadAllData();
+                return;
+            }
+
+            for (const goal of [...goals]) await apiCall(`/api/goals/${goal._id}`, 'DELETE');
+            for (const txn of [...transactions]) await apiCall(`/api/transactions/${txn._id}`, 'DELETE');
+            for (const vault of [...vaults]) await apiCall(`/api/vaults/${vault._id}`, 'DELETE');
+
+            const vaultIdMap = {};
+            for (const vault of backup.vaults) {
+                const created = await apiCall('/api/vaults', 'POST', sanitizeVaultForRestore(vault));
+                if (created?._id) {
+                    if (vault.sourceId) vaultIdMap[String(vault.sourceId)] = created._id;
+                    if (vault._id) vaultIdMap[String(vault._id)] = created._id;
+                }
+            }
+            const createdVaults = await apiCall('/api/vaults');
+            backup.vaults.forEach((vault) => {
+                const match = createdVaults.find(v => v.name === vault.name);
+                if (match?._id) {
+                    if (vault.sourceId) vaultIdMap[String(vault.sourceId)] = match._id;
+                    if (vault._id) vaultIdMap[String(vault._id)] = match._id;
+                }
+            });
+            for (const txn of backup.transactions) await apiCall('/api/transactions', 'POST', sanitizeTransactionForRestore(txn, vaultIdMap));
+            for (const goal of backup.goals) await apiCall('/api/goals', 'POST', sanitizeGoalForRestore(goal, vaultIdMap));
+        }
+
+        function exportPdfReport(button = null) {
+            setButtonLoading(button, true, 'Preparing...');
+            try {
+                const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+                const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+                const netSavings = totalIncome - totalExpenses;
+                const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : '0.0';
+                const byCategory = {};
+                transactions.filter(t => t.type === 'expense').forEach(t => {
+                    byCategory[t.category || 'Uncategorized'] = (byCategory[t.category || 'Uncategorized'] || 0) + Number(t.amount || 0);
+                });
+                const categoryRows = Object.entries(byCategory).sort((a, b) => b[1] - a[1]).slice(0, 8);
+                const email = localStorage.getItem('vf_email') || 'Not available';
+                const reportDate = formatProfileDate(new Date(), true);
+                const rowsHtml = categoryRows.length ? categoryRows.map(([name, value]) => `<tr><td>${name}</td><td>${formatMoney(value)}</td></tr>`).join('') : '<tr><td colspan="2">No spending categories yet.</td></tr>';
+                const goalsHtml = goals.length ? goals.map(goal => {
+                    const progress = goal.targetAmount > 0 ? Math.min((Number(goal.currentAmount || 0) / Number(goal.targetAmount || 1)) * 100, 100) : 0;
+                    return `<tr><td>${goal.name}</td><td>${formatMoney(goal.currentAmount || 0)} / ${formatMoney(goal.targetAmount || 0)}</td><td>${progress.toFixed(1)}%</td></tr>`;
+                }).join('') : '<tr><td colspan="3">No goals yet.</td></tr>';
+                const html = `<!doctype html><html><head><title>VaultFlow PDF Report</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>
+                    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111827;margin:0;padding:28px;background:#f8fafc;}
+                    .report{max-width:860px;margin:0 auto;background:white;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;}
+                    header{background:#6366f1;color:white;padding:28px;} h1{margin:0;font-size:30px;} .subtitle{opacity:.9;margin-top:4px;}
+                    section{padding:22px 28px;border-top:1px solid #e5e7eb;} h2{font-size:18px;margin:0 0 12px;}
+                    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{border:1px solid #e5e7eb;border-radius:12px;padding:14px;background:#f9fafb}.label{color:#6b7280;font-size:12px}.value{font-size:20px;font-weight:800;margin-top:4px}.user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+                    table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e7eb}th{font-size:12px;color:#6b7280;text-transform:uppercase}footer{padding:18px 28px;color:#6b7280;font-size:12px;text-align:center}
+                    @media(max-width:720px){body{padding:8px}.grid,.user-grid{grid-template-columns:1fr}.report{border-radius:0}}
+                    @media print{body{background:white;padding:0}.report{border:none;border-radius:0}button{display:none}}
+                </style></head><body><div class="report"><header><h1>VaultFlow</h1><div class="subtitle">Professional financial summary</div></header>
+                <section><h2>User Information</h2><div class="user-grid"><div><div class="label">Username</div><div>${currentUser || 'User'}</div></div><div><div class="label">Email</div><div>${email}</div></div><div><div class="label">Report Date</div><div>${reportDate}</div></div></div></section>
+                <section><h2>Financial Summary</h2><div class="grid"><div class="metric"><div class="label">Total Income</div><div class="value">${formatMoney(totalIncome)}</div></div><div class="metric"><div class="label">Total Expenses</div><div class="value">${formatMoney(totalExpenses)}</div></div><div class="metric"><div class="label">Net Savings</div><div class="value">${formatMoney(netSavings)}</div></div><div class="metric"><div class="label">Savings Rate</div><div class="value">${savingsRate}%</div></div></div></section>
+                <section><h2>Category Breakdown</h2><table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody>${rowsHtml}</tbody></table></section>
+                <section><h2>Goals</h2><table><thead><tr><th>Goal</th><th>Progress</th><th>Completion</th></tr></thead><tbody>${goalsHtml}</tbody></table></section>
+                <footer>Generated by VaultFlow</footer></div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`;
+                const win = window.open('', '_blank');
+                if (!win) throw new Error('Please allow pop-ups to export PDF reports.');
+                win.document.open();
+                win.document.write(html);
+                win.document.close();
+                markSuccessfulBackup();
+                showToast('PDF report ready. Choose Save as PDF in the print dialog.', 'success');
+            } catch (error) {
+                console.error('PDF export failed:', error);
+                showToast(error.message || 'Could not export PDF report.', 'error');
+            } finally {
+                setButtonLoading(button, false);
+            }
+        }
+
+        function exportTransactionsCsv(button = null) {
+            setButtonLoading(button, true, 'Exporting...');
+            try {
+                if (!transactions.length) {
+                    showToast('No transactions to export.', 'warning');
+                    return;
+                }
+                const headers = ['Date', 'Time', 'Type', 'Amount', 'Currency', 'Raw Amount', 'Category', 'Location', 'Wallet', 'Payment Method', 'Vault', 'Notes'];
+                const rows = transactions.map(t => [
+                    formatAppDate(t.date),
+                    t.time || '',
+                    t.type || '',
+                    formatMoney(t.amount || 0),
+                    getCurrentCurrency(),
+                    Number(t.amount || 0).toFixed(2),
+                    t.category || '',
+                    t.location || '',
+                    t.wallet || '',
+                    t.paymentMethod || '',
+                    t.vaultName || '',
+                    t.notes || ''
+                ]);
+                const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+                const today = new Date().toISOString().slice(0, 10);
+                downloadTextFile(`vaultflow-transactions-${today}.csv`, csv, 'text/csv;charset=utf-8;');
+                showToast('CSV export downloaded.', 'success');
+            } catch (error) {
+                console.error('CSV export failed:', error);
+                showToast('Could not export CSV.', 'error');
+            } finally {
+                setButtonLoading(button, false);
+            }
+        }
+
+        function initRetentionPrefs() {
+            try {
+                retentionPrefs = { ...retentionPrefs, ...(JSON.parse(localStorage.getItem(RETENTION_PREFS_KEY) || '{}')) };
+            } catch (_) {}
+            renderRetentionPrefsUI();
+        }
+
+        function persistRetentionPrefs() {
+            localStorage.setItem(RETENTION_PREFS_KEY, JSON.stringify(retentionPrefs));
+        }
+
+        function renderRetentionPrefsUI() {
+            const streaks = document.getElementById('retentionShowStreaks');
+            const reviews = document.getElementById('retentionShowReviews');
+            const insights = document.getElementById('retentionShowInsights');
+            if (streaks) streaks.checked = !!retentionPrefs.showStreaks;
+            if (reviews) reviews.checked = !!retentionPrefs.showMonthlyReviews;
+            if (insights) insights.checked = !!retentionPrefs.showMotivationalInsights;
+        }
+
+        function syncRetentionPrefToggles() {
+            retentionPrefs.showStreaks = !!document.getElementById('retentionShowStreaks')?.checked;
+            retentionPrefs.showMonthlyReviews = !!document.getElementById('retentionShowReviews')?.checked;
+            retentionPrefs.showMotivationalInsights = !!document.getElementById('retentionShowInsights')?.checked;
+            persistRetentionPrefs();
+            renderDashboardRetention();
+            showToast('Retention preferences updated.', 'success');
+        }
+
+        function toDateKey(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toISOString().slice(0, 10);
+        }
+
+        function monthKeyFromDate(value) {
+            const date = value instanceof Date ? value : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function formatMonthLabel(monthKey, short = false) {
+            const [year, month] = String(monthKey).split('-').map(Number);
+            if (!year || !month) return monthKey || '-';
+            return new Date(year, month - 1, 1).toLocaleDateString(getCurrentLocale(), { month: short ? 'short' : 'long', year: 'numeric' });
+        }
+
+        function addDays(date, days) {
+            const next = new Date(date);
+            next.setDate(next.getDate() + days);
+            return next;
+        }
+
+        function getWeekStartKey(value) {
+            const date = value instanceof Date ? new Date(value) : new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const day = (date.getDay() + 6) % 7;
+            date.setHours(0, 0, 0, 0);
+            date.setDate(date.getDate() - day);
+            return toDateKey(date);
+        }
+
+        function getRetentionSignature() {
+            return [
+                transactions.length,
+                goals.length,
+                transactions.map(t => `${t._id || ''}:${t.date}:${t.type}:${t.amount}:${t.category}:${t.wallet}`).join('|'),
+                goals.map(g => `${g._id || ''}:${g.currentAmount}:${g.targetAmount}:${g.deadline}`).join('|')
+            ].join('::');
+        }
+
+        function getRetentionAnalytics() {
+            const signature = getRetentionSignature();
+            if (retentionCache.signature === signature && retentionCache.data) return retentionCache.data;
+            const data = {
+                trackingStreak: calculateTrackingStreak(transactions),
+                savingsStreak: calculateSavingsStreak(transactions),
+                monthlyReviews: generateMonthlyReviews(transactions),
+                goalSummaries: goals.map(goal => buildGoalProgressModel(goal)),
+                insights: []
+            };
+            data.insights = generateRetentionInsights(data);
+            retentionCache = { signature, data };
+            persistHistoricalReviews(data.monthlyReviews);
+            return data;
+        }
+
+        function calculateTrackingStreak(txns) {
+            const days = [...new Set(txns.map(t => toDateKey(t.date)).filter(Boolean))].sort();
+            if (!days.length) return { current: 0, longest: 0, lastTracked: null };
+            let longest = 1;
+            let run = 1;
+            for (let i = 1; i < days.length; i++) {
+                const prev = new Date(days[i - 1]);
+                const curr = new Date(days[i]);
+                const diff = Math.round((curr - prev) / 86400000);
+                run = diff === 1 ? run + 1 : 1;
+                longest = Math.max(longest, run);
+            }
+            let current = 1;
+            for (let i = days.length - 1; i > 0; i--) {
+                const curr = new Date(days[i]);
+                const prev = new Date(days[i - 1]);
+                const diff = Math.round((curr - prev) / 86400000);
+                if (diff === 1) current += 1;
+                else break;
+            }
+            const daysSinceLastTrack = Math.floor((new Date(toDateKey(new Date())) - new Date(days[days.length - 1])) / 86400000);
+            if (daysSinceLastTrack > 1) current = 0;
+            return { current, longest, lastTracked: days[days.length - 1] };
+        }
+
+        function calculateSavingsStreak(txns) {
+            const weekly = {};
+            txns.forEach(t => {
+                const key = getWeekStartKey(t.date);
+                if (!key) return;
+                if (!weekly[key]) weekly[key] = { income: 0, expenses: 0 };
+                if (t.type === 'income') weekly[key].income += Number(t.amount || 0);
+                if (t.type === 'expense') weekly[key].expenses += Number(t.amount || 0);
+            });
+            const positiveWeeks = Object.keys(weekly).filter(k => weekly[k].income - weekly[k].expenses > 0).sort();
+            if (!positiveWeeks.length) return { current: 0, longest: 0, lastWeek: null };
+            let longest = 1;
+            let run = 1;
+            for (let i = 1; i < positiveWeeks.length; i++) {
+                const diffWeeks = Math.round((new Date(positiveWeeks[i]) - new Date(positiveWeeks[i - 1])) / (7 * 86400000));
+                run = diffWeeks === 1 ? run + 1 : 1;
+                longest = Math.max(longest, run);
+            }
+            let current = 1;
+            for (let i = positiveWeeks.length - 1; i > 0; i--) {
+                const diffWeeks = Math.round((new Date(positiveWeeks[i]) - new Date(positiveWeeks[i - 1])) / (7 * 86400000));
+                if (diffWeeks === 1) current += 1;
+                else break;
+            }
+            const weeksSinceLastPositive = Math.floor((new Date(getWeekStartKey(new Date())) - new Date(positiveWeeks[positiveWeeks.length - 1])) / (7 * 86400000));
+            if (weeksSinceLastPositive > 1) current = 0;
+            return { current, longest, lastWeek: positiveWeeks[positiveWeeks.length - 1] };
+        }
+
+        function generateMonthlyReviews(txns) {
+            const byMonth = {};
+            txns.forEach(t => {
+                const month = monthKeyFromDate(t.date);
+                if (!month) return;
+                if (!byMonth[month]) byMonth[month] = { month, income: 0, expenses: 0, byCategory: {}, byWallet: {}, byDay: {} };
+                const amount = Number(t.amount || 0);
+                const dayName = new Date(t.date).toLocaleDateString('en-US', { weekday: 'long' });
+                byMonth[month].byDay[dayName] = (byMonth[month].byDay[dayName] || 0) + 1;
+                if (t.type === 'income') byMonth[month].income += amount;
+                if (t.type === 'expense') {
+                    byMonth[month].expenses += amount;
+                    byMonth[month].byCategory[t.category || 'Uncategorized'] = (byMonth[month].byCategory[t.category || 'Uncategorized'] || 0) + amount;
+                    byMonth[month].byWallet[t.wallet || 'Main Wallet'] = (byMonth[month].byWallet[t.wallet || 'Main Wallet'] || 0) + amount;
+                }
+            });
+            const months = Object.keys(byMonth).sort();
+            return months.map((month, index) => {
+                const row = byMonth[month];
+                const savings = row.income - row.expenses;
+                const savingsRate = row.income > 0 ? (savings / row.income) * 100 : 0;
+                const prev = index > 0 ? byMonth[months[index - 1]] : null;
+                const spendingTrend = prev && prev.expenses > 0 ? ((row.expenses - prev.expenses) / prev.expenses) * 100 : null;
+                return {
+                    month,
+                    label: `${formatMonthLabel(month)} Review`,
+                    income: row.income,
+                    expenses: row.expenses,
+                    savings,
+                    savingsRate,
+                    highestCategory: rankHighestEntry(Object.entries(row.byCategory || {}))?.[0] || 'None',
+                    topWallet: rankHighestEntry(Object.entries(row.byWallet || {}))?.[0] || 'None',
+                    mostActiveDay: rankHighestEntry(Object.entries(row.byDay || {}))?.[0] || 'None',
+                    spendingTrend
+                };
+            }).reverse();
+        }
+
+        function persistHistoricalReviews(reviews) {
+            try {
+                const existing = JSON.parse(localStorage.getItem(MONTHLY_REVIEWS_KEY) || '{}');
+                reviews.forEach(review => { existing[review.month] = review; });
+                localStorage.setItem(MONTHLY_REVIEWS_KEY, JSON.stringify(existing));
+            } catch (_) {}
+        }
+
+        function getAverageMonthlySavings() {
+            const reviews = generateMonthlyReviews(transactions);
+            const positives = reviews.slice(0, 3).map(r => r.savings).filter(v => v > 0);
+            if (!positives.length) return 0;
+            return positives.reduce((sum, value) => sum + value, 0) / positives.length;
+        }
+
+        function buildGoalProgressModel(goal) {
+            const target = Number(goal.targetAmount || 0);
+            const current = Number(goal.currentAmount || 0);
+            const remaining = Math.max(target - current, 0);
+            const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0;
+            const avgMonthlySavings = getAverageMonthlySavings();
+            let estimatedDate = goal.deadline ? new Date(goal.deadline) : null;
+            if (!estimatedDate && remaining > 0 && avgMonthlySavings > 0) {
+                estimatedDate = new Date();
+                estimatedDate.setMonth(estimatedDate.getMonth() + Math.ceil(remaining / avgMonthlySavings));
+            }
+            const daysRemaining = estimatedDate ? Math.max(Math.ceil((estimatedDate - new Date()) / 86400000), 0) : null;
+            return { goal, target, current, remaining, percentage, estimatedDate, daysRemaining };
+        }
+
+        function renderMilestones(percentage) {
+            return [25, 50, 75, 100].map(milestone => `
+                <span class="milestone-pill ${percentage >= milestone ? 'achieved' : ''}">${percentage >= milestone ? '✓ ' : ''}${milestone}%</span>
+            `).join('');
+        }
+
+        function generateRetentionInsights(data) {
+            const insights = [];
+            if (data.trackingStreak.current > 0) insights.push(`You maintained a ${data.trackingStreak.current}-day tracking streak.`);
+            if (data.savingsStreak.current > 0) insights.push(`Your savings streak is ${data.savingsStreak.current} week${data.savingsStreak.current === 1 ? '' : 's'}.`);
+            const reachedMilestone = data.goalSummaries.find(g => [25, 50, 75, 100].some(m => Math.floor(g.percentage) >= m && Math.floor(g.percentage) < m + 10));
+            if (reachedMilestone) insights.push(`You reached ${Math.floor(reachedMilestone.percentage)}% of your ${reachedMilestone.goal.name} goal.`);
+            if (data.monthlyReviews.length >= 2) {
+                const [latest, previous] = data.monthlyReviews;
+                const improvement = latest.savingsRate - previous.savingsRate;
+                if (Math.abs(improvement) >= 1) insights.push(`You ${improvement >= 0 ? 'improved' : 'changed'} your savings rate by ${Math.abs(improvement).toFixed(1)}%.`);
+            }
+            return insights.slice(0, 3);
+        }
+
+        function renderDashboardRetention() {
+            const container = document.getElementById('dashboardRetentionGrid');
+            if (!container) return;
+            const data = getRetentionAnalytics();
+            const cards = [];
+            if (retentionPrefs.showStreaks) {
+                cards.push(`<div class="retention-card"><div class="retention-card-title">🔥 Tracking Streak</div><div class="retention-metric">${data.trackingStreak.current}-Day Streak</div><div class="retention-subtext">Best: ${data.trackingStreak.longest} days</div></div>`);
+                cards.push(`<div class="retention-card"><div class="retention-card-title">💰 Savings Streak</div><div class="retention-metric">${data.savingsStreak.current} Weeks</div><div class="retention-subtext">Best: ${data.savingsStreak.longest} weeks</div></div>`);
+            }
+            if (retentionPrefs.showMonthlyReviews && data.monthlyReviews.length) {
+                const review = data.monthlyReviews[0];
+                cards.push(`<div class="retention-card"><div class="retention-card-title">📅 ${review.label}</div><div class="retention-metric">${formatMoney(review.savings)} saved</div><div class="retention-subtext">Savings rate ${review.savingsRate.toFixed(1)}% • Top spend: ${review.highestCategory}</div></div>`);
+            }
+            if (retentionPrefs.showMotivationalInsights && data.insights.length) {
+                cards.push(`<div class="retention-card"><div class="retention-card-title">✨ Progress Nudge</div><div class="retention-subtext">${data.insights[0]}</div></div>`);
+            }
+            const topGoal = data.goalSummaries.sort((a, b) => b.percentage - a.percentage)[0];
+            if (topGoal) cards.push(`<div class="retention-card"><div class="retention-card-title">🎯 Goal Snapshot</div><div class="retention-metric">${topGoal.percentage.toFixed(0)}% Complete</div><div class="retention-subtext">${topGoal.goal.name}: ${formatMoney(topGoal.remaining)} remaining</div></div>`);
+            container.innerHTML = cards.join('');
+            renderDashboardMonthlyReviews(data);
+        }
+
+        function renderDashboardMonthlyReviews(data = getRetentionAnalytics()) {
+            const card = document.getElementById('dashboardMonthlyReviewsCard');
+            const container = document.getElementById('dashboardMonthlyReviews');
+            if (!card || !container) return;
+            const shouldShow = retentionPrefs.showMonthlyReviews && data.monthlyReviews.length > 0;
+            card.style.display = shouldShow ? 'block' : 'none';
+            if (!shouldShow) return;
+            container.innerHTML = data.monthlyReviews.slice(0, 6).map(review => {
+                const trendText = review.spendingTrend === null ? 'First tracked month' : `${review.spendingTrend <= 0 ? 'Down' : 'Up'} ${Math.abs(review.spendingTrend).toFixed(1)}%`;
+                return `<article class="monthly-review-card">
+                    <div class="retention-card-title">${review.label}</div>
+                    <div class="retention-metric">${formatMoney(review.savings)} saved</div>
+                    <div class="review-grid">
+                        <div class="review-item"><span>Income</span><strong>${formatMoney(review.income)}</strong></div>
+                        <div class="review-item"><span>Expenses</span><strong>${formatMoney(review.expenses)}</strong></div>
+                        <div class="review-item"><span>Savings Rate</span><strong>${review.savingsRate.toFixed(1)}%</strong></div>
+                        <div class="review-item"><span>Top Category</span><strong>${review.highestCategory}</strong></div>
+                        <div class="review-item"><span>Top Wallet</span><strong>${review.topWallet}</strong></div>
+                        <div class="review-item"><span>Most Active Day</span><strong>${review.mostActiveDay}</strong></div>
+                    </div>
+                    <div class="retention-subtext">Spending trend: ${trendText}</div>
+                </article>`;
+            }).join('');
+        }
+
+        function initNotificationPrefs() {
+            try {
+                notificationPrefs = { ...notificationPrefs, ...(JSON.parse(localStorage.getItem(NOTIF_PREFS_KEY) || '{}')) };
+            } catch (_) {}
+            renderNotificationPrefsUI();
+        }
+        function persistNotificationPrefs() { localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(notificationPrefs)); }
+        function renderNotificationPrefsUI() {
+            const permission = ('Notification' in window) ? Notification.permission : 'default';
+            const btn = document.getElementById('notifEnableBtn');
+            if (btn) btn.textContent = permission === 'granted' ? 'Notifications Enabled' : 'Enable Notifications';
+            const daily = document.getElementById('notifDaily');
+            const weekly = document.getElementById('notifWeekly');
+            const savings = document.getElementById('notifSavings');
+            if (daily) daily.checked = !!notificationPrefs.dailyReminder;
+            if (weekly) weekly.checked = !!notificationPrefs.weeklySummary;
+            if (savings) savings.checked = !!notificationPrefs.savingsInsights;
+        }
+        function syncNotificationPrefToggles() {
+            notificationPrefs.dailyReminder = !!document.getElementById('notifDaily')?.checked;
+            notificationPrefs.weeklySummary = !!document.getElementById('notifWeekly')?.checked;
+            notificationPrefs.savingsInsights = !!document.getElementById('notifSavings')?.checked;
+            persistNotificationPrefs();
+            maybeScheduleSmartLocalNotifications();
+        }
+        async function promptNotificationPermissionFlow() {
+            if (!('Notification' in window)) return showToast('Notifications are not supported on this browser.', 'warning');
+            const allow = confirm('Would you like helpful finance reminders from VaultFlow?');
+            if (!allow) return;
+            const result = await Notification.requestPermission();
+            notificationPrefs.enabled = result === 'granted';
+            persistNotificationPrefs();
+            renderNotificationPrefsUI();
+            if (result === 'granted') {
+                showToast('Finance reminders enabled.', 'success');
+                maybeScheduleSmartLocalNotifications(true);
+            } else {
+                showToast('Notification permission not granted.', 'warning');
+            }
+        }
+        async function sendLocalFinanceNotification(title, body, data = {}) {
+            if (!('serviceWorker' in navigator) || !('Notification' in window) || Notification.permission !== 'granted') return;
+            const reg = await navigator.serviceWorker.getRegistration();
+            if (!reg) return;
+            if (reg.active) reg.active.postMessage({ type: 'VF_LOCAL_NOTIFY', payload: { title, body, data } });
+        }
+        function maybeScheduleSmartLocalNotifications(forceNow = false) {
+            if (!('Notification' in window) || Notification.permission !== 'granted' || !notificationPrefs.enabled) return;
+            const now = Date.now();
+            const dayMs = 24 * 60 * 60 * 1000;
+            const weekMs = 7 * dayMs;
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount || 0), 0);
+            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount || 0), 0);
+            const savings = Math.max(0, totalIncome - totalExpense);
+            const byCategory = {};
+            transactions.filter(t => t.type === 'expense').forEach(t => { byCategory[t.category || 'Other'] = (byCategory[t.category || 'Other'] || 0) + Number(t.amount || 0); });
+            const topCategory = Object.entries(byCategory).sort((a,b)=>b[1]-a[1])[0];
+            if ((forceNow || now - (notificationPrefs.lastDailyAt || 0) > dayMs) && notificationPrefs.dailyReminder) {
+                sendLocalFinanceNotification('Track today in VaultFlow', 'A quick expense update now keeps your weekly insights accurate.', { page: 'transactions' });
+                notificationPrefs.lastDailyAt = now;
+            }
+            if ((forceNow || now - (notificationPrefs.lastWeeklyAt || 0) > weekMs) && notificationPrefs.weeklySummary) {
+                const summary = topCategory ? `Top expense: ${topCategory[0]}. Savings so far: ${formatMoney(savings)}.` : `Savings so far: ${formatMoney(savings)}.`;
+                sendLocalFinanceNotification('Your weekly money snapshot', summary, { page: 'reports' });
+                notificationPrefs.lastWeeklyAt = now;
+            }
+            if (notificationPrefs.savingsInsights && savings > 0 && totalIncome > 0) {
+                const rate = ((savings / totalIncome) * 100).toFixed(1);
+                if (forceNow) sendLocalFinanceNotification('Nice progress this period', `You are saving ${rate}% of your income. Keep the streak going.`, { page: 'dashboard' });
+            }
+            persistNotificationPrefs();
+        }
+        function registerServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch((e) => console.error('SW registration failed:', e));
+            });
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data?.type === 'VF_NAVIGATE' && event.data?.page) switchPage(event.data.page);
+            });
+        }
+        function isStandaloneAppMode() {
+            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        }
+        function setupPWAInstallFlow() {
+            window.addEventListener('beforeinstallprompt', (event) => {
+                event.preventDefault();
+                deferredInstallPrompt = event;
+                maybeShowInstallBanner();
+            });
+            window.addEventListener('appinstalled', () => {
+                deferredInstallPrompt = null;
+                document.getElementById('pwaInstallBanner')?.classList.remove('active');
+            });
+            setTimeout(maybeShowInstallBanner, 1500);
+        }
+        function maybeShowInstallBanner() {
+            if (isStandaloneAppMode()) return;
+            const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISS_KEY) || 0);
+            const dayMs = 24 * 60 * 60 * 1000;
+            if (Date.now() - dismissedAt < dayMs) return;
+            if (!deferredInstallPrompt) return;
+            document.getElementById('pwaInstallBanner')?.classList.add('active');
+        }
+        async function triggerInstallPrompt() {
+            if (!deferredInstallPrompt) return;
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            if (choice?.outcome !== 'accepted') localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+            deferredInstallPrompt = null;
+            document.getElementById('pwaInstallBanner')?.classList.remove('active');
+        }
+        function dismissInstallBanner() {
+            localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+            document.getElementById('pwaInstallBanner')?.classList.remove('active');
+        }
+        function setupOfflineStatusBanner() {
+            const banner = document.getElementById('offlineBanner');
+            if (!banner) return;
+            const sync = () => banner.classList.toggle('active', !navigator.onLine);
+            window.addEventListener('online', sync);
+            window.addEventListener('offline', sync);
+            sync();
+        }
+
+        // API Functions
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            if (isDemoMode) {
+                return handleDemoApiCall(endpoint, method, data);
+            }
+
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(API_BASE_URL + endpoint, options);
+                const result = await response.json();
+
+                if (response.status === 401 || response.status === 403) {
+                    const refreshed = await refreshAuthToken();
+                    if (refreshed) return apiCall(endpoint, method, data);
+                }
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Request failed');
+                }
+
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                showToast(error.message, 'error');
+                throw error;
+            }
+        }
+
+        function handleDemoApiCall(endpoint, method, data) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    if (endpoint === '/api/vaults' && method === 'GET') {
+                        resolve(demoData.vaults);
+                    } else if (endpoint === '/api/transactions' && method === 'GET') {
+                        resolve(demoData.transactions);
+                    } else if (endpoint === '/api/goals' && method === 'GET') {
+                        resolve(demoData.goals);
+                    } else if (endpoint === '/api/transactions' && method === 'POST') {
+                        const txn = { ...data, _id: Date.now().toString() };
+                        demoData.transactions.push(txn);
+
+                        // Update wallets and vaults
+                        if (txn.type === 'income') {
+                            demoData.wallets[txn.wallet].balance += txn.amount;
+                            demoData.wallets[txn.wallet].totalIncome += txn.amount;
+
+                            demoData.vaults.forEach(vault => {
+                                const allocation = (txn.amount * vault.percentage) / 100;
+                                vault.totalIncome += allocation;
+                                vault.balance += allocation;
+                            });
+                        } else if (txn.vaultId && txn.wallet) {
+                            const vault = demoData.vaults.find(v => v._id === txn.vaultId);
+                            if (vault) {
+                                vault.totalSpent += txn.amount;
+                                vault.balance -= txn.amount;
+                            }
+                            demoData.wallets[txn.wallet].balance -= txn.amount;
+                            demoData.wallets[txn.wallet].totalSpent += txn.amount;
+                        }
+
+                        resolve(txn);
+                    } else if (endpoint.startsWith('/api/transactions/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.transactions.findIndex(t => t._id === id);
+                        if (index > -1) {
+                            demoData.transactions.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else if (endpoint === '/api/vaults' && method === 'POST') {
+                        const vault = { ...data, _id: Date.now().toString(), totalIncome: 0, totalSpent: 0, balance: 0 };
+                        demoData.vaults.push(vault);
+                        resolve(vault);
+                    } else if (endpoint.startsWith('/api/vaults/') && method === 'PUT') {
+                        const id = endpoint.split('/').pop();
+                        const vault = demoData.vaults.find(v => v._id === id);
+                        if (vault) {
+                            Object.assign(vault, data);
+                        }
+                        resolve(vault);
+                    } else if (endpoint.startsWith('/api/vaults/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.vaults.findIndex(v => v._id === id);
+                        if (index > -1) {
+                            demoData.vaults.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else if (endpoint === '/api/goals' && method === 'POST') {
+                        const goal = { ...data, _id: Date.now().toString() };
+                        demoData.goals.push(goal);
+                        resolve(goal);
+                    } else if (endpoint.startsWith('/api/goals/') && method === 'PUT') {
+                        const id = endpoint.split('/').pop();
+                        const goal = demoData.goals.find(g => g._id === id);
+                        if (goal) {
+                            Object.assign(goal, data);
+                        }
+                        resolve(goal);
+                    } else if (endpoint.startsWith('/api/goals/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop();
+                        const index = demoData.goals.findIndex(g => g._id === id);
+                        if (index > -1) {
+                            demoData.goals.splice(index, 1);
+                        }
+                        resolve({ message: 'Deleted' });
+                    } else {
+                        resolve({});
+                    }
+                }, 300);
+            });
+        }
+
+        async function login(username, password) {
+            try {
+                const result = await apiCall('/api/auth/login', 'POST', { username, password });
+                authToken = result.token;
+                currentUser = result.user.username;
+                localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_refresh_token', result.refreshToken);
+                localStorage.setItem('vf_username', currentUser);
+                localStorage.setItem('vf_email', result.user.email || (String(username).includes('@') ? username : ''));
+                if (result.user.createdAt) localStorage.setItem(MEMBER_SINCE_KEY, result.user.createdAt);
+                else if (!localStorage.getItem(MEMBER_SINCE_KEY)) localStorage.setItem(MEMBER_SINCE_KEY, new Date().toISOString());
+                isDemoMode = false;
+                showToast('Login successful!', 'success');
+                showApp();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function signup(username, email, password) {
+            try {
+                const result = await apiCall('/api/auth/register', 'POST', { username, email, password });
+                authToken = result.token;
+                currentUser = result.user.username;
+                localStorage.setItem('vf_token', authToken);
+                localStorage.setItem('vf_refresh_token', result.refreshToken);
+                localStorage.setItem('vf_username', currentUser);
+                localStorage.setItem('vf_email', result.user.email || email);
+                localStorage.setItem(MEMBER_SINCE_KEY, result.user.createdAt || new Date().toISOString());
+                isDemoMode = false;
+                showToast('Account created successfully!', 'success');
+                showApp();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function startDemoMode() {
+            isDemoMode = true;
+            currentUser = 'Demo User';
+            localStorage.setItem('vf_email', 'demo@vaultflow.local');
+            localStorage.setItem(MEMBER_SINCE_KEY, new Date().toISOString());
+            authToken = 'demo-token';
+            localStorage.setItem(ONBOARDING_KEY, 'completed');
+            seedDemoShowcaseData();
+            showToast('Demo mode activated!', 'success');
+            showApp();
+        }
+
+        function seedDemoShowcaseData() {
+            const today = new Date();
+            const iso = (d) => d.toISOString().slice(0, 10);
+            const d1 = new Date(today.getFullYear(), today.getMonth(), 2);
+            const d2 = new Date(today.getFullYear(), today.getMonth(), 6);
+            const d3 = new Date(today.getFullYear(), today.getMonth(), 11);
+            const d4 = new Date(today.getFullYear(), today.getMonth(), 16);
+            demoData.transactions = [
+                { _id: 'dx1', date: iso(d1), time: '09:15', type: 'income', amount: 85000, category: 'Salary', wallet: 'HR', paymentMethod: 'online', vaultId: '1', vaultName: '👑 Sovereign Capital Vault' },
+                { _id: 'dx2', date: iso(d2), time: '13:20', type: 'expense', amount: 7200, category: 'Food', wallet: 'HR', paymentMethod: 'online', vaultId: '4', vaultName: '🔒 Core Survival Vault' },
+                { _id: 'dx3', date: iso(d3), time: '11:00', type: 'income', amount: 18000, category: 'Freelance', wallet: 'HL', paymentMethod: 'online', vaultId: '2', vaultName: '🧪 Risk Lab Wallet' },
+                { _id: 'dx4', date: iso(d4), time: '18:40', type: 'expense', amount: 5400, category: 'Transport', wallet: 'HL', paymentMethod: 'online', vaultId: '4', vaultName: '🔒 Core Survival Vault' }
+            ];
+            demoData.goals = [{ _id: 'dg1', name: 'Emergency Fund', targetAmount: 200000, currentAmount: 85000, notes: 'Build 6 month runway' }];
+        }
+
+        function logout(message = 'Logged out successfully', type = 'success') {
+            localStorage.removeItem('vf_token');
+            localStorage.removeItem('vf_refresh_token');
+            localStorage.removeItem('vf_username');
+            localStorage.removeItem('vf_email');
+            localStorage.removeItem(MEMBER_SINCE_KEY);
+            authToken = null;
+            refreshToken = null;
+            currentUser = null;
+            isDemoMode = false;
+            resetDemoData();
+            showAuth();
+            showToast(message, type);
+        }
+
+        function handleResetTokenFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            if (window.location.pathname === '/reset-password' || token) {
+                showAuth();
+                document.getElementById('resetTokenInput').value = token || '';
+                document.getElementById('resetPasswordModal').classList.add('active');
+            }
+        }
+
+        async function handleForgotPasswordSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgotIdentifier').value.trim().toLowerCase();
+            const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            if (!emailOk) return showToast('Please enter a valid email', 'error');
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            try {
+                const res = await apiCall('/api/auth/forgot-password', 'POST', { email });
+                showToast(res.message || 'If an account exists, a reset link has been sent.', 'success');
+                closeModal('forgotPasswordModal');
+                e.target.reset();
+            } catch (_) {
+                showToast('If an account exists, a reset link has been sent.', 'success');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Reset Link';
+            }
+        }
+
+        async function handleResetPasswordSubmit(e) {
+            e.preventDefault();
+            const token = document.getElementById('resetTokenInput').value.trim();
+            const password = document.getElementById('resetPassword').value;
+            const confirmPassword = document.getElementById('resetConfirmPassword').value;
+            if (password !== confirmPassword) return showToast('Passwords do not match', 'error');
+            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+                return showToast('Password must be 8+ chars with uppercase, lowercase, and number', 'error');
+            }
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Resetting...';
+            try {
+                const res = await apiCall('/api/auth/reset-password', 'POST', { token, password, confirmPassword });
+                showToast(res.message || 'Password reset successful.', 'success');
+                closeModal('resetPasswordModal');
+                window.history.replaceState({}, document.title, '/');
+            } catch (error) {
+                // handled in apiCall
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reset Password';
+            }
+        }
+
+        function resetDemoData() {
+            demoData = {
+                vaults: [
+                    { _id: '1', name: '👑 Sovereign Capital Vault', percentage: 50, description: 'Locked capital for empire building', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '2', name: '🧪 Risk Lab Wallet', percentage: 20, description: 'For trades, loops, experiments', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '3', name: '🧱 Infrastructure Vault', percentage: 10, description: 'For tools, scripts, books', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '4', name: '🔒 Core Survival Vault', percentage: 10, description: 'Essential needs', totalIncome: 0, totalSpent: 0, balance: 0 },
+                    { _id: '5', name: '🎭 Chaos Play Vault', percentage: 10, description: 'Spend freely', totalIncome: 0, totalSpent: 0, balance: 0 }
+                ],
+                transactions: [],
+                goals: [],
+                wallets: {
+                    HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                    HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+                }
+            };
+        }
+
+        // Data Loading
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadVaults(),
+                    loadTransactions(),
+                    loadGoals()
+                ]);
+                calculateWalletBalances();
+                renderDashboard();
+                renderCurrentPage();
+                maybeStartOnboarding();
+                maybeScheduleSmartLocalNotifications();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function isFirstTimeUser() {
+            const completed = localStorage.getItem(ONBOARDING_KEY) === 'completed';
+            const hasData = (transactions?.length || 0) > 0 || (vaults?.length || 0) > 0 || (goals?.length || 0) > 0;
+            return !isDemoMode && !completed && !hasData;
+        }
+
+        function maybeStartOnboarding() {
+            if (!isFirstTimeUser()) return applyGuidedHighlights();
+            onboardingState = { step: 1, wallet: 'Main Wallet', income: 0, expense: 0, goal: 0 };
+            document.getElementById('onboardingOverlay')?.classList.add('active');
+            renderOnboardingStep();
+        }
+
+        function finishOnboarding() {
+            localStorage.setItem(ONBOARDING_KEY, 'completed');
+            document.getElementById('onboardingOverlay')?.classList.remove('active');
+            applyGuidedHighlights();
+            showToast('Setup complete. Your dashboard is ready!', 'success');
+            setTimeout(() => promptNotificationPermissionFlow(), 900);
+        }
+
+        function applyGuidedHighlights() {
+            document.querySelectorAll('.guided-pulse').forEach(el => el.classList.remove('guided-pulse'));
+            if ((transactions?.length || 0) === 0) document.querySelector('.fab')?.classList.add('guided-pulse');
+            if ((vaults?.length || 0) === 0) document.querySelector('[data-page="vaults"]')?.classList.add('guided-pulse');
+            document.querySelector('[data-page="reports"]')?.classList.add('guided-pulse');
+            setTimeout(() => document.querySelector('[data-page="reports"]')?.classList.remove('guided-pulse'), 10000);
+        }
+
+        function nextOnboardingStep() { onboardingState.step = Math.min(6, onboardingState.step + 1); renderOnboardingStep(); }
+        function prevOnboardingStep() { onboardingState.step = Math.max(1, onboardingState.step - 1); renderOnboardingStep(); }
+
+        function renderOnboardingStep() {
+            const content = document.getElementById('onboardingContent');
+            const progress = document.getElementById('onboardingProgress');
+            if (!content || !progress) return;
+            progress.textContent = `Step ${onboardingState.step} of 6`;
+            if (onboardingState.step === 1) content.innerHTML = `<h2 class="onboarding-title">Welcome to VaultFlow 👋</h2><p class="onboarding-subtitle">Let's set up your money system fast—so your first dashboard feels clear, not empty.</p><div class="onboarding-actions"><button class="btn btn-primary" onclick="nextOnboardingStep()">Let’s set up your finances</button></div>`;
+            if (onboardingState.step === 2) content.innerHTML = `<h2 class="onboarding-title">Create your first wallet</h2><p class="onboarding-subtitle">Name your primary wallet and optionally add a starting balance.</p><div class="onboarding-grid"><input id="obWalletName" class="form-input" placeholder="Wallet name" value="${onboardingState.wallet}"><input id="obWalletBalance" class="form-input" type="number" min="0" step="0.01" placeholder="Starting balance (optional)"></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingWallet()">Continue</button></div>`;
+            if (onboardingState.step === 3) content.innerHTML = `<h2 class="onboarding-title">Add first income 💰</h2><p class="onboarding-subtitle">Quick win: add one income transaction.</p><div class="onboarding-grid"><input id="obIncomeAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Income amount"><select id="obIncomeCategory" class="form-input"><option>Salary</option><option>Freelance</option><option>Business</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingIncome()">Continue</button></div>`;
+            if (onboardingState.step === 4) content.innerHTML = `<h2 class="onboarding-title">Add first expense 🧾</h2><p class="onboarding-subtitle">Now log one expense so your insights activate.</p><div class="onboarding-grid"><input id="obExpenseAmount" class="form-input" type="number" min="1" step="0.01" placeholder="Expense amount"><select id="obExpenseCategory" class="form-input"><option>Food</option><option>Transport</option><option>Bills</option><option>Shopping</option></select></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="prevOnboardingStep()">Back</button><button class="btn btn-primary" onclick="saveOnboardingExpense()">Continue</button></div>`;
+            if (onboardingState.step === 5) content.innerHTML = `<h2 class="onboarding-title">Create first savings goal 🎯</h2><p class="onboarding-subtitle">Optional but recommended for momentum.</p><div class="onboarding-grid"><input id="obGoalName" class="form-input" placeholder="Goal name"><input id="obGoalAmount" class="form-input" type="number" min="0" step="0.01" placeholder="Target amount"></div><div class="onboarding-actions"><button class="btn btn-secondary" onclick="skipOnboardingGoal()">Skip</button><button class="btn btn-primary" onclick="saveOnboardingGoal()">Save Goal</button></div>`;
+            if (onboardingState.step === 6) content.innerHTML = `<h2 class="onboarding-title">You’re all set ✅</h2><p class="onboarding-subtitle">Amazing start. You already built a healthy money baseline.</p><div class="onboarding-metrics"><div class="onboarding-metric"><div class="card-label">Wallet</div><div style="font-weight:700">${onboardingState.wallet}</div></div><div class="onboarding-metric"><div class="card-label">Income</div><div style="font-weight:700">${formatMoney(onboardingState.income)}</div></div><div class="onboarding-metric"><div class="card-label">Expense</div><div style="font-weight:700">${formatMoney(onboardingState.expense)}</div></div></div><div class="onboarding-actions"><button class="btn btn-primary" onclick="finishOnboarding()">View My Dashboard</button></div>`;
+        }
+
+        async function saveOnboardingWallet() { onboardingState.wallet = document.getElementById('obWalletName')?.value?.trim() || 'Main Wallet'; nextOnboardingStep(); }
+        async function saveOnboardingIncome() {
+            const amount = Number(document.getElementById('obIncomeAmount')?.value || 0); if (amount <= 0) return showToast('Enter income amount.', 'warning');
+            const category = document.getElementById('obIncomeCategory')?.value || 'Salary'; const vaultId = vaults[0]?._id || '';
+            await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '09:00', type: 'income', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding income' });
+            onboardingState.income += amount; await loadAllData(); onboardingState.step = 4; renderOnboardingStep();
+        }
+        async function saveOnboardingExpense() {
+            const amount = Number(document.getElementById('obExpenseAmount')?.value || 0); if (amount <= 0) return showToast('Enter expense amount.', 'warning');
+            const category = document.getElementById('obExpenseCategory')?.value || 'Food'; const vaultId = vaults[0]?._id || '';
+            await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '19:00', type: 'expense', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding expense' });
+            onboardingState.expense += amount; await loadAllData(); onboardingState.step = 5; renderOnboardingStep();
+        }
+        async function saveOnboardingGoal() {
+            const name = document.getElementById('obGoalName')?.value?.trim(); const targetAmount = Number(document.getElementById('obGoalAmount')?.value || 0);
+            if (!name || targetAmount <= 0) return skipOnboardingGoal();
+            await apiCall('/api/goals', 'POST', { name, targetAmount, currentAmount: 0, notes: 'Onboarding goal' });
+            onboardingState.goal = targetAmount; await loadAllData(); onboardingState.step = 6; renderOnboardingStep();
+        }
+        function skipOnboardingGoal() { onboardingState.step = 6; renderOnboardingStep(); }
+
+        let vaults = [];
+        let transactions = [];
+        let goals = [];
+
+        async function loadVaults() {
+            vaults = await apiCall('/api/vaults');
+        }
+
+        async function loadTransactions() {
+            transactions = await apiCall('/api/transactions');
+        }
+
+        async function loadGoals() {
+            goals = await apiCall('/api/goals');
+        }
+
+        function calculateWalletBalances() {
+            if (isDemoMode) {
+                wallets = demoData.wallets;
+            } else {
+                wallets = {
+                    HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                    HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+                };
+
+                console.log('Calculating wallet balances from transactions:', transactions.length);
+
+                transactions.forEach(txn => {
+                    console.log('Transaction:', txn.type, txn.amount, 'Wallet:', txn.wallet);
+
+                    const walletKey = txn.wallet || 'HR'; // Default to HR if not specified
+
+                    if (wallets[walletKey]) {
+                        if (txn.type === 'income') {
+                            wallets[walletKey].balance += txn.amount;
+                            wallets[walletKey].totalIncome += txn.amount;
+                        } else {
+                            wallets[walletKey].balance -= txn.amount;
+                            wallets[walletKey].totalSpent += txn.amount;
+                        }
+                    }
+                });
+
+                console.log('Final wallet balances:', wallets);
+            }
+        }
+
+        // Page Navigation
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            document.getElementById(pageName).classList.add('active');
+            document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+
+            renderCurrentPage();
+
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+        }
+
+        function renderCurrentPage() {
+            const activePage = document.querySelector('.page.active').id;
+
+            switch(activePage) {
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'transactions':
+                    renderTransactionsPage();
+                    break;
+                case 'vaults':
+                    renderVaultsPage();
+                    break;
+                case 'wallets':
+                    renderWalletsPage();
+                    break;
+                case 'goals':
+                    renderGoalsPage();
+                    break;
+                case 'reports':
+                    renderReportsPage();
+                    break;
+                case 'settings':
+                    renderSettingsPage();
+                    break;
+            }
+        }
+
+        // Dashboard
+        function renderDashboard() {
+            calculateWalletBalances();
+
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netSavings = totalIncome - totalExpenses;
+            const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : 0;
+
+            document.getElementById('hrWalletBalance').textContent = formatCurrency(wallets.HR.balance);
+            document.getElementById('hlWalletBalance').textContent = formatCurrency(wallets.HL.balance);
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('netSavings').textContent = formatCurrency(netSavings);
+            document.getElementById('savingsRate').textContent = savingsRate + '% rate';
+            document.getElementById('totalTransactions').textContent = transactions.length;
+
+            const recent = transactions.slice(0, 5);
+            renderDashboardRetention();
+            renderTransactionTable(recent, 'recentTransactionsTable');
+        }
+
+        // Transactions Page
+        function renderTransactionsPage() {
+            renderTransactionTable(transactions, 'transactionsTable');
+        }
+
+        function renderTransactionTable(data, containerId) {
+            const container = document.getElementById(containerId);
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🚀</div>
+                        <h3 class="empty-title">Your money story starts here</h3>
+                        <p class="empty-text">Start tracking your money in under 30 seconds and unlock live insights.</p>
+                        <div class="empty-cta-row">
+                            <button class="btn btn-primary guided-pulse" onclick="showTransactionModal()">+ Add Transaction</button>
+                            <button class="btn btn-secondary" onclick="switchPage('reports')">See Demo-style Reports</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const isMobileView = window.innerWidth <= 768;
+            if (isMobileView) {
+                let mobileHtml = '<div class="mobile-txn-list">';
+                data.forEach(txn => {
+                    const dateObj = new Date(txn.date);
+                    const dateStr = formatAppDate(dateObj);
+                    mobileHtml += `
+                        <div class="mobile-txn-card">
+                            <div class="mobile-txn-top">
+                                <strong>${dateStr} • ${txn.time || ''}</strong>
+                                <span class="badge ${txn.type}">${txn.type}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-size:14px; color:var(--text-secondary);">${txn.category || '-'}</div>
+                                    <div class="mobile-txn-meta">
+                                        <span>Wallet: ${txn.wallet || '-'}</span>
+                                        <span>Vault: ${txn.vaultName || '-'}</span>
+                                        <span>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</span>
+                                    </div>
+                                </div>
+                                <div style="text-align:right;">
+                                    <div style="font-weight:700; font-size:20px;">${formatMoney(txn.amount || 0)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                mobileHtml += '</div>';
+                container.innerHTML = mobileHtml;
+                return;
+            }
+
+            let html = `<table class="transactions-table"><thead><tr>`;
+            html += `<th>Date Time</th>`;
+            html += `<th>Type</th>`;
+            html += `<th>Amount</th>`;
+            html += `<th>Category</th>`;
+            html += `<th>Location</th>`;
+            html += `<th>Wallet</th>`;
+            html += `<th>Payment Method</th>`;
+            html += `<th>Vault</th>`;
+            html += `<th>Notes</th>`;
+            html += `<th>Actions</th>`;
+            html += `</tr></thead><tbody>`;
+
+            data.forEach(txn => {
+                const dateObj = new Date(txn.date);
+                const dateStr = formatAppDate(dateObj);
+                const timeStr = txn.time;
+
+                // FIX: Changed txn.id to txn._id in the buttons below
+                html += `<tr>`;
+                html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
+                html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
+                html += `<td><strong>${formatMoney(txn.amount || 0)}</strong></td>`;
+                html += `<td>${txn.category}</td>`;
+                html += `<td>${txn.location ? txn.location : '-'}</td>`;
+                html += `<td>${txn.wallet}</td>`;
+                html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
+                html += `<td>${txn.vaultName || '-'}</td>`;
+                html += `<td>${txn.notes || '-'}</td>`;
+                html += `<td>`;
+                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>`;
+                html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>`;
+                html += `</td>`;
+                html += `</tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function filterTransactions() {
+            const search = document.getElementById('searchTransactions').value.toLowerCase();
+            const type = document.getElementById('filterType').value;
+
+            let filtered = transactions;
+
+            if (type !== 'all') {
+                filtered = filtered.filter(t => t.type === type);
+            }
+
+            if (search) {
+                filtered = filtered.filter(t =>
+                    t.category.toLowerCase().includes(search) ||
+                    (t.location && t.location.toLowerCase().includes(search)) ||
+                    (t.notes && t.notes.toLowerCase().includes(search))
+                );
+            }
+
+            renderTransactionTable(filtered, 'transactionsTable');
+        }
+
+        // Vaults Page
+        function renderVaultsPage() {
+            const container = document.getElementById('vaultsList');
+
+            if (vaults.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🏦</div>
+                        <h3 class="empty-title">No vaults yet</h3>
+                        <p class="empty-text">Create vaults to organize your budget</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            vaults.forEach(vault => {
+                html += `
+                    <div class="vault-card">
+                        <div class="vault-header">
+                            <div>
+                                <div class="vault-name">${vault.name}</div>
+                                <div class="vault-desc">${vault.description || ''}</div>
+                            </div>
+                            <div class="vault-percentage">${vault.percentage}%</div>
+                        </div>
+                        <div class="vault-stats">
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Income</div>
+                                <div class="vault-stat-value">${formatMoney(vault.totalIncome)}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Spent</div>
+                                <div class="vault-stat-value">${formatMoney(vault.totalSpent)}</div>
+                            </div>
+                            <div class="vault-stat">
+                                <div class="vault-stat-label">Balance</div>
+                                <div class="vault-stat-value" style="color: ${vault.balance >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${formatMoney(vault.balance)}</div>
+                            </div>
+                        </div>
+                        <div class="vault-actions">
+                            <button class="btn btn-secondary" onclick="editVault('${vault._id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="deleteVault('${vault._id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Wallets Page (NEW)
+        function renderWalletsPage() {
+    // Calculate balances by payment method
+    const walletStats = {
+        HR: { online: 0, byhand: 0, total: 0 },
+        HL: { online: 0, byhand: 0, total: 0 }
+    };
+
+    // Process all transactions to calculate balances
+    transactions.forEach(txn => {
+        const wallet = txn.wallet || 'HR';
+        const amount = txn.amount;
+        const isOnline = txn.paymentMethod === 'online' || !txn.paymentMethod;
+
+        if (txn.type === 'income') {
+            // Income goes to wallets based on payment method
+            if (isOnline) {
+                walletStats[wallet].online += amount;
+            } else {
+                walletStats[wallet].byhand += amount;
+            }
+        } else if (txn.type === 'expense') {
+            // Expense deducts from the selected wallet
+            if (isOnline) {
+                walletStats[wallet].online -= amount;
+            } else {
+                walletStats[wallet].byhand -= amount;
+            }
+        }
+    });
+
+    // Calculate totals for each wallet
+    Object.keys(walletStats).forEach(key => {
+        walletStats[key].total = walletStats[key].online + walletStats[key].byhand;
+    });
+
+    // Calculate grand totals
+    const totalOnline = walletStats.HR.online + walletStats.HL.online;
+    const totalByHand = walletStats.HR.byhand + walletStats.HL.byhand;
+    const grandTotal = walletStats.HR.total + walletStats.HL.total;
+
+    // Update HR Wallet
+    document.getElementById('hrOnlineBalance').textContent = formatMoney(walletStats.HR.online);
+    document.getElementById('hrOnlineBalance').style.color = walletStats.HR.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    document.getElementById('hrByHandBalance').textContent = formatMoney(walletStats.HR.byhand);
+    document.getElementById('hrByHandBalance').style.color = walletStats.HR.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    document.getElementById('hrTotalBalance').textContent = formatMoney(walletStats.HR.total);
+    document.getElementById('hrTotalBalance').style.color = walletStats.HR.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    // Update HL Wallet
+    document.getElementById('hlOnlineBalance').textContent = formatMoney(walletStats.HL.online);
+    document.getElementById('hlOnlineBalance').style.color = walletStats.HL.online >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    document.getElementById('hlByHandBalance').textContent = formatMoney(walletStats.HL.byhand);
+    document.getElementById('hlByHandBalance').style.color = walletStats.HL.byhand >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    document.getElementById('hlTotalBalance').textContent = formatMoney(walletStats.HL.total);
+    document.getElementById('hlTotalBalance').style.color = walletStats.HL.total >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    // Update Summary Cards
+    document.getElementById('totalOnlineBalance').textContent = formatMoney(totalOnline);
+    document.getElementById('totalOnlineBalance').style.color = totalOnline >= 0 ? 'var(--secondary)' : 'var(--danger)';
+
+    document.getElementById('totalByHandBalance').textContent = formatMoney(totalByHand);
+    document.getElementById('totalByHandBalance').style.color = totalByHand >= 0 ? 'var(--warning)' : 'var(--danger)';
+
+    document.getElementById('grandTotalBalance').textContent = formatMoney(grandTotal);
+    document.getElementById('grandTotalBalance').style.color = grandTotal >= 0 ? 'var(--primary)' : 'var(--danger)';
+};
+
+        // Goals Page
+        function renderGoalsPage() {
+            const container = document.getElementById('goalsList');
+
+            if (goals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <h3 class="empty-title">Set your first money target</h3>
+                        <p class="empty-text">Goals create momentum and help build your savings habit.</p>
+                        <div class="empty-cta-row">
+                            <button class="btn btn-primary" onclick="showGoalModal()">+ Add Goal</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const models = goals.map(goal => buildGoalProgressModel(goal));
+            container.innerHTML = models.map(({ goal, target, current, remaining, percentage, estimatedDate, daysRemaining }) => `
+                <div class="goal-card goal-progress-card">
+                    <div class="goal-header">
+                        <div>
+                            <div class="goal-name">${goal.name}</div>
+                            <div class="goal-amount">${percentage.toFixed(0)}% Complete</div>
+                        </div>
+                        <div class="goal-progress">${percentage.toFixed(1)}%</div>
+                    </div>
+                    <div class="goal-progress-meta">
+                        <div class="goal-progress-stat"><span>Current Progress</span><strong>${formatMoney(current)} / ${formatMoney(target)}</strong></div>
+                        <div class="goal-progress-stat"><span>Remaining</span><strong>${formatMoney(remaining)}</strong></div>
+                        <div class="goal-progress-stat"><span>Estimated Completion</span><strong>${estimatedDate ? formatMonthLabel(monthKeyFromDate(estimatedDate), true) : 'Add more data'}</strong></div>
+                        <div class="goal-progress-stat"><span>Days Remaining</span><strong>${daysRemaining !== null ? `${daysRemaining} days` : 'Calculating'}</strong></div>
+                    </div>
+                    <div class="goal-progress-track" aria-label="${goal.name} progress ${percentage.toFixed(1)}%">
+                        <div class="goal-progress-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="milestone-row">${renderMilestones(percentage)}</div>
+                    ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${goal.notes}</p>` : ''}
+                    <div class="vault-actions" style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="editGoal('${goal._id}')">Edit</button>
+                        <button class="btn btn-secondary" onclick="deleteGoal('${goal._id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Reports Page
+        function renderReportsPage() {
+    loadReports();
+}
+
+        function renderMonthlyBreakdown() {
+            const monthlyData = {};
+
+            transactions.forEach(txn => {
+                const date = new Date(txn.date);
+                const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+                if (!monthlyData[key]) {
+                    monthlyData[key] = { income: 0, expense: 0 };
+                }
+
+                if (txn.type === 'income') {
+                    monthlyData[key].income += txn.amount;
+                } else {
+                    monthlyData[key].expense += txn.amount;
+                }
+            });
+
+            const monthlyRows = Object.keys(monthlyData).sort().map((month) => ({
+                month,
+                income: monthlyData[month].income,
+                expenses: monthlyData[month].expense
+            }));
+            renderMonthlyBreakdownFromAnalytics(monthlyRows);
+        }
+
+        // Modal Functions
+        function showTransactionModal(id = null) {
+            const modal = document.getElementById('transactionModal');
+            const form = document.getElementById('transactionForm');
+            const title = document.getElementById('transactionModalTitle');
+
+            form.reset();
+            document.getElementById('txnId').value = '';
+
+            if (id) {
+                // FIX: Changed t.id to t._id here
+                const txn = transactions.find(t => t._id == id);
+                if (txn) {
+                    title.textContent = 'Edit Transaction';
+                    document.getElementById('txnId').value = txn._id; // FIX: Use _id
+                    document.getElementById('txnDate').value = txn.date.split('T')[0];
+                    document.getElementById('txnTime').value = txn.time;
+                    document.getElementById('txnType').value = txn.type;
+                    document.getElementById('txnAmount').value = txn.amount;
+                    document.getElementById('txnCategory').value = txn.category;
+                    document.getElementById('txnLocation').value = txn.location;
+                    document.getElementById('txnWallet').value = txn.wallet || 'HR';
+                    document.getElementById('txnPaymentMethod').value = txn.paymentMethod || 'online';
+                    document.getElementById('txnVault').value = txn.vaultId;
+                    document.getElementById('txnNotes').value = txn.notes;
+                }
+            } else {
+                title.textContent = 'Add Transaction';
+            }
+
+            setDefaultDateTime();
+            populateVaultSelect();
+            toggleVaultSelect();
+            modal.classList.add('active');
+        }
+
+        function showVaultModal(id = null) {
+            const modal = document.getElementById('vaultModal');
+            const form = document.getElementById('vaultForm');
+            const title = document.getElementById('vaultModalTitle');
+
+            form.reset();
+            document.getElementById('vaultId').value = '';
+
+            if (id) {
+                const vault = vaults.find(v => v._id === id);
+                if (vault) {
+                    title.textContent = 'Edit Vault';
+                    document.getElementById('vaultId').value = vault._id;
+                    document.getElementById('vaultName').value = vault.name;
+                    document.getElementById('vaultPercentage').value = vault.percentage;
+                    document.getElementById('vaultDescription').value = vault.description || '';
+                }
+            } else {
+                title.textContent = 'Add Vault';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function showGoalModal(id = null) {
+            const modal = document.getElementById('goalModal');
+            const form = document.getElementById('goalForm');
+            const title = document.getElementById('goalModalTitle');
+
+            form.reset();
+            document.getElementById('goalId').value = '';
+
+            if (id) {
+                const goal = goals.find(g => g._id === id);
+                if (goal) {
+                    title.textContent = 'Edit Goal';
+                    document.getElementById('goalId').value = goal._id;
+                    document.getElementById('goalName').value = goal.name;
+                    document.getElementById('goalTarget').value = goal.targetAmount;
+                    document.getElementById('goalCurrent').value = goal.currentAmount || 0;
+                    document.getElementById('goalVault').value = goal.vaultId || '';
+                    document.getElementById('goalDeadline').value = goal.deadline ? goal.deadline.split('T')[0] : '';
+                    document.getElementById('goalNotes').value = goal.notes || '';
+                }
+            } else {
+                title.textContent = 'Add Goal';
+            }
+
+            populateGoalVaultSelect();
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function populateVaultSelect() {
+            const select = document.getElementById('txnVault');
+            select.innerHTML = '<option value="">Select vault...</option>';
+            vaults.forEach(vault => {
+                select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
+            });
+        }
+
+        function populateGoalVaultSelect() {
+            const select = document.getElementById('goalVault');
+            select.innerHTML = '<option value="">Select vault...</option>';
+            vaults.forEach(vault => {
+                select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
+            });
+        }
+
+        function toggleVaultSelect() {
+            const type = document.getElementById('txnType').value;
+            const group = document.getElementById('vaultSelectGroup');
+            group.style.display = type === 'expense' ? 'block' : 'none';
+        }
+
+        // Form Handlers
+        async function handleTransactionSubmit(e) {
+    e.preventDefault();
+
+    const id = document.getElementById('txnId').value;
+    const type = document.getElementById('txnType').value;
+    const vaultIdValue = document.getElementById('txnVault').value;
+    const paymentMethod = document.getElementById('txnPaymentMethod').value;
+
+    const data = {
+        date: document.getElementById('txnDate').value,
+        time: document.getElementById('txnTime').value,
+        type: type,
+        amount: parseFloat(document.getElementById('txnAmount').value),
+        category: document.getElementById('txnCategory').value,
+        location: document.getElementById('txnLocation').value,
+        wallet: document.getElementById('txnWallet').value,
+        paymentMethod: paymentMethod,
+        notes: document.getElementById('txnNotes').value
+    };
+
+            // FIX: Only add vaultId if expense and value exists
+            if (type === 'expense' && vaultIdValue) {
+                data.vaultId = vaultIdValue;
+                data.vaultName = vaults.find(v => v._id === vaultIdValue)?.name || '';
+            }
+
+            try {
+                if (id) {
+                    await apiCall(`/api/transactions/${id}`, 'PUT', data);
+                    showToast('Transaction updated!', 'success');
+                } else {
+                    await apiCall('/api/transactions', 'POST', data);
+                    showToast('Transaction added!', 'success');
+                }
+
+                await loadTransactions();
+                await loadVaults();
+                closeModal('transactionModal');
+                renderCurrentPage();
+                renderDashboard();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function handleVaultSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('vaultId').value;
+            const data = {
+                name: document.getElementById('vaultName').value,
+                percentage: parseInt(document.getElementById('vaultPercentage').value),
+                description: document.getElementById('vaultDescription').value
+            };
+
+            try {
+                if (id) {
+                    await apiCall(`/api/vaults/${id}`, 'PUT', data);
+                    showToast('Vault updated!', 'success');
+                } else {
+                    await apiCall('/api/vaults', 'POST', data);
+                    showToast('Vault created!', 'success');
+                }
+
+                await loadVaults();
+                closeModal('vaultModal');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        async function handleGoalSubmit(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('goalId').value;
+            const vaultId = document.getElementById('goalVault').value;
+            const data = {
+                name: document.getElementById('goalName').value,
+                targetAmount: parseFloat(document.getElementById('goalTarget').value),
+                currentAmount: parseFloat(document.getElementById('goalCurrent').value) || 0,
+                vaultId: vaultId,
+                vaultName: vaults.find(v => v._id === vaultId)?.name || '',
+                deadline: document.getElementById('goalDeadline').value,
+                notes: document.getElementById('goalNotes').value,
+                status: 'active'
+            };
+
+            try {
+                if (id) {
+                    await apiCall(`/api/goals/${id}`, 'PUT', data);
+                    showToast('Goal updated!', 'success');
+                } else {
+                    await apiCall('/api/goals', 'POST', data);
+                    showToast('Goal created!', 'success');
+                }
+
+                await loadGoals();
+                closeModal('goalModal');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        // Delete Functions
+        function editTransaction(id) {
+            showTransactionModal(id);
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('Delete this transaction?')) return;
+
+            try {
+                await apiCall(`/api/transactions/${id}`, 'DELETE');
+                await loadTransactions();
+                await loadVaults();
+                showToast('Transaction deleted!', 'success');
+                renderCurrentPage();
+                renderDashboard();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function editVault(id) {
+            showVaultModal(id);
+        }
+
+        async function deleteVault(id) {
+            if (!confirm('Delete this vault?')) return;
+
+            try {
+                await apiCall(`/api/vaults/${id}`, 'DELETE');
+                await loadVaults();
+                showToast('Vault deleted!', 'success');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        function editGoal(id) {
+            showGoalModal(id);
+        }
+
+        async function deleteGoal(id) {
+            if (!confirm('Delete this goal?')) return;
+
+            try {
+                await apiCall(`/api/goals/${id}`, 'DELETE');
+                await loadGoals();
+                showToast('Goal deleted!', 'success');
+                renderCurrentPage();
+            } catch (error) {
+                // Error already shown
+            }
+        }
+
+        // Utility Functions
+        function formatCurrency(amount) {
+            return formatMoney(amount);
+        }
+
+        function setDefaultDateTime() {
+            const today = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const time = `${hours}:${minutes}`;
+
+            document.getElementById('txnDate').value = today;
+            document.getElementById('txnTime').value = time;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleMobileMenu(forceOpen = null) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            const shouldOpen = forceOpen === null ? !sidebar.classList.contains('mobile-visible') : forceOpen;
+
+            sidebar.classList.toggle('mobile-visible', shouldOpen);
+            overlay.classList.toggle('active', shouldOpen);
+            document.body.classList.toggle('mobile-nav-open', shouldOpen);
+            sidebar.setAttribute('aria-hidden', shouldOpen ? 'false' : 'true');
+            menuBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        }
+
+        function closeMobileMenu() {
+            toggleMobileMenu(false);
+        }
+    </script>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Global charts object to store chart instances
+const chartsInstance = {};
+let reportsRawData = null;
+
+// Load reports when page opens
+function loadReports() {
+    showReportsSkeleton();
+    apiCall('/api/analytics/full')
+        .then(data => {
+            reportsRawData = data;
+            setupReportFilterDefaults();
+            applyReportFilters();
+        })
+        .catch(error => console.error('Error loading reports:', error));
+}
+
+function showReportsSkeleton() {
+    ['monthIncomeDisplay', 'monthExpensesDisplay', 'monthSavingsDisplay', 'annualDisplay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = '';
+            el.classList.add('skeleton');
+        }
+    });
+}
+
+function clearReportsSkeleton() {
+    ['monthIncomeDisplay', 'monthExpensesDisplay', 'monthSavingsDisplay', 'annualDisplay'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('skeleton');
+    });
+}
+
+function deferRender(task) {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(task, { timeout: 300 });
+    } else {
+        setTimeout(task, 0);
+    }
+}
+
+function detectDefaultCurrency() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    const locale = navigator.language || 'en-IN';
+    if (tz.startsWith('America/') || locale.includes('-US')) return { currency: 'USD', locale: 'en-US' };
+    if (locale.includes('-GB')) return { currency: 'GBP', locale: 'en-GB' };
+    return { currency: 'INR', locale: locale.includes('en') ? locale : 'en-IN' };
+}
+
+function setupReportFilterDefaults() {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth(), 1);
+    const toIso = today.toISOString().slice(0, 10);
+    const fromIso = from.toISOString().slice(0, 10);
+    if (document.getElementById('reportFromDate')) document.getElementById('reportFromDate').value = fromIso;
+    if (document.getElementById('reportToDate')) document.getElementById('reportToDate').value = toIso;
+}
+
+function toggleReportFilters(forceExpand) {
+    const card = document.getElementById('reportFiltersCard');
+    const icon = document.getElementById('reportFilterToggleIcon');
+    if (!card) return;
+    if (forceExpand === true) card.classList.remove('collapsed');
+    else if (forceExpand === false) card.classList.add('collapsed');
+    else card.classList.toggle('collapsed');
+    if (icon) icon.textContent = card.classList.contains('collapsed') ? '▾' : '▴';
+}
+function rankHighestEntry(entries) {
+    return entries.sort((a, b) => b[1] - a[1])[0];
+}
+function generateSmartInsights(data, txns) {
+    const insights = [];
+    const topCategory = rankHighestEntry(Object.entries(data.byCategory || {}));
+    if (topCategory) insights.push({ kicker: 'Top spend', text: `${topCategory[0]} led your spending at ${formatMoney(topCategory[1])}.` });
+    const expenseByDay = {};
+    txns.filter(t => t.type === 'expense').forEach(t => {
+        expenseByDay[t.date] = (expenseByDay[t.date] || 0) + Number(t.amount || 0);
+    });
+    const busiestDay = rankHighestEntry(Object.entries(expenseByDay));
+    if (busiestDay) insights.push({ kicker: 'Biggest expense day', text: `Your peak spend day was ${busiestDay[0]} at ${formatMoney(busiestDay[1])}.` });
+    const income = Number(data?.incomeVsExpenses?.income || 0);
+    const expenses = Number(data?.incomeVsExpenses?.expenses || 0);
+    const savingsRate = income > 0 ? ((income - expenses) / income) * 100 : 0;
+    insights.push({ kicker: 'Savings rate', text: `You saved ${savingsRate.toFixed(1)}% of your income in this period.` });
+    const monthly = data.monthly || [];
+    if (monthly.length >= 2) {
+        const last = monthly[monthly.length - 1], prev = monthly[monthly.length - 2];
+        const change = prev.expenses > 0 ? ((last.expenses - prev.expenses) / prev.expenses) * 100 : 0;
+        insights.push({ kicker: 'Expense momentum', text: `Spending ${change >= 0 ? 'increased' : 'decreased'} ${Math.abs(change).toFixed(1)}% vs previous month.` });
+        const trend = last.income - last.expenses;
+        insights.push({ kicker: 'Income vs expense', text: `${trend >= 0 ? 'Positive' : 'Negative'} cashflow trend (${formatMoney(trend)} net in latest month).` });
+    }
+    const topVault = rankHighestEntry(Object.entries(data.byVault || {}));
+    if (topVault) insights.push({ kicker: 'Top wallet usage', text: `${topVault[0]} handled the most expenses: ${formatMoney(topVault[1])}.` });
+    const activity = {};
+    txns.forEach(t => { const k = t.category || 'Uncategorized'; activity[k] = (activity[k] || 0) + 1; });
+    const mostActive = rankHighestEntry(Object.entries(activity));
+    if (mostActive) insights.push({ kicker: 'Most active category', text: `${mostActive[0]} had the highest activity with ${mostActive[1]} transactions.` });
+    return insights.slice(0, 7);
+}
+function renderSmartInsights(data, txns) {
+    const container = document.getElementById('smartInsights');
+    if (!container) return;
+    const insights = generateSmartInsights(data, txns);
+    container.innerHTML = insights.map(i => `<article class="insight-card"><div class="insight-kicker">${i.kicker}</div><div class="insight-text">${i.text}</div></article>`).join('');
+}
+
+async function applyReportFilters() {
+    if (!reportsRawData) return;
+
+    const preset = document.getElementById('reportPreset')?.value || 'all';
+    const fromInput = document.getElementById('reportFromDate')?.value;
+    const toInput = document.getElementById('reportToDate')?.value;
+    let fromDate = fromInput ? new Date(fromInput + 'T00:00:00') : null;
+    let toDate = toInput ? new Date(toInput + 'T23:59:59') : null;
+    const now = new Date();
+    if (preset === 'week') fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+    if (preset === 'month') fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (preset === 'year') fromDate = new Date(now.getFullYear(), 0, 1);
+    if (preset !== 'custom' && preset !== 'all') toDate = now;
+    if (preset === 'all') { fromDate = null; toDate = null; }
+    const labelMap = {
+        all: { income: 'Total Income', expense: 'Total Expenses', savings: 'Net Savings', annual: 'Lifetime Net' },
+        week: { income: 'This Week Income', expense: 'This Week Expenses', savings: 'This Week Savings', annual: 'Week Net' },
+        month: { income: 'This Month Income', expense: 'This Month Expenses', savings: 'This Month Savings', annual: 'Month Net' },
+        year: { income: 'This Year Income', expense: 'This Year Expenses', savings: 'This Year Savings', annual: 'Year-to-date Net' },
+        custom: { income: 'Range Income', expense: 'Range Expenses', savings: 'Range Savings', annual: 'Range Net' }
+    };
+    const labels = labelMap[preset] || labelMap.all;
+    const incomeLabelEl = document.getElementById('monthIncomeLabel');
+    const expenseLabelEl = document.getElementById('monthExpenseLabel');
+    const savingsLabelEl = document.getElementById('monthSavingsLabel');
+    const annualLabelEl = document.getElementById('annualLabel');
+    if (incomeLabelEl) incomeLabelEl.textContent = labels.income;
+    if (expenseLabelEl) expenseLabelEl.textContent = labels.expense;
+    if (savingsLabelEl) savingsLabelEl.textContent = labels.savings;
+    if (annualLabelEl) annualLabelEl.textContent = labels.annual;
+
+    const filtered = transactions.filter(t => {
+        const d = new Date(t.date);
+        if (fromDate && d < fromDate) return false;
+        if (toDate && d > toDate) return false;
+        return true;
+    });
+
+    const analytics = buildAnalyticsFromTransactions(filtered);
+    renderSmartInsights(analytics, filtered);
+    renderCharts(analytics);
+    if (window.innerWidth <= 768) toggleReportFilters(false);
+}
+
+function buildAnalyticsFromTransactions(txns) {
+    const byCategory = {}, byVault = {}, byMonth = {}, incomeByCategory = {};
+    let totalIncome = 0, totalExpenses = 0;
+    txns.forEach(t => {
+        const amt = Number(t.amount || 0);
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        if (!byMonth[key]) byMonth[key] = { income: 0, expenses: 0 };
+        if (t.type === 'income') {
+            totalIncome += amt; byMonth[key].income += amt;
+            incomeByCategory[t.category || 'Uncategorized'] = (incomeByCategory[t.category || 'Uncategorized'] || 0) + amt;
+        } else {
+            totalExpenses += amt; byMonth[key].expenses += amt;
+            byCategory[t.category || 'Uncategorized'] = (byCategory[t.category || 'Uncategorized'] || 0) + amt;
+            byVault[t.vaultName || 'Unassigned'] = (byVault[t.vaultName || 'Unassigned'] || 0) + amt;
+        }
+    });
+    const monthly = Object.keys(byMonth).sort().map(month => ({ month, income: byMonth[month].income, expenses: byMonth[month].expenses, savings: byMonth[month].income - byMonth[month].expenses }));
+    const savingsPortfolio = monthly.reduce((arr, m) => {
+        const prev = arr.length ? arr[arr.length - 1].value : 0;
+        arr.push({ month: m.month, value: prev + m.savings });
+        return arr;
+    }, []);
+    const currentMonth = monthly.length ? monthly[monthly.length - 1] : { income: 0, expenses: 0, savings: 0 };
+    return { currentMonth, incomeVsExpenses: { income: totalIncome, expenses: totalExpenses }, byCategory, byVault, monthly, savingsPortfolio, incomeByCategory };
+}
+
+// Render all 4 charts
+async function renderCharts(data) {
+    const periodNet = Number(data?.incomeVsExpenses?.income || 0) - Number(data?.incomeVsExpenses?.expenses || 0);
+    // Update summary cards
+    document.getElementById('monthIncomeDisplay').textContent = formatMoney(data.incomeVsExpenses.income);
+    document.getElementById('monthExpensesDisplay').textContent = formatMoney(data.incomeVsExpenses.expenses);
+    document.getElementById('monthSavingsDisplay').textContent = formatMoney(periodNet);
+    document.getElementById('annualDisplay').textContent = formatMoney(periodNet);
+    clearReportsSkeleton();
+
+    // Destroy existing charts if they exist
+    Object.values(chartsInstance).forEach(chart => chart?.destroy?.());
+    chartsInstance.pie = null;
+    chartsInstance.category = null;
+    chartsInstance.vault = null;
+    chartsInstance.trends = null;
+    chartsInstance.savingsPortfolio = null;
+    chartsInstance.incomeCategory = null;
+
+    deferRender(() => renderIncomeFlowChart(data));
+    deferRender(() => renderMonthlyBreakdownFromAnalytics(data.monthly || []));
+
+    // Chart 1: Horizontal Progress - Income vs Expenses
+    try {
+        const progressContainer = document.getElementById('incomeExpensesProgress');
+        if (progressContainer) {
+            const income = Number(data.incomeVsExpenses.income || 0);
+            const expenses = Number(data.incomeVsExpenses.expenses || 0);
+            const total = income + expenses;
+            const incomePercent = total > 0 ? ((income / total) * 100) : 0;
+            const expensePercent = total > 0 ? ((expenses / total) * 100) : 0;
+
+            progressContainer.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:14px; font-weight:600;">
+                    <span>Income ${incomePercent.toFixed(1)}%</span>
+                    <span>Expenses ${expensePercent.toFixed(1)}%</span>
+                </div>
+                <div style="width:100%; height:22px; background:#e5e7eb; border-radius:999px; overflow:hidden; display:flex;">
+                    <div style="width:${incomePercent}%; background:#10b981; transition:width 0.4s ease;"></div>
+                    <div style="width:${expensePercent}%; background:#ef4444; transition:width 0.4s ease;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px; color:#374151;">
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <span style="width:10px; height:10px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                        ${formatMoney(income)}
+                    </span>
+                    <span style="display:flex; align-items:center; gap:6px;">
+                        <span style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+                        ${formatMoney(expenses)}
+                    </span>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error('Error creating income vs expenses progress bar:', e);
+    }
+
+    // Chart 2: Bar - Category
+    deferRender(() => { try {
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx) {
+            const categories = Object.keys(data.byCategory);
+            const categoryValues = categories.map(k => data.byCategory[k]);
+            chartsInstance.category = new Chart(categoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: `Expenses (${getCurrencySymbol()})`,
+                        data: categoryValues,
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatMoney(context.parsed.x);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating category chart:', e);
+    }});
+
+    // Chart 3: Bar - Vault
+    deferRender(() => { try {
+        const vaultCtx = document.getElementById('vaultChart');
+        if (vaultCtx) {
+            const vaults = Object.keys(data.byVault);
+            const vaultValues = vaults.map(k => data.byVault[k]);
+            chartsInstance.vault = new Chart(vaultCtx, {
+                type: 'bar',
+                data: {
+                    labels: vaults,
+                    datasets: [{
+                        label: `Expenses (${getCurrencySymbol()})`,
+                        data: vaultValues,
+                        backgroundColor: '#f59e0b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatMoney(context.parsed.x);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating vault chart:', e);
+    }});
+
+    // Chart 4: Line - Monthly Trends
+    deferRender(() => { try {
+        const trendsCtx = document.getElementById('trendsChart');
+        if (trendsCtx) {
+            const months = data.monthly.map(m => m.month);
+            const incomeData = data.monthly.map(m => m.income);
+            const expenseData = data.monthly.map(m => m.expenses);
+            const savingsData = data.monthly.map(m => m.savings);
+
+            chartsInstance.trends = new Chart(trendsCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: incomeData,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: expenseData,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Savings',
+                            data: savingsData,
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatMoney(context.parsed.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating trends chart:', e);
+    }});
+
+    // Chart 5: Savings Portfolio Trend (Area Line)
+    deferRender(() => { try {
+        const savingsPortfolioCtx = document.getElementById('savingsPortfolioChart');
+        if (savingsPortfolioCtx) {
+            const portfolioLabels = (data.savingsPortfolio || []).map(m => m.month);
+            const portfolioValues = (data.savingsPortfolio || []).map(m => m.value);
+
+            chartsInstance.savingsPortfolio = new Chart(savingsPortfolioCtx, {
+                type: 'line',
+                data: {
+                    labels: portfolioLabels,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: portfolioValues,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatMoney(context.parsed.y);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating savings portfolio chart:', e);
+    }});
+
+    // Chart 6: Income by Category / Stream
+    deferRender(() => { try {
+        const incomeCategoryCtx = document.getElementById('incomeCategoryChart');
+        if (incomeCategoryCtx) {
+            const incomeCategories = Object.keys(data.incomeByCategory || {});
+            const incomeValues = incomeCategories.map(k => data.incomeByCategory[k]);
+
+            chartsInstance.incomeCategory = new Chart(incomeCategoryCtx, {
+                type: 'bar',
+                data: {
+                    labels: incomeCategories,
+                    datasets: [{
+                        label: `Income (${getCurrencySymbol()})`,
+                        data: incomeValues,
+                        backgroundColor: '#22c55e',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatMoney(context.parsed.x);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error creating income category chart:', e);
+    }});
+}
+
+function renderIncomeFlowChart(data) {
+    const container = document.getElementById('incomeFlowChart');
+    if (!container) return;
+    const income = Number(data?.incomeVsExpenses?.income || 0);
+    const expenses = Number(data?.incomeVsExpenses?.expenses || 0);
+    const net = Number(income - expenses);
+    const savings = Math.max(0, net);
+    const deficit = Math.max(0, -net);
+    const categories = Object.entries(data?.byCategory || {}).filter(([, v]) => Number(v) > 0).sort((a, b) => b[1] - a[1]);
+    const top = categories.slice(0, 5);
+    const other = categories.slice(5).reduce((sum, [, v]) => sum + Number(v), 0);
+    if (other > 0) top.push(['Other', other]);
+
+    const width = 980, height = 360, nodeW = 22, topY = 36, trackH = 280;
+    const leftX = 60, midX = 430, rightX = 790;
+    const total = Math.max(income + deficit, expenses + savings, 1);
+    const scale = trackH / total;
+    const grossH = Math.max(18, income * scale);
+    const expenseH = Math.max(18, expenses * scale);
+    const savingsH = Math.max(18, savings * scale);
+    const deficitH = deficit > 0 ? Math.max(12, deficit * scale) : 0;
+    const grossY = topY + (trackH - grossH) / 2;
+    const expenseY = topY + 14;
+    const savingsY = expenseY + expenseH + 18;
+    const deficitY = grossY + grossH + 14;
+
+    const curve = (x1, y1, x2, y2, h, op = 0.3) => `<path d="M ${x1} ${y1} C ${x1 + 110} ${y1}, ${x2 - 110} ${y2}, ${x2} ${y2} L ${x2} ${y2 + h} C ${x2 - 110} ${y2 + h}, ${x1 + 110} ${y1 + h}, ${x1} ${y1 + h} Z" fill="rgba(148,163,184,${op})"></path>`;
+
+    let yCursor = topY;
+    const rightNodes = top.map(([name, value]) => {
+        const h = Math.max(12, Number(value) * scale);
+        const y = yCursor;
+        yCursor += h + 10;
+        return { name, value: Number(value), h, y };
+    });
+    let offset = 0;
+    const flowsToCategories = rightNodes.map((n) => {
+        const h = Math.max(10, (n.value / Math.max(expenses, 1)) * expenseH);
+        const p = curve(midX + nodeW, expenseY + offset, rightX, n.y, h, 0.22);
+        offset += h;
+        return p;
+    }).join('');
+
+    container.innerHTML = `
+      <svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Financial flow sankey chart">
+        ${curve(leftX + nodeW, grossY, midX, expenseY, expenseH, 0.34)}
+        ${savings > 0 ? curve(leftX + nodeW, grossY + expenseH, midX, savingsY, savingsH, 0.24) : ''}
+        ${deficit > 0 ? curve(leftX + nodeW, deficitY, midX, expenseY + expenseH - deficitH, deficitH, 0.2) : ''}
+        ${flowsToCategories}
+        <rect x="${leftX}" y="${grossY}" width="${nodeW}" height="${grossH}" fill="#a3a3a3"></rect>
+        <rect x="${midX}" y="${expenseY}" width="${nodeW}" height="${expenseH}" fill="#a3a3a3"></rect>
+        ${savings > 0 ? `<rect x="${midX}" y="${savingsY}" width="${nodeW}" height="${savingsH}" fill="#a3a3a3"></rect>` : ''}
+        ${deficit > 0 ? `<rect x="${leftX}" y="${deficitY}" width="${nodeW}" height="${deficitH}" fill="#a3a3a3"></rect>` : ''}
+        ${rightNodes.map((n) => `<rect x="${rightX}" y="${n.y}" width="${nodeW}" height="${n.h}" fill="#a3a3a3"></rect><text x="${rightX + 32}" y="${n.y + n.h / 2 + 5}" font-size="13" fill="#111827">${n.name} ${expenses > 0 ? ((n.value / expenses) * 100).toFixed(1) : '0.0'}% (${formatMoney(n.value)})</text>`).join('')}
+        <text x="${leftX + 30}" y="${grossY + grossH / 2}" font-size="14" font-weight="600" fill="#111827">Gross Income 100% (${formatMoney(income)})</text>
+        <text x="${midX + 30}" y="${expenseY + expenseH / 2}" font-size="14" font-weight="600" fill="#111827">Expenses ${income > 0 ? ((expenses / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(expenses)})</text>
+        ${savings > 0 ? `<text x="${midX + 30}" y="${savingsY + savingsH / 2}" font-size="14" font-weight="600" fill="#111827">Savings ${income > 0 ? ((savings / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(savings)})</text>` : ''}
+        ${deficit > 0 ? `<text x="${leftX + 30}" y="${deficitY + deficitH / 2}" font-size="13" font-weight="600" fill="#991b1b">Deficit Funding ${income > 0 ? ((deficit / income) * 100).toFixed(1) : '0.0'}% (${formatMoney(deficit)})</text>` : ''}
+      </svg>`;
+}
+
+function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
+    const container = document.getElementById('monthlyBreakdown');
+    if (!container) return;
+    if (!Array.isArray(monthlyRows) || monthlyRows.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p class="empty-text">No data for monthly breakdown</p></div>';
+        return;
+    }
+
+    let openingBalance = 0;
+    const rows = [...monthlyRows].sort((a, b) => a.month.localeCompare(b.month)).map((row) => {
+        const income = Number(row.income || 0);
+        const expenses = Number(row.expenses || 0);
+        const closingBalance = openingBalance + income - expenses;
+        const mapped = { month: row.month, openingBalance, income, expenses, closingBalance, net: income - expenses };
+        openingBalance = closingBalance;
+        return mapped;
+    }).reverse();
+
+    const totalIncome = rows.reduce((sum, r) => sum + r.income, 0);
+    const totalExpenses = rows.reduce((sum, r) => sum + r.expenses, 0);
+    const avgSavingsRate = totalIncome > 0 ? (((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+
+    let html = `<div style="margin-bottom:12px; display:flex; gap:12px; flex-wrap:wrap;">
+        <span class="tag">Months: ${rows.length}</span>
+        <span class="tag">Total Income: ${formatMoney(totalIncome)}</span>
+        <span class="tag">Total Expenses: ${formatMoney(totalExpenses)}</span>
+        <span class="tag">Avg Savings Rate: ${avgSavingsRate.toFixed(1)}%</span>
+    </div>`;
+    html += '<table><thead><tr><th>Month</th><th>Past Balance</th><th>This Month Income</th><th>This Month Expenses</th><th>This Month Balance</th><th>Savings Rate</th></tr></thead><tbody>';
+    rows.forEach((r) => {
+        const savingsRate = r.income > 0 ? ((r.net / r.income) * 100) : 0;
+        html += `<tr><td><strong>${r.month}</strong></td>
+            <td>${formatMoney(r.openingBalance)}</td>
+            <td style="color:var(--secondary)"><strong>${formatMoney(r.income)}</strong></td>
+            <td style="color:var(--danger)"><strong>${formatMoney(r.expenses)}</strong></td>
+            <td style="color:${r.closingBalance >= 0 ? 'var(--secondary)' : 'var(--danger)'}"><strong>${formatMoney(r.closingBalance)}</strong></td>
+            <td style="color:${savingsRate >= 0 ? 'var(--secondary)' : 'var(--danger)'}">${savingsRate.toFixed(1)}%</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+</script>
+
+</body>
+</html>
