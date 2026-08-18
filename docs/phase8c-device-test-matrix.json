@@ -1,0 +1,171 @@
+{
+  "phase": "8C",
+  "title": "Real Device Test Matrix",
+  "status": "manual-device-validation-required",
+  "viewports": [
+    {
+      "id": "android-small",
+      "width": 360,
+      "height": 800,
+      "class": "phone"
+    },
+    {
+      "id": "android-standard",
+      "width": 390,
+      "height": 844,
+      "class": "phone"
+    },
+    {
+      "id": "iphone-standard",
+      "width": 390,
+      "height": 844,
+      "class": "phone"
+    },
+    {
+      "id": "iphone-large",
+      "width": 430,
+      "height": 932,
+      "class": "phone"
+    },
+    {
+      "id": "tablet",
+      "width": 768,
+      "height": 1024,
+      "class": "tablet"
+    },
+    {
+      "id": "desktop",
+      "width": 1366,
+      "height": 768,
+      "class": "desktop"
+    },
+    {
+      "id": "desktop-hd",
+      "width": 1920,
+      "height": 1080,
+      "class": "desktop"
+    }
+  ],
+  "flows": [
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "checks": [
+        "login",
+        "session persistence",
+        "logout",
+        "expired/invalid token behavior"
+      ]
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "checks": [
+        "five-column desktop at 100%",
+        "mobile cards",
+        "no horizontal overflow",
+        "intelligence state",
+        "goal forecast",
+        "today habits"
+      ]
+    },
+    {
+      "id": "transactions",
+      "name": "Transactions",
+      "checks": [
+        "create",
+        "edit preserves original date/time",
+        "delete",
+        "mobile edit/delete",
+        "desktop edit/delete",
+        "keyboard form"
+      ]
+    },
+    {
+      "id": "vaults",
+      "name": "Vaults",
+      "checks": [
+        "create",
+        "edit",
+        "delete",
+        "mobile actions",
+        "balance consistency"
+      ]
+    },
+    {
+      "id": "goals",
+      "name": "Goals",
+      "checks": [
+        "create",
+        "edit",
+        "delete",
+        "projection display",
+        "mobile actions"
+      ]
+    },
+    {
+      "id": "habits",
+      "name": "Habits",
+      "checks": [
+        "create",
+        "edit",
+        "complete",
+        "skip",
+        "history",
+        "notification permission"
+      ]
+    },
+    {
+      "id": "reports",
+      "name": "Reports",
+      "checks": [
+        "filters",
+        "charts",
+        "horizontal table scrolling",
+        "mobile readability"
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "checks": [
+        "profile/preferences",
+        "backup",
+        "restore",
+        "password flow",
+        "touch targets"
+      ]
+    },
+    {
+      "id": "pwa",
+      "name": "PWA",
+      "checks": [
+        "install prompt",
+        "standalone launch",
+        "service worker registration",
+        "offline shell"
+      ]
+    },
+    {
+      "id": "offline-sync",
+      "name": "Offline Sync",
+      "checks": [
+        "create offline transaction",
+        "reconnect",
+        "single server mutation",
+        "no duplicate transaction",
+        "sync status"
+      ]
+    },
+    {
+      "id": "recovery",
+      "name": "Recovery",
+      "checks": [
+        "backup export",
+        "restore",
+        "automation rule rehydration",
+        "domain totals after restore"
+      ]
+    }
+  ]
+}

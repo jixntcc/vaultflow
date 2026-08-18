@@ -1,0 +1,1 @@
+Phase 3C adds the Habit page, create/edit, complete/skip, archive, history, date navigation, filters, and responsive desktop/mobile rendering using the shared HabitDomain contract.

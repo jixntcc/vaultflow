@@ -1,0 +1,28 @@
+const fs = require('fs');
+const path = require('path');
+const root = path.join(__dirname, '..');
+const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+const html = fs.readFileSync(path.join(root, 'public', 'index.html'), 'utf8');
+const sw = fs.readFileSync(path.join(root, 'public', 'sw.js'), 'utf8');
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+const vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+function assert(condition, message) { if (!condition) throw new Error(message); }
+assert(pkg.dependencies['web-push'], 'web-push dependency missing');
+assert(server.includes('PushSubscription'), 'PushSubscription model missing');
+assert(server.includes('NotificationSettings'), 'NotificationSettings model missing');
+assert(server.includes('NotificationDelivery'), 'NotificationDelivery model missing');
+assert(server.includes("/api/notifications/vapid-public-key"), 'VAPID public-key endpoint missing');
+assert(server.includes("/api/notifications/subscribe"), 'push subscribe endpoint missing');
+assert(server.includes("/api/notifications/settings"), 'notification settings endpoint missing');
+assert(server.includes("/api/cron/notifications"), 'cron endpoint missing');
+assert(server.includes('CRON_SECRET'), 'cron secret protection missing');
+assert(server.includes('webpush.sendNotification'), 'server-side Web Push delivery missing');
+assert(server.includes('timezone'), 'subscription timezone missing');
+assert(server.includes('NotificationDelivery.create'), 'notification idempotency claim missing');
+assert(html.includes('pushManager.subscribe'), 'browser PushManager subscription missing');
+assert(html.includes('vapid-public-key'), 'browser VAPID key fetch missing');
+assert(html.includes('notifications/subscribe'), 'browser subscription persistence missing');
+assert(sw.includes("self.addEventListener('push'"), 'service worker push handler missing');
+assert(sw.includes('notificationclick'), 'notification click handler missing');
+assert(vercel.crons?.some(x => x.path === '/api/cron/notifications' && x.schedule === '* * * * *'), 'per-minute Vercel cron missing');
+console.log('Phase 3F background notification checks passed.');

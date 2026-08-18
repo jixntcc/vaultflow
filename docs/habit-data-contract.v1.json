@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "habit": {
+    "required": [
+      "userId",
+      "name",
+      "frequency",
+      "startDate",
+      "status"
+    ],
+    "properties": {
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "description": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 1000
+      },
+      "category": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 60
+      },
+      "icon": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 60
+      },
+      "color": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 60
+      },
+      "frequency": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "daily",
+              "weekly"
+            ]
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            }
+          },
+          "targetPerWeek": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "maximum": 7
+          }
+        }
+      },
+      "startDate": {
+        "type": "string",
+        "format": "date"
+      },
+      "endDate": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date"
+      },
+      "preferredTime": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "pattern": "HH:mm"
+      },
+      "reminder": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "time": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "HH:mm"
+          }
+        }
+      },
+      "status": {
+        "enum": [
+          "active",
+          "paused",
+          "archived"
+        ]
+      }
+    }
+  },
+  "habitLog": {
+    "required": [
+      "userId",
+      "habitId",
+      "scheduledDate",
+      "status"
+    ],
+    "properties": {
+      "habitId": {
+        "type": "string"
+      },
+      "scheduledDate": {
+        "type": "string",
+        "format": "date"
+      },
+      "status": {
+        "enum": [
+          "completed",
+          "skipped",
+          "missed"
+        ]
+      },
+      "completedAt": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date-time"
+      },
+      "note": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 500
+      }
+    }
+  }
+}
