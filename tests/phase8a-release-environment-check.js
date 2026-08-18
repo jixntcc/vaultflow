@@ -27,7 +27,7 @@ assert(gitignore.includes('.env.*'), '.env.* must remain ignored.');
 
 assert(server.includes("const RELEASE_VERSION"), 'Release version metadata missing.');
 assert(server.includes("app.get('/health/ready'"), 'Readiness endpoint missing.');
-assert(server.includes("await connectDB()"), 'Readiness endpoint must verify database connectivity.');
+assert(server.includes("await connectToDatabase()"), 'Readiness endpoint must verify database connectivity.');
 assert(server.includes("res.status(503)"), 'Readiness endpoint must return 503 when unavailable.');
 assert(!server.includes('res.json({ MONGODB_URI'), 'Health endpoint must not expose database credentials.');
 assert(!server.includes('JWT_SECRET: process.env.JWT_SECRET'), 'Health endpoint must not expose JWT secrets.');

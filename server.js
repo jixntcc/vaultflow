@@ -178,6 +178,17 @@ app.use((req, res, next) => {
   const started = process.hrtime.bigint();
   runtimeMetrics.requests += 1;
 
+  // Set Server-Timing before headers are committed. Mutating headers from
+  // `finish` throws ERR_HTTP_HEADERS_SENT in Node/Vercel.
+  const originalEnd = res.end;
+  res.end = function patchedResponseEnd(chunk, encoding, callback) {
+    const durationMs = Number(process.hrtime.bigint() - started) / 1e6;
+    if (!res.headersSent) {
+      res.setHeader('Server-Timing', `app;dur=${durationMs.toFixed(1)}`);
+    }
+    return originalEnd.call(this, chunk, encoding, callback);
+  };
+
   res.on('finish', () => {
     const durationMs = Number(process.hrtime.bigint() - started) / 1e6;
     runtimeMetrics.responses += 1;
@@ -191,7 +202,9 @@ app.use((req, res, next) => {
 
     const routeKey = `${req.method} ${String(req.route?.path || req.path || '/').slice(0, 120)}`;
     recordRouteMetric(routeKey, status, durationMs);
-    res.setHeader('Server-Timing', `app;dur=${durationMs.toFixed(1)}`);
+    // Response headers are already committed when `finish` fires. Do not call
+    // res.setHeader() here; doing so causes ERR_HTTP_HEADERS_SENT and can
+    // terminate the Vercel function after an otherwise successful response.
 
     if (durationMs >= SLOW_REQUEST_MS && process.env.NODE_ENV !== 'test') {
       console.warn(`[SLOW] ${routeKey} ${status} ${durationMs.toFixed(1)}ms`);
@@ -2954,7 +2967,7 @@ app.get('/health', (req, res) => {
 
 app.get('/health/ready', async (req, res) => {
   try {
-    await connectDB();
+    await connectToDatabase();
     const ready = mongoose.connection.readyState === 1;
     if (!ready) return res.status(503).json({ status: 'not_ready', database: 'disconnected' });
     res.setHeader('Cache-Control', 'no-store');
