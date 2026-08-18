@@ -131,12 +131,26 @@ const configuredCorsOrigins = (process.env.CORS_ORIGINS || '')
   .filter(Boolean);
 
 if (configuredCorsOrigins.length > 0) {
-  app.use(cors({
-    origin(origin, callback) {
-      if (!origin || configuredCorsOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('CORS origin not allowed'));
+  app.use((req, res, next) => {
+    const origin = req.get('Origin');
+
+    // Same-origin browser requests should always be allowed. This prevents a
+    // stale CORS_ORIGINS value (for example, localhost from development) from
+    // breaking production login/API calls when frontend and API share the
+    // same Vercel origin.
+    if (!origin) return next();
+
+    const host = String(req.get('host') || '');
+    const sameOrigin =
+      origin === `https://${host}` ||
+      origin === `http://${host}`;
+
+    if (sameOrigin || configuredCorsOrigins.includes(origin)) {
+      return cors()(req, res, next);
     }
-  }));
+
+    return next(new Error('CORS origin not allowed'));
+  });
 }
 
 app.disable('x-powered-by');
