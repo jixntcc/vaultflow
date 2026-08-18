@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const server=fs.readFileSync(path.join(root,'server.js'),'utf8');
+const sw=fs.readFileSync(path.join(root,'public','sw.js'),'utf8');
+assert(server.includes("const operationalPaths = new Set(['/health', '/health/ready', '/health/metrics']);"));
+assert(server.includes("!operationalPaths.has(req.path)"), 'SPA fallback must not swallow health endpoints');
+assert(server.includes("app.get('/health'"), 'health endpoint missing');
+assert(server.includes("app.get('/health/ready'"), 'readiness endpoint missing');
+assert(sw.includes("url.pathname === '/health'"), 'service worker must pass health endpoint through');
+assert(sw.includes("url.pathname === '/health/ready'"), 'service worker must pass readiness endpoint through');
+console.log('Vercel health routing regression assertions passed.');

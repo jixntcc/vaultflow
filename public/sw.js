@@ -28,8 +28,18 @@ self.addEventListener('fetch', (event) => {
 
   if (req.method !== 'GET') return;
 
-  if (url.pathname.startsWith('/api/') || req.headers.get('authorization')) {
-    event.respondWith(fetch(req).catch(() => new Response(JSON.stringify({ offline: true }), { status: 503, headers: { 'Content-Type': 'application/json' } })));
+  const isOperationalEndpoint =
+    url.pathname === '/health' ||
+    url.pathname === '/health/ready' ||
+    url.pathname === '/health/metrics';
+
+  if (url.pathname.startsWith('/api/') || isOperationalEndpoint || req.headers.get('authorization')) {
+    event.respondWith(
+      fetch(req).catch(() => new Response(JSON.stringify({ offline: true }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }))
+    );
     return;
   }
 

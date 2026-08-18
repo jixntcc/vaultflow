@@ -263,9 +263,12 @@ function validateRequestShape(req, res, next) {
 app.use('/api', validateRequestShape);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Serve index.html for all non-API routes
+// Serve index.html for browser/app routes, but never swallow API or
+// operational health endpoints. The health routes are declared later in this
+// file, so they must reach those handlers instead of this SPA fallback.
+const operationalPaths = new Set(['/health', '/health/ready', '/health/metrics']);
 app.get('*', (req, res, next) => {
-if (!req.path.startsWith('/api/')) {
+if (!req.path.startsWith('/api/') && !operationalPaths.has(req.path)) {
 res.sendFile(path.join(__dirname, 'public', 'index.html'));
 } else {
 next();
