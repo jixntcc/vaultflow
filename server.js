@@ -818,8 +818,38 @@ streak++; cursor = addDaysLocalDate(cursor,-1);
 return streak;
 }
 async function claimDelivery(userId, subscriptionId, key) {
-try { await NotificationDelivery.create({ userId, subscriptionId, key, status:'sent' }); return true; }
-catch (error) { if (error?.code === 11000) return false; throw error; }
+  try {
+    await NotificationDelivery.create({
+      userId,
+      subscriptionId,
+      key,
+      status: 'sent'
+    });
+    return true;
+  } catch (error) {
+    if (error?.code !== 11000) throw error;
+  }
+
+  // A previous delivery attempt may have failed after claiming the unique key.
+  // Atomically reclaim only failed deliveries so concurrent cron invocations
+  // cannot both resend the same notification.
+  const reclaimed = await NotificationDelivery.findOneAndUpdate(
+    {
+      userId,
+      subscriptionId,
+      key,
+      status: 'failed'
+    },
+    {
+      $set: {
+        status: 'sent',
+        sentAt: new Date()
+      }
+    },
+    { new: true }
+  ).lean();
+
+  return Boolean(reclaimed);
 }
 async function sendBackgroundPush(subscriptionDoc, payload, key) {
 if (!pushConfigured()) return { skipped: true, reason: 'VAPID_NOT_CONFIGURED' };
@@ -995,46 +1025,249 @@ async function evaluateAutomationRules(now = new Date()) {
 }
 
 async function runBackgroundNotificationJob(now = new Date()) {
-if (!pushConfigured()) return { configured:false, sent:0, skipped:'VAPID_NOT_CONFIGURED' };
-const subscriptions = await PushSubscription.find({}).lean().maxTimeMS(15000);
-let sent=0, checked=0;
-for (const sub of subscriptions) {
-checked++;
-const parts=getTimeZoneParts(now, sub.timezone || 'UTC');
-const today=localDateFromParts(parts);
-const settings=await NotificationSettings.findOne({ userId: sub.userId }).lean();
-if (!settings?.enabled) continue;
-const habits=await Habit.find({ userId: sub.userId, status:'active', 'reminder.enabled':true }).lean();
-const logs=await HabitLog.find({ userId: sub.userId, scheduledDate: { $gte:addDaysLocalDate(today,-370), $lte:today } }).lean();
-for (const habit of habits) {
-if (!settings.habitReminder || !habit.reminder?.enabled || !habit.reminder.time || !isHabitScheduledOnServer(habit,today)) continue;
-const [hh,mm]=habit.reminder.time.split(':').map(Number);
-if (parts.hour*60+parts.minute < hh*60+mm) continue;
-if (await getHabitStatusForDate(habit._id,today,logs)==='completed') continue;
-const key=`habit-reminder:${today}:${habit._id}`;
-const result=await sendBackgroundPush(sub,{title:`Habit reminder: ${habit.name}`,body:'Your scheduled habit is still pending.',data:{page:'habits',habitId:String(habit._id),date:today,tag:key,urgency:'normal'}},key);
-if(result.sent) sent++;
-}
-if (settings.habitRisk) {
-for (const habit of habits) {
-if (!isHabitScheduledOnServer(habit,today)) continue;
-if (await getHabitStatusForDate(habit._id,today,logs)!=='pending') continue;
-const streak=await getCurrentHabitStreakServer(habit,today,logs);
-if (streak<2) continue;
-const key=`habit-risk:${today}:${habit._id}`;
-const result=await sendBackgroundPush(sub,{title:`Protect your ${streak} day streak`,body:`${habit.name} is still pending today.`,data:{page:'habits',habitId:String(habit._id),date:today,tag:key,urgency:'normal'}},key);
-if(result.sent) sent++;
-}
-}
-if (settings.habitWeeklySummary && parts.weekday==='Sun' && parts.hour>=18) {
-const from=addDaysLocalDate(today,-6);
-const completed=await HabitLog.countDocuments({userId:sub.userId,status:'completed',scheduledDate:{$gte:from,$lte:today}});
-const scheduled=await Habit.find({userId:sub.userId,status:'active'}).lean();
-let scheduledCount=0; for(const h of scheduled){let d=from;for(let i=0;i<7;i++){if(isHabitScheduledOnServer(h,d))scheduledCount++;d=addDaysLocalDate(d,1);}}
-if(scheduledCount>0){const rate=Math.round((completed/Math.max(1,scheduledCount))*100);const key=`habit-weekly:${today}`;const result=await sendBackgroundPush(sub,{title:'Your weekly habit review',body:`${rate}% completion across your scheduled habits this week.`,data:{page:'habits',tag:key,urgency:'low'}},key);if(result.sent)sent++;}
-}
-}
-return {configured:true,checked,sent};
+  const startedAt = new Date(now);
+  console.log(`[NotificationCron] started ${startedAt.toISOString()}`);
+
+  if (!pushConfigured()) {
+    console.log(`[NotificationCron] finished ${new Date().toISOString()} configured=false sent=0 checked=0 reason=VAPID_NOT_CONFIGURED`);
+    return { configured: false, sent: 0, checked: 0, skipped: 'VAPID_NOT_CONFIGURED' };
+  }
+
+  const subscriptions = await PushSubscription.find({}).lean().maxTimeMS(15000);
+  let sent = 0;
+  let checked = 0;
+  let skipped = 0;
+  let failed = 0;
+
+  // Finance notifications deliberately use the same 18:00 local-time window as
+  // the existing client-side notification contract. The job is minute-driven,
+  // but each notification has a deterministic per-day/per-week delivery key.
+  const financeHour = 18;
+
+  // Cache per-user data so multiple browser/device subscriptions do not cause
+  // repeated MongoDB reads for the same user during a single cron execution.
+  const userContext = new Map();
+
+  async function getUserNotificationContext(userId) {
+    const id = String(userId);
+    if (userContext.has(id)) return userContext.get(id);
+
+    const [settings, transactions, habits, logs] = await Promise.all([
+      NotificationSettings.findOne({ userId }).lean(),
+      Transaction.find({ userId }).lean(),
+      Habit.find({ userId, status: 'active' }).lean(),
+      HabitLog.find({ userId, scheduledDate: { $gte: addDaysLocalDate(getTimeZoneParts(now, 'UTC').year + '-' + getTimeZoneParts(now, 'UTC').month + '-' + getTimeZoneParts(now, 'UTC').day, -370), $lte: getTimeZoneParts(now, 'UTC').year + '-' + getTimeZoneParts(now, 'UTC').month + '-' + getTimeZoneParts(now, 'UTC').day } }).lean()
+    ]);
+
+    const context = { settings, transactions, habits, logs };
+    userContext.set(id, context);
+    return context;
+  }
+
+  try {
+    for (const sub of subscriptions) {
+      checked++;
+      try {
+        const parts = getTimeZoneParts(now, sub.timezone || 'UTC');
+        const today = localDateFromParts(parts);
+        const context = await getUserNotificationContext(sub.userId);
+        const settings = context.settings;
+
+        if (!settings?.enabled) {
+          skipped++;
+          continue;
+        }
+
+        // ------------------------------------------------------------
+        // Finance: daily tracking reminder
+        // ------------------------------------------------------------
+        if (settings.dailyReminder && parts.hour >= financeHour) {
+          const key = `finance-daily:${today}`;
+          const result = await sendBackgroundPush(
+            sub,
+            {
+              title: 'Track today in VaultFlow',
+              body: 'A quick expense update now keeps your weekly insights accurate.',
+              data: { page: 'transactions', tag: key, urgency: 'normal' }
+            },
+            key
+          );
+          if (result.sent) sent++;
+          else if (result.skipped === 'ALREADY_SENT') skipped++;
+          else if (result.skipped) skipped++;
+          else if (!result.gone) failed++;
+        }
+
+        // ------------------------------------------------------------
+        // Finance: weekly money summary
+        // Sunday after 18:00 in the subscription timezone.
+        // ------------------------------------------------------------
+        if (settings.weeklySummary && parts.weekday === 'Sun' && parts.hour >= financeHour) {
+          const income = context.transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const expense = context.transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const savings = Math.max(0, income - expense);
+          const byCategory = {};
+          context.transactions
+            .filter(t => t.type === 'expense')
+            .forEach(t => {
+              const category = t.category || 'Other';
+              byCategory[category] = (byCategory[category] || 0) + Number(t.amount || 0);
+            });
+          const topCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0];
+          const body = topCategory
+            ? `Top expense: ${topCategory[0]}. Savings so far: ${Number(savings).toFixed(2)}.`
+            : `Savings so far: ${Number(savings).toFixed(2)}.`;
+          const key = `finance-weekly:${today}`;
+          const result = await sendBackgroundPush(
+            sub,
+            {
+              title: 'Your weekly money snapshot',
+              body,
+              data: { page: 'reports', tag: key, urgency: 'low' }
+            },
+            key
+          );
+          if (result.sent) sent++;
+          else if (result.skipped) skipped++;
+          else if (!result.gone) failed++;
+        }
+
+        // ------------------------------------------------------------
+        // Finance: savings insight
+        // Sent once per local day, in the same evening window as the
+        // daily/weekly finance notifications, only when there is positive
+        // savings and income to calculate a meaningful rate.
+        // ------------------------------------------------------------
+        if (settings.savingsInsights && parts.hour >= financeHour) {
+          const totalIncome = context.transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const totalExpense = context.transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+          const savings = Math.max(0, totalIncome - totalExpense);
+          if (savings > 0 && totalIncome > 0) {
+            const rate = ((savings / totalIncome) * 100).toFixed(1);
+            const key = `finance-savings:${today}`;
+            const result = await sendBackgroundPush(
+              sub,
+              {
+                title: 'Nice progress this period',
+                body: `You are saving ${rate}% of your income.`,
+                data: { page: 'dashboard', tag: key, urgency: 'low' }
+              },
+              key
+            );
+            if (result.sent) sent++;
+            else if (result.skipped) skipped++;
+            else if (!result.gone) failed++;
+          }
+        }
+
+        // ------------------------------------------------------------
+        // Habits
+        // ------------------------------------------------------------
+        const habits = context.habits;
+        const logs = context.logs;
+
+        if (settings.habitReminder) {
+          for (const habit of habits) {
+            if (!habit.reminder?.enabled || !habit.reminder.time || !isHabitScheduledOnServer(habit, today)) continue;
+            const [hh, mm] = habit.reminder.time.split(':').map(Number);
+            if (parts.hour * 60 + parts.minute < hh * 60 + mm) continue;
+            if (await getHabitStatusForDate(habit._id, today, logs) === 'completed') continue;
+
+            const key = `habit-reminder:${today}:${habit._id}`;
+            const result = await sendBackgroundPush(
+              sub,
+              {
+                title: `Habit reminder: ${habit.name}`,
+                body: 'Your scheduled habit is still pending.',
+                data: { page: 'habits', habitId: String(habit._id), date: today, tag: key, urgency: 'normal' }
+              },
+              key
+            );
+            if (result.sent) sent++;
+            else if (result.skipped) skipped++;
+            else if (!result.gone) failed++;
+          }
+        }
+
+        if (settings.habitRisk) {
+          for (const habit of habits) {
+            if (!isHabitScheduledOnServer(habit, today)) continue;
+            if (await getHabitStatusForDate(habit._id, today, logs) !== 'pending') continue;
+            const streak = await getCurrentHabitStreakServer(habit, today, logs);
+            if (streak < 2) continue;
+
+            const key = `habit-risk:${today}:${habit._id}`;
+            const result = await sendBackgroundPush(
+              sub,
+              {
+                title: `Protect your ${streak} day streak`,
+                body: `${habit.name} is still pending today.`,
+                data: { page: 'habits', habitId: String(habit._id), date: today, tag: key, urgency: 'normal' }
+              },
+              key
+            );
+            if (result.sent) sent++;
+            else if (result.skipped) skipped++;
+            else if (!result.gone) failed++;
+          }
+        }
+
+        if (settings.habitWeeklySummary && parts.weekday === 'Sun' && parts.hour >= financeHour) {
+          const from = addDaysLocalDate(today, -6);
+          const completed = await HabitLog.countDocuments({
+            userId: sub.userId,
+            status: 'completed',
+            scheduledDate: { $gte: from, $lte: today }
+          });
+          let scheduledCount = 0;
+          for (const habit of habits) {
+            let d = from;
+            for (let i = 0; i < 7; i++) {
+              if (isHabitScheduledOnServer(habit, d)) scheduledCount++;
+              d = addDaysLocalDate(d, 1);
+            }
+          }
+          if (scheduledCount > 0) {
+            const rate = Math.round((completed / Math.max(1, scheduledCount)) * 100);
+            const key = `habit-weekly:${today}`;
+            const result = await sendBackgroundPush(
+              sub,
+              {
+                title: 'Your weekly habit review',
+                body: `${rate}% completion across your scheduled habits this week.`,
+                data: { page: 'habits', tag: key, urgency: 'low' }
+              },
+              key
+            );
+            if (result.sent) sent++;
+            else if (result.skipped) skipped++;
+            else if (!result.gone) failed++;
+          }
+        }
+      } catch (subscriptionError) {
+        failed++;
+        console.error('[NotificationCron] subscription failed', {
+          subscriptionId: String(sub._id),
+          error: subscriptionError?.message || String(subscriptionError)
+        });
+      }
+    }
+
+    const result = { configured: true, checked, sent, skipped, failed };
+    console.log(`[NotificationCron] finished ${new Date().toISOString()} configured=true checked=${checked} sent=${sent} skipped=${skipped} failed=${failed}`);
+    return result;
+  } catch (error) {
+    console.error(`[NotificationCron] failed ${new Date().toISOString()}`, error);
+    throw error;
+  }
 }
 
 // ============================================

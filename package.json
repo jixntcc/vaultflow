@@ -28,7 +28,8 @@
     "test:personalization": "node tests/phase9g-personalization-check.js",
     "test:universal-search": "node tests/phase9h-universal-search-check.js",
     "test:release-integration": "node tests/phase9-release-integration-check.js",
-    "test:ux-habit": "node tests/phase9-ux-habit-refinement-check.js"
+    "test:ux-habit": "node tests/phase9-ux-habit-refinement-check.js",
+    "test:notification-infrastructure": "node tests/phase9-notification-infrastructure-check.js"
   },
   "keywords": [
     "financial",
@@ -39,7 +40,6 @@
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
-    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

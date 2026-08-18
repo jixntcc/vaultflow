@@ -24,5 +24,6 @@ assert(html.includes('vapid-public-key'), 'browser VAPID key fetch missing');
 assert(html.includes('notifications/subscribe'), 'browser subscription persistence missing');
 assert(sw.includes("self.addEventListener('push'"), 'service worker push handler missing');
 assert(sw.includes('notificationclick'), 'notification click handler missing');
-assert(vercel.crons?.some(x => x.path === '/api/cron/notifications' && x.schedule === '* * * * *'), 'per-minute Vercel cron missing');
+assert(!vercel.crons, 'native Vercel cron must be absent when external scheduling is enabled');
+assert(server.includes('req.headers.authorization'), 'external scheduler must authenticate through Authorization header');
 console.log('Phase 3F background notification checks passed.');

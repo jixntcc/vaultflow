@@ -34,6 +34,8 @@ assert(!server.includes('JWT_SECRET: process.env.JWT_SECRET'), 'Health endpoint 
 
 assert(vercel.builds?.some(x => x.src === 'server.js'), 'Vercel server build missing.');
 assert(vercel.routes?.some(x => x.src === '/(.*)' && x.dest === '/server.js'), 'Vercel catch-all route missing.');
-assert(vercel.crons?.some(x => x.path === '/api/cron/notifications'), 'Vercel notification cron missing.');
+assert(!vercel.crons, 'native Vercel cron must be removed for external scheduling.');
+assert(server.includes('/api/cron/notifications'), 'notification endpoint missing for external scheduler.');
+assert(server.includes('process.env.CRON_SECRET'), 'CRON_SECRET environment authentication missing.');
 
 console.log('Phase 8A Release & Environment assertions passed.');

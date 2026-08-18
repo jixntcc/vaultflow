@@ -36,7 +36,8 @@ async function staticSuite() {
   check(fs.existsSync(path.join(root, 'public', 'index.html')), 'production HTML entrypoint exists');
   check(vercel.version === 2, 'Vercel configuration present');
   check(vercel.builds?.some(b => b.src === 'server.js'), 'Vercel server build present');
-  check(vercel.crons?.some(c => c.path === '/api/cron/notifications'), 'notification cron configured');
+  check(!vercel.crons, 'native Vercel cron removed; external scheduler expected');
+check(server.includes("app.get('/api/cron/notifications'"), 'notification endpoint configured for external scheduler');
 
   check(/process\.env\.MONGODB_URI/.test(server), 'MongoDB URI comes from environment');
   check(/process\.env\.JWT_SECRET/.test(server), 'JWT secret comes from environment');
