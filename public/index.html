@@ -4858,20 +4858,54 @@ configureVaultFlowCharts();
 let reportsRawData = null;
 
 // Load reports when page opens
-function loadReports() {
+async function loadReports() {
     showReportsSkeleton();
     VaultFlowStore.setReportsLoading(true);
-    apiCall('/api/analytics/full')
-        .then(data => {
-            reportsRawData = data;
-            VaultFlowStore.setReports(data, { source: 'api', mutation: 'refresh' });
-            setupReportFilterDefaults();
-            applyReportFilters();
-        })
-        .catch(error => {
-            VaultFlowStore.setReportsLoading(false);
-            console.error('Error loading reports:', error);
-        });
+
+    try {
+        let data;
+
+        try {
+            data = await apiCall('/api/analytics/full');
+            if (!data || typeof data !== 'object') {
+                throw new Error('Invalid analytics response');
+            }
+        } catch (analyticsError) {
+            // Reports remain usable if the aggregate analytics endpoint is
+            // temporarily unavailable: derive the same view model from the
+            // already-loaded transaction source of truth.
+            console.warn('[Reports] analytics endpoint unavailable; using local transaction fallback.', analyticsError);
+            data = buildAnalyticsFromTransactions(getTransactions());
+        }
+
+        reportsRawData = data;
+        VaultFlowStore.setReports(data, { source: 'api', mutation: 'refresh' });
+        setupReportFilterDefaults();
+        await applyReportFilters();
+    } catch (error) {
+        console.error('[Reports] render/load failed:', error);
+        clearReportsSkeleton();
+        showReportsError(error);
+    } finally {
+        VaultFlowStore.setReportsLoading(false);
+    }
+}
+
+function showReportsError(error) {
+    const message = error?.code === 'REQUEST_TIMEOUT'
+        ? 'Reports took too long to respond. Your transaction data is still available.'
+        : (error?.message || 'Reports could not be loaded.');
+    const host = document.getElementById('reportActionHost');
+    if (host) {
+        const existing = host.querySelector('.reports-load-error');
+        if (!existing) {
+            const el = document.createElement('div');
+            el.className = 'reports-load-error';
+            el.setAttribute('role', 'status');
+            el.textContent = message;
+            host.appendChild(el);
+        }
+    }
 }
 
 function showReportsSkeleton() {
@@ -4997,6 +5031,7 @@ async function applyReportFilters() {
     if (savingsLabelEl) savingsLabelEl.textContent = labels.savings;
     if (annualLabelEl) annualLabelEl.textContent = labels.annual;
 
+    const transactions = getTransactions();
     const filtered = transactions.filter(t => {
         const d = new Date(t.date);
         if (fromDate && d < fromDate) return false;

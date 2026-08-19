@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v2';
+const CACHE_NAME = 'vaultflow-shell-v3';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = [
   '/',

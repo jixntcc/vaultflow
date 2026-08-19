@@ -37,7 +37,17 @@
             line-height: 1.6;
             overscroll-behavior-y: contain;
         }
-        html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        html {
+            -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        html, body {
+            min-height: 100%;
+            height: auto;
+        }
 
         .app-container {
             display: flex;
@@ -1266,7 +1276,7 @@
         }
 
         @media (max-width: 768px) {
-            body.mobile-nav-open { overflow: hidden; }
+            body.mobile-nav-open { overflow: hidden; touch-action: none; }
 
             .app-container { min-height: 100dvh; }
 
@@ -4294,5 +4304,23 @@ textarea:focus-visible,
     .habit-analytics-habit {
         grid-template-columns: 1fr 1.2fr 40px;
         gap: 7px;
+    }
+}
+
+/* Phase 9 post-login reliability: never leave report loading state ambiguous. */
+.reports-load-error {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    background: #fff7f7;
+    color: #991b1b;
+    font-size: 12px;
+}
+@media (prefers-color-scheme: dark) {
+    .reports-load-error {
+        background: rgba(127,29,29,.16);
+        color: #fecaca;
+        border-color: rgba(248,113,113,.35);
     }
 }
