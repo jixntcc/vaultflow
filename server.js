@@ -1612,8 +1612,8 @@ notFoundMessage: 'Vault not found'
 }
 
 async function rebuildVaultBalances(userId, session = null) {
-const transactionQuery = Transaction.find({ userId }).lean();
-const vaultQuery = Vault.find({ userId }).lean();
+const transactionQuery = Transaction.find({ userId }).lean().maxTimeMS(10000);
+const vaultQuery = Vault.find({ userId }).lean().maxTimeMS(10000);
 if (session) {
 transactionQuery.session(session);
 vaultQuery.session(session);
@@ -1646,12 +1646,14 @@ if (bucket) bucket.totalSpent += amount;
 }
 }
 
-for (const vault of vaults) {
+if (!vaults.length) return totals;
+
+await Promise.all(vaults.map(async (vault) => {
 const bucket = totals.get(String(vault._id));
 const totalIncome = bucket?.totalIncome || 0;
 const totalSpent = bucket?.totalSpent || 0;
 
-await Vault.updateOne(
+const query = Vault.updateOne(
 { _id: vault._id, userId },
 {
 $set: {
@@ -1659,10 +1661,12 @@ totalIncome,
 totalSpent,
 balance: totalIncome - totalSpent
 }
-},
-session ? { session } : undefined
-);
 }
+).maxTimeMS(10000);
+
+if (session) query.session(session);
+await query.exec();
+}));
 
 return totals;
 }
@@ -1944,17 +1948,25 @@ res.status(500).json({ error: 'Server error fetching transactions' });
 });
 
 // Create transaction
+// Phase 9B-R1: keep the transaction endpoint serverless-safe.
+// The previous implementation wrapped the entire mutation + balance rebuild
+// in a MongoDB session transaction. That path could remain pending in Vercel
+// until FUNCTION_INVOCATION_TIMEOUT. This endpoint now uses short, bounded
+// writes and a deterministic balance rebuild; ownership remains enforced by
+// req.user.userId on every resource query/write.
 app.post('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
+const startedAt = Date.now();
 try {
-const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
+const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, notes } = req.body;
 const normalizedAmount = normalizeAmount(amount);
 
 if (!date || !type || !normalizedAmount || !category) {
 return res.status(400).json({ error: 'Date, type, amount, and category required' });
 }
 
-const transaction = await runFinancialMutation(async (session) => {
-const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null, session);
+console.log(`[Transaction] create:start type=${type} amount=${normalizedAmount}`);
+
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
 const created = new Transaction({
 userId: req.user.userId,
 date,
@@ -1970,15 +1982,28 @@ vaultName: ownedVault?.name || undefined,
 notes
 });
 
-await created.save({ session });
-await rebuildVaultBalances(req.user.userId, session);
-return created;
+await created.save();
+console.log(`[Transaction] create:saved id=${created._id} elapsedMs=${Date.now() - startedAt}`);
+
+let balancesRebuilt = true;
+try {
+await rebuildVaultBalances(req.user.userId);
+} catch (balanceError) {
+balancesRebuilt = false;
+console.error(`[Transaction] create:balance-rebuild-failed id=${created._id}`, balanceError);
+}
+
+console.log(`[Transaction] create:complete id=${created._id} balancesRebuilt=${balancesRebuilt} elapsedMs=${Date.now() - startedAt}`);
+res.status(201).json({
+...created.toObject(),
+balancesRebuilt
 });
 
-res.status(201).json(transaction);
-
 } catch (error) {
-console.error('Create transaction error:', error);
+console.error(`[Transaction] create:error elapsedMs=${Date.now() - startedAt}`, error);
+if (error.statusCode === 404) {
+return res.status(404).json({ error: 'Vault not found' });
+}
 res.status(500).json({ error: 'Server error creating transaction' });
 }
 });
@@ -1986,25 +2011,23 @@ res.status(500).json({ error: 'Server error creating transaction' });
 
 // Update transaction
 app.put('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
+const startedAt = Date.now();
 try {
-const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, vaultName, notes } = req.body;
+const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, notes } = req.body;
 const normalizedAmount = normalizeAmount(amount);
 
 if (!date || !type || !normalizedAmount || !category) {
 return res.status(400).json({ error: 'Date, type, amount, and category required' });
 }
 
-const transaction = await runFinancialMutation(async (session) => {
-const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null, session);
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
 const oldTransaction = await Transaction.findOne({
 _id: req.params.id,
 userId: req.user.userId
-}).session(session);
+}).maxTimeMS(10000).lean();
 
 if (!oldTransaction) {
-const error = new Error('Transaction not found');
-error.statusCode = 404;
-throw error;
+return res.status(404).json({ error: 'Transaction not found' });
 }
 
 const updated = await Transaction.findOneAndUpdate(
@@ -2022,19 +2045,28 @@ vaultId: ownedVault?._id || null,
 vaultName: ownedVault?.name || undefined,
 notes
 },
-{ new: true, runValidators: true, session }
-);
+{ new: true, runValidators: true, maxTimeMS: 10000 }
+).lean();
 
-await rebuildVaultBalances(req.user.userId, session);
-return updated;
-});
+if (!updated) {
+return res.status(404).json({ error: 'Transaction not found' });
+}
 
-res.json(transaction);
+let balancesRebuilt = true;
+try {
+await rebuildVaultBalances(req.user.userId);
+} catch (balanceError) {
+balancesRebuilt = false;
+console.error(`[Transaction] update:balance-rebuild-failed id=${req.params.id}`, balanceError);
+}
+
+console.log(`[Transaction] update:complete id=${req.params.id} balancesRebuilt=${balancesRebuilt} elapsedMs=${Date.now() - startedAt}`);
+res.json({ ...updated, balancesRebuilt });
 
 } catch (error) {
-console.error('Update transaction error:', error);
+console.error(`[Transaction] update:error id=${req.params.id} elapsedMs=${Date.now() - startedAt}`, error);
 if (error.statusCode === 404) {
-return res.status(404).json({ error: 'Transaction not found' });
+return res.status(404).json({ error: 'Vault not found' });
 }
 res.status(500).json({ error: 'Server error updating transaction' });
 }
@@ -2042,34 +2074,30 @@ res.status(500).json({ error: 'Server error updating transaction' });
 
 // Delete transaction
 app.delete('/api/transactions/:id', ensureConnection, authenticateToken, async (req, res) => {
+const startedAt = Date.now();
 try {
-await runFinancialMutation(async (session) => {
-const transaction = await Transaction.findOne({
+const deleted = await Transaction.findOneAndDelete({
 _id: req.params.id,
 userId: req.user.userId
-}).session(session);
+}, { maxTimeMS: 10000 }).lean();
 
-if (!transaction) {
-const error = new Error('Transaction not found');
-error.statusCode = 404;
-throw error;
-}
-
-await Transaction.deleteOne({
-_id: req.params.id,
-userId: req.user.userId
-}, { session });
-
-await rebuildVaultBalances(req.user.userId, session);
-});
-
-res.json({ message: 'Transaction deleted successfully' });
-
-} catch (error) {
-console.error('Delete transaction error:', error);
-if (error.statusCode === 404) {
+if (!deleted) {
 return res.status(404).json({ error: 'Transaction not found' });
 }
+
+let balancesRebuilt = true;
+try {
+await rebuildVaultBalances(req.user.userId);
+} catch (balanceError) {
+balancesRebuilt = false;
+console.error(`[Transaction] delete:balance-rebuild-failed id=${req.params.id}`, balanceError);
+}
+
+console.log(`[Transaction] delete:complete id=${req.params.id} balancesRebuilt=${balancesRebuilt} elapsedMs=${Date.now() - startedAt}`);
+res.json({ message: 'Transaction deleted successfully', balancesRebuilt });
+
+} catch (error) {
+console.error(`[Transaction] delete:error id=${req.params.id} elapsedMs=${Date.now() - startedAt}`, error);
 res.status(500).json({ error: 'Server error deleting transaction' });
 }
 });

@@ -32,7 +32,8 @@
     "test:notification-infrastructure": "node tests/phase9-notification-infrastructure-check.js",
     "test:vercel-auth": "node tests/phase9-vercel-auth-regression-check.js",
     "test:production-runtime": "node tests/phase9-production-runtime-regression-check.js",
-    "test:postlogin-data-ux": "node tests/phase9-postlogin-data-ux-regression-check.js"
+    "test:postlogin-data-ux": "node tests/phase9-postlogin-data-ux-regression-check.js",
+    "test:9b-r1": "node tests/phase9b-r1-backend-transaction-recovery-check.js"
   },
   "keywords": [
     "financial",
