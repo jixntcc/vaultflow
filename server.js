@@ -313,7 +313,7 @@ try {
 const opts = {
 useNewUrlParser: true,
 useUnifiedTopology: true,
-serverSelectionTimeoutMS: 6000, // fail fast enough for the frontend/API timeout budget
+serverSelectionTimeoutMS: 10000, // 10 second timeout
 socketTimeoutMS: 45000, // 45 second timeout
 maxPoolSize: 10,
 minPoolSize: 2,
@@ -685,8 +685,7 @@ const authenticateToken = async (req, res, next) => {
 
     const user = await User.findById(payload.userId)
       .select('_id username email sessionVersion')
-      .lean()
-      .maxTimeMS(5000);
+      .lean();
 
     if (!user) {
       return res.status(401).json({ error: 'Invalid or expired session' });
@@ -1697,9 +1696,18 @@ await session.endSession();
 // ============================================
 // PHASE 4 PLATFORM HELPERS
 // ============================================
-function auditMutation(req, res) {
-  if (!req.user || !req.path.startsWith('/api/') || !['POST','PUT','PATCH','DELETE'].includes(req.method)) return;
+function auditMutation(req, res, next) {
+  const isMutation = req.path.startsWith('/api/') &&
+    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+
+  if (!isMutation) return next();
+
+  // This middleware runs before route-level authentication, so req.user may
+  // not exist yet. Register the audit hook first and read req.user only when
+  // the response finishes, after authenticateToken has had a chance to attach it.
   res.on('finish', () => {
+    if (!req.user) return;
+
     const resource = req.path.split('/').filter(Boolean)[1] || 'api';
     const id = req.params && req.params.id ? String(req.params.id) : null;
     AuditEvent.create({
@@ -1714,6 +1722,8 @@ function auditMutation(req, res) {
       metadata: { phase: '4.x' }
     }).catch(error => console.error('[Audit] write failed:', error.message));
   });
+
+  next();
 }
 app.use(auditMutation);
 
@@ -1939,7 +1949,7 @@ try {
 const transactions = await Transaction.find({ userId: req.user.userId })
 .sort({ date: -1, time: -1 })
 .lean()
-.maxTimeMS(8000);
+.maxTimeMS(10000);
 
 res.json(transactions);
 } catch (error) {
@@ -1956,99 +1966,57 @@ res.status(500).json({ error: 'Server error fetching transactions' });
 // writes and a deterministic balance rebuild; ownership remains enforced by
 // req.user.userId on every resource query/write.
 app.post('/api/transactions', ensureConnection, authenticateToken, async (req, res) => {
-  const startedAt = Date.now();
-  try {
-    const {
-      date, time, type, amount, category, location,
-      wallet, paymentMethod, vaultId, notes
-    } = req.body;
+const startedAt = Date.now();
+try {
+const { date, time, type, amount, category, location, wallet, paymentMethod, vaultId, notes } = req.body;
+const normalizedAmount = normalizeAmount(amount);
 
-    const normalizedAmount = normalizeAmount(amount);
+if (!date || !type || !normalizedAmount || !category) {
+return res.status(400).json({ error: 'Date, type, amount, and category required' });
+}
 
-    if (!date || !type || !normalizedAmount || !category) {
-      return res.status(400).json({ error: 'Date, type, amount, and category required' });
-    }
+console.log(`[Transaction] create:start type=${type} amount=${normalizedAmount}`);
 
-    // Keep ownership validation, but do not run the Phase 4H
-    // session/rebuild pipeline on the transaction POST path.
-    const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
+const created = new Transaction({
+userId: req.user.userId,
+date,
+time,
+type,
+amount: normalizedAmount,
+category,
+location,
+wallet,
+paymentMethod: paymentMethod || 'online',
+vaultId: ownedVault?._id || null,
+vaultName: ownedVault?.name || undefined,
+notes
+});
 
-    const transaction = new Transaction({
-      userId: req.user.userId,
-      date,
-      time,
-      type,
-      amount: normalizedAmount,
-      category,
-      location,
-      wallet,
-      paymentMethod: paymentMethod || 'online',
-      vaultId: ownedVault?._id || null,
-      vaultName: ownedVault?.name || undefined,
-      notes
-    });
+await created.save();
+console.log(`[Transaction] create:saved id=${created._id} elapsedMs=${Date.now() - startedAt}`);
 
-    await transaction.save();
+let balancesRebuilt = true;
+try {
+await rebuildVaultBalances(req.user.userId);
+} catch (balanceError) {
+balancesRebuilt = false;
+console.error(`[Transaction] create:balance-rebuild-failed id=${created._id}`, balanceError);
+}
 
-    // Update the cached vault balances directly, matching the
-    // original working transaction architecture.
-    if (type === 'income') {
-      const vaults = await Vault.find({ userId: req.user.userId })
-        .lean()
-        .maxTimeMS(8000);
+console.log(`[Transaction] create:complete id=${created._id} balancesRebuilt=${balancesRebuilt} elapsedMs=${Date.now() - startedAt}`);
+res.status(201).json({
+...created.toObject(),
+balancesRebuilt
+});
 
-      if (vaults.length) {
-        await Vault.bulkWrite(
-          vaults.map(vault => {
-            const allocation = (normalizedAmount * Number(vault.percentage || 0)) / 100;
-            return {
-              updateOne: {
-                filter: { _id: vault._id, userId: req.user.userId },
-                update: {
-                  $inc: {
-                    totalIncome: allocation,
-                    balance: allocation
-                  }
-                }
-              }
-            };
-          }),
-          { ordered: true }
-        );
-      }
-    } else if (type === 'expense' && ownedVault?._id) {
-      await Vault.updateOne(
-        { _id: ownedVault._id, userId: req.user.userId },
-        {
-          $inc: {
-            totalSpent: normalizedAmount,
-            balance: -normalizedAmount
-          }
-        },
-        { maxTimeMS: 8000 }
-      );
-    }
-
-    console.log(
-      `[Transaction] create:complete id=${transaction._id} elapsedMs=${Date.now() - startedAt}`
-    );
-
-    return res.status(201).json({
-      ...transaction.toObject(),
-      balancesRebuilt: true
-    });
-  } catch (error) {
-    console.error(
-      `[Transaction] create:error elapsedMs=${Date.now() - startedAt}`,
-      error
-    );
-
-    if (error?.statusCode === 404) {
-      return res.status(404).json({ error: 'Vault not found' });
-    }
-
-    return res.status(500).json({ error: 'Server error creating transaction' });
-  }
+} catch (error) {
+console.error(`[Transaction] create:error elapsedMs=${Date.now() - startedAt}`, error);
+if (error.statusCode === 404) {
+return res.status(404).json({ error: 'Vault not found' });
+}
+res.status(500).json({ error: 'Server error creating transaction' });
+}
 });
 
 
@@ -2912,9 +2880,8 @@ res.status(500).json({ error: 'Server error fetching summary' });
 app.get('/api/analytics/full', ensureConnection, authenticateToken, async (req, res) => {
 try {
 const userId = req.user.userId;
-const transactions = await Transaction.find({ userId })
-  .lean()
-  .maxTimeMS(8000);
+const transactions = await Transaction.find({ userId }).lean();
+const vaults = await Vault.find({ userId }).lean();
 
 // CHART 1: Income vs Expenses (Pie)
 const totalIncome = transactions
@@ -2990,7 +2957,6 @@ const now = new Date();
 const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 const currentMonthData = byMonth[currentMonthKey] || { income: 0, expenses: 0 };
 
-console.log(`[Analytics] full:complete user=${userId} transactions=${transactions.length}`);
 res.json({
 currentMonth: {
 income: currentMonthData.income,
