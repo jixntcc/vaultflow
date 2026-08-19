@@ -5,35 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "test": "node tests/run-all.js",
-    "test:phase4": "node tests/phase4-platform-check.js",
-    "test:qa": "node tests/phase4h-1a-authorization-contract.js",
-    "test:authz": "node tests/phase4h-1a-authorization-contract.js",
-    "test:auth-matrix": "node tests/phase4h-1b-cross-user-attack-matrix.js",
-    "test:auth-hardening": "node tests/phase4h-2-auth-session-hardening.js",
-    "test:api-hardening": "node tests/phase4h-3-api-hardening.js",
-    "test:db-sync-hardening": "node tests/phase4h-4-database-concurrency-sync.js",
-    "test:rc": "node tests/phase4i-release-candidate.js",
-    "release:check": "node tests/phase8a-release-environment-check.js",
-    "test:device-matrix": "node tests/phase8c-device-matrix-check.js",
-    "gate": "node tests/run-all.js",
-    "test:observability": "node tests/phase8e-observability-performance-check.js",
-    "test:dashboard": "node tests/phase9a-dashboard-daily-experience-check.js",
-    "test:transactions": "node tests/phase9b-transaction-experience-check.js",
-    "test:intelligence": "node tests/phase9c-financial-intelligence-check.js",
-    "test:goals2": "node tests/phase9d-goals-2-check.js",
-    "test:habit-finance": "node tests/phase9e-habit-finance-check.js",
-    "test:automation2": "node tests/phase9f-automation2-check.js",
-    "test:personalization": "node tests/phase9g-personalization-check.js",
-    "test:universal-search": "node tests/phase9h-universal-search-check.js",
-    "test:release-integration": "node tests/phase9-release-integration-check.js",
-    "test:ux-habit": "node tests/phase9-ux-habit-refinement-check.js",
-    "test:notification-infrastructure": "node tests/phase9-notification-infrastructure-check.js",
-    "test:vercel-auth": "node tests/phase9-vercel-auth-regression-check.js",
-    "test:production-runtime": "node tests/phase9-production-runtime-regression-check.js",
-    "test:postlogin-data-ux": "node tests/phase9-postlogin-data-ux-regression-check.js",
-    "test:9b-r1": "node tests/phase9b-r1-backend-transaction-recovery-check.js"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "financial",
@@ -51,13 +23,12 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^7.0.0",
     "mongoose": "^7.5.0",
-    "nodemailer": "^6.9.14",
-    "web-push": "^3.6.7"
+    "nodemailer": "^6.9.14"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
   "engines": {
-    "node": "24.x"
+    "node": ">=14.0.0"
   }
 }

@@ -11,6 +11,5 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ],
-  "$schema": "https://openapi.vercel.sh/vercel.json"
+  ]
 }

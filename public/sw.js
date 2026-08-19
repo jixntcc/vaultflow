@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v3';
+const CACHE_NAME = 'vaultflow-shell-v1';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = [
   '/',
@@ -28,18 +28,8 @@ self.addEventListener('fetch', (event) => {
 
   if (req.method !== 'GET') return;
 
-  const isOperationalEndpoint =
-    url.pathname === '/health' ||
-    url.pathname === '/health/ready' ||
-    url.pathname === '/health/metrics';
-
-  if (url.pathname.startsWith('/api/') || isOperationalEndpoint || req.headers.get('authorization')) {
-    event.respondWith(
-      fetch(req).catch(() => new Response(JSON.stringify({ offline: true }), {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      }))
-    );
+  if (url.pathname.startsWith('/api/') || req.headers.get('authorization')) {
+    event.respondWith(fetch(req).catch(() => new Response(JSON.stringify({ offline: true }), { status: 503, headers: { 'Content-Type': 'application/json' } })));
     return;
   }
 
@@ -80,7 +70,7 @@ self.addEventListener('message', (event) => {
     icon: '/icons/icon-192.svg',
     badge: '/icons/icon-192.svg',
     data: payload.data || { page: 'dashboard' },
-    tag: payload.data?.tag || 'vf-local-reminder',
+    tag: 'vf-local-reminder',
     renotify: false,
     actions: [
       { action: 'open', title: 'Open VaultFlow' },
@@ -95,12 +85,6 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || 'VaultFlow', {
       body: payload.body || 'Your finance update is ready.',
-      tag: payload.data?.tag || 'vf-push',
-      renotify: false,
-      actions: [
-        { action: 'open', title: 'Open VaultFlow' },
-        { action: 'dismiss', title: 'Dismiss' }
-      ],
       icon: '/icons/icon-192.svg',
       badge: '/icons/icon-192.svg',
       data: payload.data || { page: 'dashboard' }
@@ -124,36 +108,4 @@ self.addEventListener('notificationclick', (event) => {
       return clients.openWindow(targetUrl);
     })
   );
-});
-
-
-// Phase 3G — resilient notification click / push handling.
-// Existing push handler remains authoritative; these listeners only add
-// safe fallbacks for malformed payloads and focus/open behavior.
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const target = event.notification?.data?.url || '/#habits';
-  event.waitUntil((async () => {
-    const clientsList = await self.clients.matchAll({type:'window', includeUncontrolled:true});
-    for (const client of clientsList) {
-      if ('focus' in client) {
-        try {
-          await client.focus();
-          if ('navigate' in client && target) await client.navigate(target);
-          return;
-        } catch (_) {}
-      }
-    }
-    if (self.clients.openWindow) await self.clients.openWindow(target);
-  })());
-});
-
-self.addEventListener('pushsubscriptionchange', event => {
-  event.waitUntil((async () => {
-    // The next foreground visit will reconcile the browser-generated
-    // subscription with the backend. We intentionally do not fabricate
-    // a subscription here because browsers differ in whether the new
-    // subscription is exposed to this event.
-    return true;
-  })());
 });
