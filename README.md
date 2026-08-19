@@ -200,3 +200,7 @@ Potential future features:
 ---
 
 **Start tracking your finances better today!** 💰📊🚀
+
+
+## Phase 4
+See `docs/VAULTFLOW-PHASE4.md` for the intelligence, automation, audit, sync and global-search architecture.

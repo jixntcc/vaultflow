@@ -115,3 +115,35 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+
+// Phase 3G — resilient notification click / push handling.
+// Existing push handler remains authoritative; these listeners only add
+// safe fallbacks for malformed payloads and focus/open behavior.
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = event.notification?.data?.url || '/#habits';
+  event.waitUntil((async () => {
+    const clientsList = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+    for (const client of clientsList) {
+      if ('focus' in client) {
+        try {
+          await client.focus();
+          if ('navigate' in client && target) await client.navigate(target);
+          return;
+        } catch (_) {}
+      }
+    }
+    if (self.clients.openWindow) await self.clients.openWindow(target);
+  })());
+});
+
+self.addEventListener('pushsubscriptionchange', event => {
+  event.waitUntil((async () => {
+    // The next foreground visit will reconcile the browser-generated
+    // subscription with the backend. We intentionally do not fabricate
+    // a subscription here because browsers differ in whether the new
+    // subscription is exposed to this event.
+    return true;
+  })());
+});

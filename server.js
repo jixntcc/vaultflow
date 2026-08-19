@@ -12,6 +12,8 @@ const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
+const { calculateFinancialIntelligence, detectRecurringExpenses, calculateGoalProjections, calculateHabitSnapshot, buildInsights, searchAll } = require('./services/phase4-intelligence');
+const { assertOwnedResource } = require('./services/authorization-contract');
 
 require('dotenv').config();
 
@@ -35,8 +37,29 @@ if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
 }
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+const configuredCorsOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(value => value.trim())
+  .filter(Boolean);
+
+if (configuredCorsOrigins.length > 0) {
+  app.use(cors({
+    origin(origin, callback) {
+      if (!origin || configuredCorsOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('CORS origin not allowed'));
+    }
+  }));
+}
+
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+app.use(express.json({ limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve index.html for all non-API routes
@@ -145,6 +168,8 @@ notes: { type: String },
 createdAt: { type: Date, default: Date.now }
 });
 
+transactionSchema.index({ userId: 1, date: -1 });
+transactionSchema.index({ userId: 1, vaultId: 1 });
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
 // Goal Schema (FIXED)
@@ -161,6 +186,7 @@ notes: { type: String },
 createdAt: { type: Date, default: Date.now }
 });
 
+goalSchema.index({ userId: 1, status: 1, deadline: 1 });
 const Goal = mongoose.model('Goal', goalSchema);
 
 const habitSchema = new mongoose.Schema({
@@ -304,6 +330,44 @@ status: { type: String, enum: ['sent', 'gone', 'failed'], default: 'sent' }
 notificationDeliverySchema.index({ userId: 1, subscriptionId: 1, key: 1 }, { unique: true });
 notificationDeliverySchema.index({ sentAt: 1 });
 const NotificationDelivery = mongoose.model('NotificationDelivery', notificationDeliverySchema);
+// ============================================
+// PHASE 4 PLATFORM MODELS
+// ============================================
+const auditEventSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  action: { type: String, required: true, maxlength: 80 },
+  resource: { type: String, required: true, maxlength: 80 },
+  resourceId: { type: String, default: null, maxlength: 120 },
+  method: { type: String, required: true, maxlength: 10 },
+  path: { type: String, required: true, maxlength: 180 },
+  success: { type: Boolean, default: true },
+  statusCode: { type: Number, default: 200 },
+  metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
+}, { timestamps: true });
+auditEventSchema.index({ userId: 1, createdAt: -1 });
+const AuditEvent = mongoose.model('AuditEvent', auditEventSchema);
+
+const automationRuleSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  name: { type: String, required: true, trim: true, maxlength: 100 },
+  event: { type: String, enum: ['goal_at_risk','expense_threshold','habit_streak','weekly_summary'], required: true },
+  condition: { type: mongoose.Schema.Types.Mixed, default: {} },
+  action: { type: String, enum: ['push','in_app'], default: 'push' },
+  enabled: { type: Boolean, default: true },
+  lastTriggeredAt: { type: Date, default: null }
+}, { timestamps: true });
+automationRuleSchema.index({ userId: 1, enabled: 1, event: 1 });
+const AutomationRule = mongoose.model('AutomationRule', automationRuleSchema);
+
+const mutationReceiptSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  key: { type: String, required: true, maxlength: 160 },
+  type: { type: String, required: true, maxlength: 80 },
+  result: { type: mongoose.Schema.Types.Mixed, default: null }
+}, { timestamps: true });
+mutationReceiptSchema.index({ userId: 1, key: 1 }, { unique: true });
+const MutationReceipt = mongoose.model('MutationReceipt', mutationReceiptSchema);
+
 
 
 // ============================================
@@ -327,26 +391,45 @@ return res.status(503).json({ error: 'Database connection failed' });
 // Authentication Middleware
 const authenticateToken = (req, res, next) => {
 const authHeader = req.headers['authorization'];
-const token = authHeader && authHeader.split(' ')[1];
+const token = authHeader && authHeader.startsWith('Bearer ')
+  ? authHeader.slice(7).trim()
+  : null;
 
 if (!token) {
 return res.status(401).json({ error: 'Access token required' });
+}
+if (!process.env.JWT_SECRET) {
+return res.status(500).json({ error: 'Server authentication is not configured' });
 }
 
 jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
 if (err) {
 return res.status(403).json({ error: 'Invalid or expired token' });
 }
+if (!user || !user.userId) {
+return res.status(403).json({ error: 'Invalid token subject' });
+}
 req.user = user;
 next();
 });
 };
+
+const authMiddleware = authenticateToken;
 
 function isValidLocalDate(value) {
 if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
 const [year, month, day] = value.split('-').map(Number);
 const d = new Date(Date.UTC(year, month - 1, day));
 return d.getUTCFullYear() === year && d.getUTCMonth() === month - 1 && d.getUTCDate() === day;
+}
+function isValidTimeZone(value) {
+if (typeof value !== 'string' || value.length < 1 || value.length > 100) return false;
+try {
+new Intl.DateTimeFormat('en-US', { timeZone: value }).format();
+return true;
+} catch (_) {
+return false;
+}
 }
 
 function normalizeHabitPayload(body = {}, existing = null) {
@@ -481,6 +564,61 @@ if (gone) await PushSubscription.deleteOne({ _id: subscriptionDoc._id });
 return { sent: false, gone, error: error?.message || 'Push delivery failed' };
 }
 }
+
+async function evaluateAutomationRules(now = new Date()) {
+  const rules = await AutomationRule.find({ enabled: true }).lean();
+  let triggered = 0;
+  for (const rule of rules) {
+    try {
+      const snapshot = await getUserDomainSnapshot(rule.userId);
+      const financial = calculateFinancialIntelligence(snapshot.transactions, now);
+      const goals = calculateGoalProjections(snapshot.goals, snapshot.transactions, now);
+      const habits = calculateHabitSnapshot(snapshot.habits, snapshot.habitLogs, now);
+      let shouldTrigger = false;
+      let title = rule.name;
+      let body = 'A VaultFlow automation rule was triggered.';
+      if (rule.event === 'goal_at_risk') {
+        const goal = goals.find(g => g.status === 'at-risk');
+        shouldTrigger = Boolean(goal);
+        if (goal) { title = `Goal at risk: ${goal.name}`; body = `Your current pace may miss the ${goal.name} target.`; }
+      } else if (rule.event === 'expense_threshold') {
+        const threshold = Number(rule.condition?.threshold || 0);
+        const today = now.toISOString().slice(0,10);
+        const amount = snapshot.transactions.filter(t => t.type === 'expense' && String(t.date).slice(0,10) === today).reduce((a,t)=>a+Number(t.amount||0),0);
+        shouldTrigger = threshold > 0 && amount >= threshold;
+        if (shouldTrigger) { title = `${rule.name}`; body = `Today's expenses reached ${amount.toFixed(2)}.`; }
+      } else if (rule.event === 'habit_streak') {
+        const threshold = Math.max(1, Number(rule.condition?.threshold || 7));
+        for (const habit of snapshot.habits.filter(h => h.status === 'active')) {
+          const streak = await getCurrentHabitStreakServer(habit, now.toISOString().slice(0,10), snapshot.habitLogs);
+          if (streak >= threshold) { shouldTrigger = true; title = `${habit.name}: ${streak} day streak`; body = `You reached the streak threshold of ${threshold} days.`; break; }
+        }
+      } else if (rule.event === 'weekly_summary') {
+        shouldTrigger = now.getUTCDay() === 0 && now.getUTCHours() >= 18;
+        body = `Savings rate ${financial.totals.savingsRate}%, habit completion ${habits.overallCompletionRate}%.`;
+      }
+      if (!shouldTrigger) continue;
+      if (rule.lastTriggeredAt && (now - new Date(rule.lastTriggeredAt)) < 20 * 60 * 1000) continue;
+      const subs = rule.action === 'push'
+        ? await PushSubscription.find({ userId: rule.userId }).lean()
+        : [];
+      const key = `automation:${rule._id}:${now.toISOString().slice(0,13)}`;
+      let delivered = rule.action === 'in_app';
+      for (const sub of subs) {
+        const result = await sendBackgroundPush(sub, { title, body, data:{ page:'insights', tag:key, urgency:'normal' } }, key);
+        if (result.sent) delivered = true;
+      }
+      if (delivered) {
+        await AutomationRule.updateOne({ _id: rule._id }, { $set: { lastTriggeredAt: now } });
+        triggered++;
+      }
+    } catch (error) {
+      console.error('[Automation] rule evaluation failed:', rule._id, error.message);
+    }
+  }
+  return { triggered };
+}
+
 async function runBackgroundNotificationJob(now = new Date()) {
 if (!pushConfigured()) return { configured:false, sent:0, skipped:'VAPID_NOT_CONFIGURED' };
 const subscriptions = await PushSubscription.find({}).lean().maxTimeMS(15000);
@@ -528,6 +666,7 @@ return {configured:true,checked,sent};
 // AUTHENTICATION ROUTES
 // ============================================
 const forgotPasswordRateMap = new Map();
+const authRateMap = new Map();
 function isRateLimited(key, max = 5, windowMs = 15 * 60 * 1000) {
 const now = Date.now();
 const entry = forgotPasswordRateMap.get(key) || { count: 0, resetAt: now + windowMs };
@@ -540,17 +679,23 @@ forgotPasswordRateMap.set(key, entry);
 return entry.count > max;
 }
 
+function isAuthRateLimited(key, max = 10, windowMs = 15 * 60 * 1000) {
+return isRateLimited(`auth:${key}`, max, windowMs);
+}
+
 // Register
 app.post('/api/auth/register', ensureConnection, async (req, res) => {
 try {
-const { username, email, password } = req.body;
-
-if (!username || !email || !password) {
+const { username, email, password } = req.body || {};
+const registerKey = `${req.ip}:${String(email || '').trim().toLowerCase()}`;
+if (isAuthRateLimited(registerKey, 8)) {
+return res.status(429).json({ error: 'Too many registration attempts. Please try again later.' });
+}
+if (!username || !email || !password || typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string') {
 return res.status(400).json({ error: 'Username, email and password required' });
 }
-
-if (password.length < 6) {
-return res.status(400).json({ error: 'Password must be at least 6 characters' });
+if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+return res.status(400).json({ error: 'Password must be 8+ chars with upper, lower, and number' });
 }
 
 const existingUser = await User.findOne({ username });
@@ -615,41 +760,27 @@ res.status(500).json({ error: 'Server error during registration' });
 // Login
 app.post('/api/auth/login', ensureConnection, async (req, res) => {
 try {
-const { username, password } = req.body;
-console.log('LOGIN DEBUG req.body:', {
-hasBody: !!req.body,
-usernameType: typeof username,
-usernamePreview: typeof username === 'string' ? username.slice(0, 3) + '***' : null,
-hasPassword: !!password,
-passwordType: typeof password
-});
-
-if (!username || !password) {
+const { username, password } = req.body || {};
+const identifier = typeof username === 'string' ? username.trim().toLowerCase() : '';
+if (isAuthRateLimited(`${req.ip}:${identifier}`, 10)) {
+return res.status(429).json({ error: 'Too many login attempts. Please try again later.' });
+}
+if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
 return res.status(400).json({ error: 'Username and password required' });
 }
-
-const identifier = username.trim().toLowerCase();
 const user = await User.findOne({
 $or: [{ username: username.trim() }, { email: identifier }]
-});
-console.log('LOGIN DEBUG user lookup:', {
-identifier,
-found: !!user,
-userId: user?._id?.toString?.(),
-hasPasswordHash: !!user?.password
 });
 if (!user) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
 const validPassword = await bcrypt.compare(password, user.password);
-console.log('LOGIN DEBUG password compare result:', { validPassword });
 if (!validPassword) {
 return res.status(401).json({ error: 'Invalid credentials' });
 }
 
 if (!process.env.JWT_SECRET) {
-console.error('LOGIN DEBUG missing JWT_SECRET');
 return res.status(500).json({ error: 'Server auth configuration error' });
 }
 
@@ -658,11 +789,6 @@ const token = jwt.sign(
 process.env.JWT_SECRET,
 { expiresIn: AUTH_TOKEN_TTL }
 );
-console.log('LOGIN DEBUG jwt.sign success:', {
-tokenLength: token?.length,
-ttl: AUTH_TOKEN_TTL,
-userId: user._id?.toString?.()
-});
 
 res.json({
   message: 'Login successful',
@@ -676,8 +802,6 @@ res.json({
 });
 
 } catch (error) {
-console.error('LOGIN ERROR DETAILS:', error);
-console.error('LOGIN ERROR:', error);
 console.error('Login error:', error);
 res.status(500).json({ error: 'Server error during login' });
 }
@@ -713,7 +837,7 @@ subject: 'VaultFlow Password Reset',
 html: `<div style="font-family:Arial,sans-serif"><h2>Reset your VaultFlow password</h2><p>Click below to reset your password (valid for 15 minutes):</p><p><a href="${resetUrl}" style="padding:10px 14px;background:#6366f1;color:#fff;text-decoration:none;border-radius:6px;">Reset Password</a></p><p>If you did not request this, ignore this email.</p></div>`
 });
 } else {
-console.log(`[MOCK EMAIL] Send reset link to ${user.email}: ${resetUrl}`);
+console.warn('[SECURITY] Email transport is not configured; password reset email was not sent.');
 }
 return res.json(generic);
 } catch (error) {
@@ -725,6 +849,7 @@ return res.json({ message: 'If an account exists, a reset link has been sent.' }
 app.post('/api/auth/reset-password', ensureConnection, async (req, res) => {
 try {
 const { token, password, confirmPassword } = req.body || {};
+if (isAuthRateLimited(`${req.ip}:reset`, 10)) return res.status(429).json({ error: 'Too many password reset attempts. Please try again later.' });
 if (!token || !password || !confirmPassword) return res.status(400).json({ error: 'Token and password are required' });
 if (password !== confirmPassword) return res.status(400).json({ error: 'Passwords do not match' });
 if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
@@ -759,6 +884,15 @@ return res.status(500).json({ error: 'Server error during password reset' });
 function normalizeAmount(value) {
 const amount = Number(value);
 return Number.isFinite(amount) && amount > 0 ? amount : null;
+}
+
+async function assertOwnedVault(userId, vaultId, session = null) {
+if (!vaultId) return null;
+return assertOwnedResource(Vault, userId, vaultId, {
+select: '_id name',
+session,
+notFoundMessage: 'Vault not found'
+});
 }
 
 async function rebuildVaultBalances(userId, session = null) {
@@ -831,6 +965,57 @@ await session.endSession();
 }
 
 // ============================================
+
+// ============================================
+// PHASE 4 PLATFORM HELPERS
+// ============================================
+function auditMutation(req, res) {
+  if (!req.user || !req.path.startsWith('/api/') || !['POST','PUT','PATCH','DELETE'].includes(req.method)) return;
+  res.on('finish', () => {
+    const resource = req.path.split('/').filter(Boolean)[1] || 'api';
+    const id = req.params && req.params.id ? String(req.params.id) : null;
+    AuditEvent.create({
+      userId: req.user.userId,
+      action: `${req.method.toLowerCase()}:${resource}`,
+      resource,
+      resourceId: id,
+      method: req.method,
+      path: req.path,
+      success: res.statusCode < 400,
+      statusCode: res.statusCode,
+      metadata: { phase: '4.x' }
+    }).catch(error => console.error('[Audit] write failed:', error.message));
+  });
+}
+app.use(auditMutation);
+
+function normalizeSearchQuery(value) {
+  return String(value || '').trim().slice(0, 100);
+}
+
+async function getUserDomainSnapshot(userId) {
+  const [transactions, vaults, goals, habits, habitLogs] = await Promise.all([
+    Transaction.find({ userId }).lean(),
+    Vault.find({ userId }).lean(),
+    Goal.find({ userId }).lean(),
+    Habit.find({ userId }).lean(),
+    HabitLog.find({ userId }).lean()
+  ]);
+  return { transactions, vaults, goals, habits, habitLogs };
+}
+
+async function claimMutationReceipt(userId, key, type) {
+  if (!key || typeof key !== 'string' || key.length > 160) return null;
+  try {
+    return await MutationReceipt.create({ userId, key, type });
+  } catch (error) {
+    if (error && error.code === 11000) {
+      return MutationReceipt.findOne({ userId, key }).lean();
+    }
+    throw error;
+  }
+}
+
 // VAULT ROUTES (OPTIMIZED)
 // ============================================
 
@@ -1000,6 +1185,7 @@ return res.status(400).json({ error: 'Date, type, amount, and category required'
 }
 
 const transaction = await runFinancialMutation(async (session) => {
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null, session);
 const created = new Transaction({
 userId: req.user.userId,
 date,
@@ -1010,8 +1196,8 @@ category,
 location,
 wallet,
 paymentMethod: paymentMethod || 'online',
-vaultId: vaultId || null,
-vaultName,
+vaultId: ownedVault?._id || null,
+vaultName: ownedVault?.name || undefined,
 notes
 });
 
@@ -1040,6 +1226,7 @@ return res.status(400).json({ error: 'Date, type, amount, and category required'
 }
 
 const transaction = await runFinancialMutation(async (session) => {
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null, session);
 const oldTransaction = await Transaction.findOne({
 _id: req.params.id,
 userId: req.user.userId
@@ -1062,8 +1249,8 @@ category,
 location,
 wallet,
 paymentMethod: paymentMethod || 'online',
-vaultId: vaultId || null,
-vaultName,
+vaultId: ownedVault?._id || null,
+vaultName: ownedVault?.name || undefined,
 notes
 },
 { new: true, runValidators: true, session }
@@ -1166,13 +1353,14 @@ if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
 vaultId = null;
 }
 
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
 const goal = new Goal({
 userId: req.user.userId,
 name,
 targetAmount,
 currentAmount: currentAmount || 0,
-vaultId: vaultId || null,
-vaultName,
+vaultId: ownedVault?._id || null,
+vaultName: ownedVault?.name || undefined,
 deadline,
 status: status || 'active',
 notes
@@ -1197,10 +1385,11 @@ if (vaultId === '' || vaultId === 'null' || vaultId === 'undefined') {
 vaultId = null;
 }
 
+const ownedVault = await assertOwnedVault(req.user.userId, vaultId || null);
 const goal = await Goal.findOneAndUpdate(
 { _id: req.params.id, userId: req.user.userId },
-{ name, targetAmount, currentAmount, vaultId: vaultId || null, vaultName, deadline, status, notes },
-{ new: true }
+{ name, targetAmount, currentAmount, vaultId: ownedVault?._id || null, vaultName: ownedVault?.name || undefined, deadline, status, notes },
+{ new: true, runValidators: true }
 );
 
 if (!goal) {
@@ -1509,6 +1698,22 @@ res.status(500).json({ error: 'Server error deleting habit log' });
 // missed/schedule/streak derivation belongs to the domain service phase.
 
 // Return the public VAPID key used by browser PushManager.
+app.get('/api/notifications/status', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const subscriptionCount = await PushSubscription.countDocuments({ userId: req.user.userId });
+    const settings = await NotificationSettings.findOne({ userId: req.user.userId }).lean();
+    res.json({
+      supported: Boolean(process.env.VAPID_PUBLIC_KEY),
+      subscribed: subscriptionCount > 0,
+      enabled: settings?.enabled !== false,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    });
+  } catch (error) {
+    console.error('Notification status error:', error);
+    res.status(500).json({ error: 'Failed to read notification status' });
+  }
+});
+
 app.get('/api/notifications/vapid-public-key', ensureConnection, authenticateToken, async (req,res)=>{
 if(!pushConfigured()) return res.status(503).json({ error:'Background push is not configured on this deployment' });
 res.json({ publicKey: VAPID_PUBLIC_KEY });
@@ -1529,12 +1734,24 @@ try {
 if(!pushConfigured()) return res.status(503).json({error:'Background push is not configured on this deployment'});
 const sub=req.body?.subscription || req.body;
 if(!sub?.endpoint || !sub?.keys?.p256dh || !sub?.keys?.auth) return res.status(400).json({error:'A valid PushSubscription is required'});
-const timezone=typeof req.body?.timezone==='string' ? req.body.timezone : 'UTC';
+const timezone=typeof req.body?.timezone==='string' && isValidTimeZone(req.body.timezone) ? req.body.timezone : 'UTC';
 const userAgent=String(req.headers['user-agent']||'').slice(0,500);
-const saved=await PushSubscription.findOneAndUpdate({endpoint:sub.endpoint},{$set:{userId:req.user.userId,endpoint:sub.endpoint,p256dh:sub.keys.p256dh,auth:sub.keys.auth,timezone,userAgent,updatedAt:new Date(),lastSeenAt:new Date()}},{new:true,upsert:true,setDefaultsOnInsert:true}).lean();
+const existing=await PushSubscription.findOne({endpoint:sub.endpoint}).lean();
+if (existing && String(existing.userId) !== String(req.user.userId)) {
+return res.status(409).json({error:'Push subscription belongs to another account'});
+}
+const saved=await PushSubscription.findOneAndUpdate(
+{endpoint:sub.endpoint,userId:req.user.userId},
+{$set:{userId:req.user.userId,endpoint:sub.endpoint,p256dh:sub.keys.p256dh,auth:sub.keys.auth,timezone,userAgent,updatedAt:new Date(),lastSeenAt:new Date()}},
+{new:true,upsert:true,setDefaultsOnInsert:true}
+).lean();
 await NotificationSettings.findOneAndUpdate({userId:req.user.userId},{$setOnInsert:{userId:req.user.userId}},{upsert:true,setDefaultsOnInsert:true});
 res.status(201).json({id:saved._id,endpoint:saved.endpoint,timezone:saved.timezone});
-} catch(error){console.error('Push subscribe error:',error);res.status(500).json({error:'Server error saving push subscription'});}
+} catch(error){
+console.error('Push subscribe error:',error);
+if (error?.code === 11000) return res.status(409).json({error:'Push subscription is already registered to another account'});
+res.status(500).json({error:'Server error saving push subscription'});
+}
 });
 
 app.get('/api/notifications/subscriptions', ensureConnection, authenticateToken, async (req,res)=>{
@@ -1554,7 +1771,8 @@ const expected=process.env.CRON_SECRET;
 const auth=req.headers.authorization || '';
 if (!expected || auth !== `Bearer ${expected}`) return res.status(401).json({error:'Unauthorized'});
 const result=await runBackgroundNotificationJob(new Date());
-res.json({ok:true,...result});
+const automation=await evaluateAutomationRules(new Date());
+res.json({ok:true,...result,automation});
 } catch(error){console.error('Background notification job error:',error);res.status(500).json({error:'Background notification job failed'});}
 });
 
@@ -1579,6 +1797,185 @@ res.status(500).json({ error: 'Server error fetching habit summary' });
 });
 
 // ============================================
+
+// ============================================
+// PHASE 4 INTELLIGENCE / AUTOMATION / SEARCH
+// ============================================
+app.get('/api/insights', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const snapshot = await getUserDomainSnapshot(req.user.userId);
+    const financial = calculateFinancialIntelligence(snapshot.transactions);
+    const projections = calculateGoalProjections(snapshot.goals, snapshot.transactions);
+    const habits = calculateHabitSnapshot(snapshot.habits, snapshot.habitLogs);
+    const recurring = detectRecurringExpenses(snapshot.transactions);
+    const insights = buildInsights(financial, projections, habits, recurring);
+    res.json({ financial, goals: projections, habits, recurring, insights });
+  } catch (error) {
+    console.error('Phase 4 insights error:', error);
+    res.status(500).json({ error: 'Failed to build insights' });
+  }
+});
+
+app.get('/api/goals/projections', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const [goals, transactions] = await Promise.all([
+      Goal.find({ userId: req.user.userId }).lean(),
+      Transaction.find({ userId: req.user.userId }).lean()
+    ]);
+    res.json({ projections: calculateGoalProjections(goals, transactions) });
+  } catch (error) {
+    console.error('Goal projections error:', error);
+    res.status(500).json({ error: 'Failed to build goal projections' });
+  }
+});
+
+app.get('/api/search', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const query = normalizeSearchQuery(req.query.q);
+    if (!query) return res.json({ query: '', results: [] });
+    const snapshot = await getUserDomainSnapshot(req.user.userId);
+    res.json({ query, results: searchAll(query, snapshot) });
+  } catch (error) {
+    console.error('Global search error:', error);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
+
+app.get('/api/audit', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 50));
+    const events = await AuditEvent.find({ userId: req.user.userId }).sort({ createdAt: -1 }).limit(limit).lean();
+    res.json({ events });
+  } catch (error) {
+    console.error('Audit log error:', error);
+    res.status(500).json({ error: 'Failed to load audit history' });
+  }
+});
+
+app.get('/api/automation/rules', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const rules = await AutomationRule.find({ userId: req.user.userId }).sort({ createdAt: -1 }).lean();
+    res.json({ rules });
+  } catch (error) {
+    console.error('Automation rules error:', error);
+    res.status(500).json({ error: 'Failed to load automation rules' });
+  }
+});
+
+app.post('/api/automation/rules', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const { name, event, condition, action, enabled } = req.body || {};
+    if (!name || !event) return res.status(400).json({ error: 'Rule name and event are required' });
+    const allowed = ['goal_at_risk','expense_threshold','habit_streak','weekly_summary'];
+    if (!allowed.includes(event)) return res.status(400).json({ error: 'Unsupported automation event' });
+    const rule = await AutomationRule.create({
+      userId: req.user.userId,
+      name: String(name).trim().slice(0,100),
+      event,
+      condition: condition && typeof condition === 'object' ? condition : {},
+      action: action === 'in_app' ? 'in_app' : 'push',
+      enabled: enabled !== false
+    });
+    res.status(201).json(rule);
+  } catch (error) {
+    console.error('Create automation rule error:', error);
+    res.status(500).json({ error: 'Failed to create automation rule' });
+  }
+});
+
+app.put('/api/automation/rules/:id', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const update = {};
+    for (const key of ['name','event','condition','action','enabled']) {
+      if (req.body && req.body[key] !== undefined) update[key] = req.body[key];
+    }
+    if (update.event && !['goal_at_risk','expense_threshold','habit_streak','weekly_summary'].includes(update.event)) {
+      return res.status(400).json({ error: 'Unsupported automation event' });
+    }
+    const rule = await AutomationRule.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.userId }, update,
+      { new: true, runValidators: true }
+    ).lean();
+    if (!rule) return res.status(404).json({ error: 'Automation rule not found' });
+    res.json(rule);
+  } catch (error) {
+    console.error('Update automation rule error:', error);
+    res.status(500).json({ error: 'Failed to update automation rule' });
+  }
+});
+
+app.delete('/api/automation/rules/:id', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const deleted = await AutomationRule.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+    if (!deleted) return res.status(404).json({ error: 'Automation rule not found' });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete automation rule error:', error);
+    res.status(500).json({ error: 'Failed to delete automation rule' });
+  }
+});
+
+app.post('/api/sync/mutations', ensureConnection, authenticateToken, async (req, res) => {
+  try {
+    const mutations = Array.isArray(req.body?.mutations) ? req.body.mutations.slice(0, 50) : [];
+    const results = [];
+    for (const mutation of mutations) {
+      const key = String(mutation.key || '').trim();
+      const type = String(mutation.type || '').trim();
+      if (!key || !type) {
+        results.push({ key, status: 'rejected', error: 'Missing mutation key/type' });
+        continue;
+      }
+      const existing = await claimMutationReceipt(req.user.userId, key, type);
+      if (existing && existing.result) {
+        results.push({ key, status: 'already-applied', result: existing.result });
+        continue;
+      }
+      try {
+        let result;
+        if (type === 'habit_log_create') {
+          const habit = await Habit.findOne({ _id: mutation.payload?.habitId, userId: req.user.userId }).lean();
+          if (!habit) throw Object.assign(new Error('Habit not found'), { statusCode: 404 });
+          result = await HabitLog.findOneAndUpdate(
+            { userId: req.user.userId, habitId: habit._id, scheduledDate: mutation.payload.scheduledDate },
+            { $set: { status: mutation.payload.status || 'completed', note: mutation.payload.note || '' } },
+            { upsert: true, new: true, setDefaultsOnInsert: true }
+          ).lean();
+        } else if (type === 'transaction_create') {
+          const payload = mutation.payload || {};
+          const ownedVault = await assertOwnedVault(req.user.userId, payload.vaultId || null);
+          result = await Transaction.create({
+            userId: req.user.userId,
+            date: payload.date,
+            time: payload.time || '',
+            type: payload.type,
+            amount: Number(payload.amount),
+            category: payload.category || 'Uncategorized',
+            location: payload.location || '',
+            wallet: payload.wallet,
+            paymentMethod: payload.paymentMethod || 'online',
+            vaultId: ownedVault?._id || null,
+            vaultName: ownedVault?.name || undefined,
+            notes: payload.notes || ''
+          });
+          result = result.toObject();
+        } else {
+          throw Object.assign(new Error('Unsupported mutation type'), { statusCode: 400 });
+        }
+        await MutationReceipt.updateOne({ userId: req.user.userId, key }, { $set: { result } });
+        results.push({ key, status: 'applied', result });
+      } catch (error) {
+        results.push({ key, status: 'failed', error: error.message });
+      }
+    }
+    res.json({ results });
+  } catch (error) {
+    console.error('Sync mutations error:', error);
+    res.status(500).json({ error: 'Failed to process sync queue' });
+  }
+});
+
+
 // ANALYTICS ROUTES (ENHANCED WITH CHARTS)
 // ============================================
 
