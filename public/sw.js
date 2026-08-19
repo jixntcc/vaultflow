@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v1';
+const CACHE_NAME = 'vaultflow-shell-v2';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = [
   '/',
@@ -70,7 +70,7 @@ self.addEventListener('message', (event) => {
     icon: '/icons/icon-192.svg',
     badge: '/icons/icon-192.svg',
     data: payload.data || { page: 'dashboard' },
-    tag: 'vf-local-reminder',
+    tag: payload.data?.tag || 'vf-local-reminder',
     renotify: false,
     actions: [
       { action: 'open', title: 'Open VaultFlow' },
@@ -85,6 +85,12 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(payload.title || 'VaultFlow', {
       body: payload.body || 'Your finance update is ready.',
+      tag: payload.data?.tag || 'vf-push',
+      renotify: false,
+      actions: [
+        { action: 'open', title: 'Open VaultFlow' },
+        { action: 'dismiss', title: 'Dismiss' }
+      ],
       icon: '/icons/icon-192.svg',
       badge: '/icons/icon-192.svg',
       data: payload.data || { page: 'dashboard' }

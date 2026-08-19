@@ -1220,6 +1220,15 @@
                 margin-bottom: 8px;
             }
 
+            .mobile-txn-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-top: 12px;
+                padding-top: 10px;
+                border-top: 1px solid var(--border);
+            }
+
             .mobile-txn-meta {
                 font-size: 12px;
                 color: var(--text-secondary);
@@ -1362,7 +1371,56 @@
             .wallet-card, .vault-card, .goal-card { padding: 16px; }
         }
 
-    </style>
+            .habit-page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.habit-summary-card{padding:22px;margin-bottom:18px}.habit-summary-main{display:flex;justify-content:space-between;align-items:center}.habit-summary-main h2{margin:4px 0}.habit-muted{color:var(--text-secondary,#6b7280);font-size:14px}.habit-progress-ring{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary) 0deg,#e5e7eb 0deg);position:relative}.habit-progress-ring:after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card-bg,#fff)}.habit-progress-ring span{z-index:1;font-weight:800;font-size:13px}.habit-progress-track{height:7px;background:#e5e7eb;border-radius:99px;margin-top:18px;overflow:hidden}.habit-progress-track span{display:block;height:100%;background:var(--primary);width:0}.habit-toolbar{display:flex;justify-content:space-between;gap:14px;margin:18px 0}.habit-filter-group,.habit-date-control{display:flex;gap:6px}.habit-filter,.habit-date-button,.icon-btn{border:1px solid var(--border-color,#e5e7eb);background:var(--card-bg,#fff);border-radius:9px;padding:8px 13px;font:inherit;cursor:pointer}.habit-filter{border-radius:99px;color:var(--text-secondary,#6b7280)}.habit-filter.active{background:var(--primary);color:#fff;border-color:var(--primary)}.icon-btn{width:34px;padding:0;font-size:20px}.habits-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.habit-card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e5e7eb);border-radius:14px;padding:18px}.habit-card-top{display:flex;gap:12px;align-items:flex-start}.habit-icon{width:42px;height:42px;border-radius:12px;background:rgba(99,102,241,.1);display:grid;place-items:center;font-size:20px}.habit-card-title{font-weight:800}.habit-card-meta{display:flex;gap:6px;margin-top:6px}.habit-chip{font-size:11px;padding:4px 7px;border-radius:99px;background:#f4f5f7;color:#6b7280}.habit-status{margin-left:auto;font-size:11px;font-weight:800;text-transform:uppercase}.habit-status.completed{color:#16a34a}.habit-status.pending{color:var(--primary)}.habit-status.skipped,.habit-status.missed{color:#6b7280}.habit-card-description{font-size:13px;color:#6b7280;margin:14px 0}.habit-card-bottom{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--border-color,#e5e7eb);padding-top:13px}.habit-actions{display:flex;gap:7px;flex-wrap:wrap}.habit-action{border:1px solid var(--border-color,#e5e7eb);background:var(--card-bg,#fff);border-radius:8px;padding:7px 9px;font:inherit;font-size:12px;cursor:pointer}.habit-action.primary{background:var(--primary);color:#fff;border-color:var(--primary)}.habit-action.danger{color:#b42318}.habit-empty{grid-column:1/-1;text-align:center;padding:45px 20px;border:1px dashed var(--border-color,#e5e7eb);border-radius:14px;color:#6b7280}.habit-empty strong{display:block;color:#111827;margin-bottom:7px}.habit-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.habit-form-wide{grid-column:1/-1}.habit-radio{display:inline-flex;gap:6px;border:1px solid var(--border-color,#e5e7eb);border-radius:9px;padding:9px 11px}.habit-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.habit-weekdays label{border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:8px;text-align:center;font-size:11px}.habit-checkbox-line{display:flex;gap:8px;margin-top:27px;font-size:13px}.habit-history-modal{max-width:720px}.habit-history-content{max-height:60vh;overflow:auto}.habit-history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.habit-history-stat{padding:14px;background:#f4f5f7;border-radius:10px}.habit-history-stat strong{display:block;font-size:20px}.habit-history-stat span{font-size:11px;color:#6b7280}.habit-history-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.habit-history-day{min-height:48px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:7px;font-size:10px}.habit-history-day.completed{background:rgba(22,163,74,.1)}.habit-history-day.skipped{background:rgba(245,158,11,.1)}.habit-history-day.missed{background:rgba(239,68,68,.08)}@media(max-width:900px){.habits-list{grid-template-columns:1fr}}@media(max-width:768px){.habit-page-header{align-items:center}.habit-toolbar{flex-direction:column}.habit-date-control{justify-content:space-between}.habit-date-button{flex:1}.habit-card-bottom{flex-direction:column}.habit-actions{width:100%}.habit-action{flex:1}.habit-form-grid{grid-template-columns:1fr}.habit-form-wide{grid-column:auto}.habit-weekdays{grid-template-columns:repeat(4,1fr)}.habit-history-stats{grid-template-columns:1fr 1fr}}
+        .habit-dashboard-widget{margin:18px 0}.habit-dashboard-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.habit-dashboard-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--border-color,#e5e7eb);border-radius:10px}.habit-dashboard-check{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:#f4f5f7;flex:none}.habit-dashboard-item.completed .habit-dashboard-check{background:#16a34a;color:#fff}.habit-report-card{margin-bottom:16px}.habit-report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.habit-report-grid>div{padding:14px;border-radius:10px;background:#f4f5f7}.habit-report-grid strong{display:block;font-size:21px}.habit-report-grid span{font-size:11px;color:#6b7280}@media(max-width:768px){.habit-dashboard-items,.habit-report-grid{grid-template-columns:1fr 1fr}}        .habit-analytics-card{margin:18px 0;padding:22px}.habit-analytics-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px}.habit-analytics-header h2{margin:0 0 4px;font-size:19px}.habit-analytics-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.habit-analytics-kpis>div{padding:14px;border:1px solid var(--border,#e5e7eb);border-radius:10px}.habit-analytics-kpis strong{display:block;font-size:22px}.habit-analytics-kpis span{font-size:11px;color:var(--text-secondary,#6b7280)}.habit-analytics-section{margin-top:20px}.habit-analytics-section-title{font-size:13px;font-weight:800;margin-bottom:10px}.habit-analytics-bars{height:115px;display:flex;align-items:flex-end;gap:3px;border-bottom:1px solid var(--border,#e5e7eb);overflow:hidden}.habit-analytics-bar{flex:1;min-width:3px;border-radius:4px 4px 0 0;background:var(--primary);opacity:.82}.habit-analytics-bar.zero{opacity:.16}.habit-analytics-habits{display:grid;gap:8px}.habit-analytics-habit{display:grid;grid-template-columns:minmax(100px,1fr) 2fr 50px;align-items:center;gap:10px;font-size:12px}.habit-analytics-habit-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}.habit-analytics-track{height:7px;background:#e5e7eb;border-radius:99px;overflow:hidden}.habit-analytics-track span{display:block;height:100%;background:var(--primary);border-radius:inherit}.habit-analytics-percent{text-align:right;font-weight:800}@media(max-width:768px){.habit-analytics-kpis{grid-template-columns:1fr 1fr}.habit-analytics-header{flex-direction:column}.habit-analytics-habit{grid-template-columns:90px 1fr 42px}}
+
+/* Phase 10A — Habit Tracking */
+.habit-page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.habit-summary-card{padding:20px;margin-bottom:18px}
+.habit-summary-main{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.habit-progress{display:flex;align-items:center;gap:14px}
+.habit-progress-ring{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary) 0deg,#e5e7eb 0deg)}
+.habit-progress-ring::after{content:'';width:44px;height:44px;background:var(--card-bg,#fff);border-radius:50%;grid-area:1/1}
+.habit-progress-value{grid-area:1/1;z-index:1;font-size:12px;font-weight:700}
+.habit-toolbar{display:flex;gap:8px;align-items:center;margin:16px 0;flex-wrap:wrap}
+.habit-filter{border:1px solid var(--border,#e5e7eb);background:var(--card-bg,#fff);border-radius:999px;padding:8px 13px;cursor:pointer}
+.habit-filter.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.habits-list{display:grid;gap:12px}
+.habit-card{padding:18px;border:1px solid var(--border,#e5e7eb);border-radius:14px;background:var(--card-bg,#fff)}
+.habit-card-top{display:flex;align-items:flex-start;gap:12px}
+.habit-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(99,102,241,.1);font-size:21px}
+.habit-card-title{font-size:16px;font-weight:700}
+.habit-card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.habit-chip{font-size:11px;padding:4px 8px;border-radius:999px;background:#f3f4f6}
+.habit-status{margin-left:auto;font-size:12px;font-weight:700;text-transform:capitalize}
+.habit-status.completed{color:#15803d}.habit-status.pending{color:#a16207}.habit-status.skipped{color:#64748b}.habit-status.missed{color:#dc2626}
+.habit-card-description{margin:12px 0;color:var(--text-secondary,#64748b);font-size:13px}
+.habit-card-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.habit-actions{display:flex;gap:7px;flex-wrap:wrap}
+.habit-action{border:1px solid var(--border,#e5e7eb);background:transparent;border-radius:8px;padding:7px 10px;cursor:pointer}
+.habit-action.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.habit-action.danger{color:#dc2626}
+.habit-empty{padding:34px;text-align:center;border:1px dashed var(--border,#d1d5db);border-radius:14px;color:var(--text-secondary,#64748b)}
+.habit-date-nav{display:flex;align-items:center;gap:8px}
+.habit-date-nav button{border:0;background:transparent;cursor:pointer;font-size:18px;padding:4px 8px}
+.habit-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.habit-form-wide{grid-column:1/-1}
+.habit-weekdays{display:flex;gap:7px;flex-wrap:wrap}
+.habit-weekdays label{border:1px solid var(--border,#e5e7eb);padding:7px 9px;border-radius:8px;font-size:12px}
+.habit-history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.habit-history-stat{padding:14px;border-radius:12px;background:#f8fafc;text-align:center}
+.habit-history-stat strong{display:block;font-size:20px}.habit-history-stat span{font-size:11px;color:#64748b}
+.habit-history-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.habit-history-day{padding:8px 3px;border-radius:8px;text-align:center;background:#f1f5f9;font-size:11px}
+.habit-history-day.completed{background:#dcfce7;color:#166534}
+.habit-history-day.skipped{background:#e2e8f0;color:#475569}
+.habit-history-day.missed{background:#fee2e2;color:#991b1b}
+@media(max-width:700px){
+ .habit-page-header{flex-direction:column}.habit-modal-grid{grid-template-columns:1fr}.habit-history-stats{grid-template-columns:1fr 1fr}
+ .habit-card-bottom{align-items:flex-start}.habit-actions{width:100%}.habit-action{flex:1}
+}
+
+</style>
 </head>
 <body>
     <!-- Auth Container -->
@@ -1441,6 +1499,7 @@
                     <span>🎯</span>
                     <span>Future Goals</span>
                 </div>
+                <div class="nav-item" data-page="habits"><span>✓</span><span>Habits</span></div>                <div class="nav-item" data-page="habits"><span>✓</span><span>Habits</span></div>
                 <div class="nav-item" data-page="reports">
                     <span>📈</span>
                     <span>Reports</span>
@@ -1503,6 +1562,7 @@
                         <h3 class="table-title">Recent Transactions</h3>
                         <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
                     </div>
+                    <div class="card habit-dashboard-widget"><div class="card-header"><div><h3 class="table-title">Today's Habits</h3><p class="card-subtitle" id="dashboardHabitSummary">Loading habit progress…</p></div><button class="btn btn-secondary" type="button" onclick="switchPage('habits')">View Habits</button></div><div id="dashboardHabitItems" class="habit-dashboard-items"></div></div>
                     <div id="recentTransactionsTable"></div>
                 </div>
             </div>
@@ -1624,6 +1684,70 @@
             </div>
 
 
+            <div id="habits" class="page">
+                <div class="page-header habit-page-header"><div><h1 class="page-title">Habits</h1><p class="page-subtitle">Build consistency with small actions that repeat.</p></div><button class="btn btn-primary" onclick="openHabitModal()" type="button">＋ Add Habit</button></div>
+                <section class="habit-summary-card card"><div class="habit-summary-main"><div><div class="card-label">Today</div><h2>Today's habits</h2><p id="habitTodaySubtitle" class="habit-muted"></p></div><div class="habit-progress-ring" id="habitProgressRing"><span id="habitProgressValue">0%</span></div></div><div class="habit-progress-track"><span id="habitProgressBar"></span></div></section>
+                <div class="habit-toolbar"><div class="habit-filter-group"><button class="habit-filter active" data-habit-filter="today">Today</button><button class="habit-filter" data-habit-filter="all">All Active</button><button class="habit-filter" data-habit-filter="archived">Archived</button></div><div class="habit-date-control"><button class="icon-btn" id="habitPrevDay">‹</button><button class="habit-date-button" id="habitDateButton"></button><button class="icon-btn" id="habitNextDay">›</button></div></div>
+                <section class="habit-analytics-card card">
+                    <div class="habit-analytics-header">
+                        <div><h2>Habit Analytics</h2><p id="habitAnalyticsSubtitle" class="habit-muted">Last 30 days across active habits.</p></div>
+                        <select id="habitAnalyticsRange" class="habit-date-button" aria-label="Analytics range">
+                            <option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option>
+                        </select>
+                    </div>
+                    <div class="habit-analytics-kpis">
+                        <div><strong id="habitAnalyticsRate">0%</strong><span>Completion</span></div>
+                        <div><strong id="habitAnalyticsScore">0</strong><span>Consistency score</span></div>
+                        <div><strong id="habitAnalyticsCompleted">0</strong><span>Completed</span></div>
+                        <div><strong id="habitAnalyticsBest">0</strong><span>Best streak</span></div>
+                    </div>
+                    <div class="habit-analytics-section"><div class="habit-analytics-section-title">Daily consistency</div><div id="habitAnalyticsDaily" class="habit-analytics-bars"></div></div>
+                    <div class="habit-analytics-section"><div class="habit-analytics-section-title">Best performing habits</div><div id="habitAnalyticsHabits" class="habit-analytics-habits"></div></div>
+                </section>
+
+                <section id="habitsList" class="habits-list"></section>
+            </div>
+
+
+            <!-- Habits Page — Phase 10A -->
+            <div id="habits" class="page">
+                <div class="page-header habit-page-header">
+                    <div>
+                        <h1 class="page-title">Habits</h1>
+                        <p class="page-subtitle">Build consistency with small actions that repeat.</p>
+                    </div>
+                    <button class="btn btn-primary" id="addHabitBtn" type="button">＋ Add Habit</button>
+                </div>
+
+                <section class="habit-summary-card card">
+                    <div class="habit-summary-main">
+                        <div>
+                            <div class="card-label">Today</div>
+                            <h2>Today's habits</h2>
+                            <p id="habitTodaySubtitle" class="habit-muted">Loading…</p>
+                        </div>
+                        <div class="habit-progress">
+                            <div class="habit-progress-ring" id="habitProgressRing">
+                                <span class="habit-progress-value" id="habitProgressValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="habit-toolbar">
+                    <div class="habit-date-nav">
+                        <button type="button" id="habitPrevDay" aria-label="Previous day">‹</button>
+                        <strong id="habitDateButton"></strong>
+                        <button type="button" id="habitNextDay" aria-label="Next day">›</button>
+                    </div>
+                    <button class="habit-filter active" data-habit-filter="today" type="button">Today</button>
+                    <button class="habit-filter" data-habit-filter="all" type="button">All Active</button>
+                    <button class="habit-filter" data-habit-filter="archived" type="button">Archived</button>
+                </div>
+
+                <section id="habitsList" class="habits-list"></section>
+            </div>
+
             <!-- Settings Page -->
             <div id="settings" class="page">
                 <div class="page-header">
@@ -1690,6 +1814,10 @@
                         <div class="settings-row"><span class="settings-label">Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
                         <div class="settings-row"><span class="settings-label">Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
                         <div class="settings-row"><span class="settings-label">Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Habit reminders</span><input id="notifHabitReminder" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Weekly habit summary</span><input id="notifHabitWeekly" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Streak risk nudges</span><input id="notifHabitRisk" class="notif-switch" type="checkbox"></div>
+                        <p class="settings-help" id="notifDeliveryStatus">Background push is configured when this device has an active subscription.</p>
                     </section>
 
                     <section class="card settings-section">
@@ -1775,6 +1903,8 @@
         </div>
     </div>
 
+    <div class="card habit-report-card" id="habitReportSnapshot"><div class="card-header"><div><h3 class="section-title" style="margin:0">✓ Habit Snapshot</h3><p class="card-subtitle" id="habitReportSubtitle">Consistency across your active habits.</p></div><button class="btn btn-secondary" type="button" onclick="switchPage('habits')">Open Habits</button></div><div class="habit-report-grid"><div><strong id="habitReportActive">0</strong><span>Active</span></div><div><strong id="habitReportToday">0%</strong><span>Today</span></div><div><strong id="habitReportRate">0%</strong><span>Recent rate</span></div><div><strong id="habitReportStreak">0</strong><span>Best streak</span></div></div></div>
+
     <div class="card" style="padding:14px; margin-bottom: 16px;">
         <h3 class="section-title">✨ Smart Insights</h3>
         <div id="smartInsights" class="insights-grid"></div>
@@ -1844,6 +1974,18 @@
             </div>
         </div>
     </div>
+    <div id="habitModal" class="modal"><div class="modal-content habit-modal-content"><div class="modal-header"><div><h2 id="habitModalTitle">Create Habit</h2><p class="modal-subtitle">Create a simple repeatable rule.</p></div><button class="modal-close" onclick="closeModal('habitModal')" type="button">×</button></div><form id="habitForm"><input type="hidden" id="habitId"><div class="habit-form-grid">
+<div class="form-group habit-form-wide"><label class="form-label">Habit name</label><input class="form-input" id="habitName" required maxlength="120" placeholder="e.g. Read 20 minutes"></div>
+<div class="form-group habit-form-wide"><label class="form-label">Description</label><textarea class="form-input" id="habitDescription" maxlength="1000"></textarea></div>
+<div class="form-group"><label class="form-label">Category</label><select class="form-input" id="habitCategory"><option value="">No category</option><option>Health</option><option>Fitness</option><option>Learning</option><option>Work</option><option>Finance</option><option>Personal</option></select></div>
+<div class="form-group"><label class="form-label">Icon</label><select class="form-input" id="habitIcon"><option>✓</option><option>📚</option><option>💪</option><option>💧</option><option>🧘</option><option>🎯</option><option>💼</option><option>💰</option></select></div>
+<div class="form-group habit-form-wide"><label class="form-label">Frequency</label><label class="habit-radio"><input name="habitFrequency" type="radio" value="daily" checked> Every day</label> <label class="habit-radio"><input name="habitFrequency" type="radio" value="weekly"> Selected days</label></div>
+<div class="form-group habit-form-wide" id="habitWeekdayGroup" hidden><label class="form-label">Days</label><div class="habit-weekdays" id="habitWeekdays"><label><input type="checkbox" value="1">Mon</label><label><input type="checkbox" value="2">Tue</label><label><input type="checkbox" value="3">Wed</label><label><input type="checkbox" value="4">Thu</label><label><input type="checkbox" value="5">Fri</label><label><input type="checkbox" value="6">Sat</label><label><input type="checkbox" value="0">Sun</label></div></div>
+<div class="form-group" id="habitTargetGroup" hidden><label class="form-label">Weekly target</label><input class="form-input" id="habitTargetPerWeek" type="number" min="1" max="7" value="3"></div>
+<div class="form-group"><label class="form-label">Start date</label><input class="form-input" id="habitStartDate" type="date" required></div><div class="form-group"><label class="form-label">End date</label><input class="form-input" id="habitEndDate" type="date"></div>
+<div class="form-group"><label class="form-label">Preferred time</label><input class="form-input" id="habitPreferredTime" type="time"></div><div class="form-group"><label class="habit-checkbox-line"><input type="checkbox" id="habitReminderEnabled"> Prepare reminder</label><input class="form-input" id="habitReminderTime" type="time" disabled></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('habitModal')" type="button">Cancel</button><button class="btn btn-primary" id="habitSaveBtn" type="submit">Create Habit</button></div></form></div></div>
+<div id="habitHistoryModal" class="modal"><div class="modal-content habit-history-modal"><div class="modal-header"><div><h2 id="habitHistoryTitle">History</h2><p id="habitHistorySubtitle" class="modal-subtitle"></p></div><button class="modal-close" onclick="closeModal('habitHistoryModal')" type="button">×</button></div><div id="habitHistoryContent" class="habit-history-content"></div></div></div>
     <div id="onboardingOverlay" class="onboarding-overlay">
         <div class="onboarding-card">
             <div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
@@ -2074,13 +2216,58 @@
         </div>
     </div>
 
+    <script src="/js/core/store.js"></script>
+    <script src="/js/core/api-client.js"></script>
+    <script src="/js/core/habit-domain.js"></script>
+
+    <!-- Habit create/edit modal -->
+    <div id="habitModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="habitModalTitle">Create Habit</h2>
+          <button class="modal-close" type="button" data-close-habit>×</button>
+        </div>
+        <form id="habitForm">
+          <input type="hidden" id="habitId">
+          <div class="habit-modal-grid">
+            <div class="form-group habit-form-wide"><label class="form-label">Habit name</label><input class="form-input" id="habitName" required maxlength="120" placeholder="e.g. Read 20 minutes"></div>
+            <div class="form-group habit-form-wide"><label class="form-label">Description</label><textarea class="form-input" id="habitDescription" maxlength="1000"></textarea></div>
+            <div class="form-group"><label class="form-label">Category</label><select class="form-input" id="habitCategory"><option value="">No category</option><option>Health</option><option>Fitness</option><option>Learning</option><option>Work</option><option>Finance</option><option>Personal</option></select></div>
+            <div class="form-group"><label class="form-label">Icon</label><select class="form-input" id="habitIcon"><option>✓</option><option>📚</option><option>💪</option><option>💧</option><option>🧘</option><option>🎯</option><option>💼</option><option>💰</option></select></div>
+            <div class="form-group habit-form-wide"><label class="form-label">Frequency</label>
+              <label class="habit-radio"><input name="habitFrequency" type="radio" value="daily" checked> Every day</label>
+              <label class="habit-radio"><input name="habitFrequency" type="radio" value="weekly"> Selected days</label>
+            </div>
+            <div class="form-group habit-form-wide" id="habitWeekdayGroup" hidden><label class="form-label">Days</label>
+              <div class="habit-weekdays" id="habitWeekdays">
+                <label><input type="checkbox" value="1"> Mon</label><label><input type="checkbox" value="2"> Tue</label><label><input type="checkbox" value="3"> Wed</label><label><input type="checkbox" value="4"> Thu</label><label><input type="checkbox" value="5"> Fri</label><label><input type="checkbox" value="6"> Sat</label><label><input type="checkbox" value="0"> Sun</label>
+              </div>
+            </div>
+            <div class="form-group" id="habitTargetGroup" hidden><label class="form-label">Weekly target</label><input class="form-input" id="habitTargetPerWeek" type="number" min="1" max="7" value="3"></div>
+            <div class="form-group"><label class="form-label">Start date</label><input class="form-input" id="habitStartDate" type="date" required></div>
+            <div class="form-group"><label class="form-label">End date</label><input class="form-input" id="habitEndDate" type="date"></div>
+            <div class="form-group"><label class="form-label">Preferred time</label><input class="form-input" id="habitPreferredTime" type="time"></div>
+            <div class="form-group"><label class="habit-checkbox-line"><input type="checkbox" id="habitReminderEnabled"> Reminder</label><input class="form-input" id="habitReminderTime" type="time" disabled></div>
+          </div>
+          <div class="modal-footer"><button class="btn btn-secondary" type="button" data-close-habit>Cancel</button><button class="btn btn-primary" id="habitSaveBtn" type="submit">Create Habit</button></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="habitHistoryModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header"><h2 id="habitHistoryTitle">History</h2><button class="modal-close" type="button" data-close-history>×</button></div>
+        <p id="habitHistorySubtitle" class="modal-subtitle"></p>
+        <div id="habitHistoryContent"></div>
+      </div>
+    </div>
+
     <script>
-        // Configuration
+        // Legacy application configuration
         const API_BASE_URL = window.location.origin;
 
         // State
         let authToken = null;
-        let refreshToken = null;
         let currentUser = null;
         let isDemoMode = false;
         let isRefreshingToken = false;
@@ -2094,15 +2281,10 @@
         const MEMBER_SINCE_KEY = 'vf_member_since';
         const CURRENCY_SYMBOLS = { INR: '₹', USD: '$', EUR: '€', GBP: '£', AED: 'د.إ', SAR: '﷼', SGD: 'S$', MYR: 'RM' };
         const CURRENCY_LOCALES = { INR: 'en-IN', USD: 'en-US', EUR: 'en-US', GBP: 'en-GB', AED: 'en-AE', SAR: 'en-SA', SGD: 'en-SG', MYR: 'en-MY' };
-        let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, lastDailyAt: 0, lastWeeklyAt: 0 };
+        let notificationPrefs = { enabled: false, dailyReminder: true, weeklySummary: true, savingsInsights: true, inactivityReminder: true, habitReminder: true, habitWeeklySummary: true, habitRisk: true, lastDailyAt: 0, lastWeeklyAt: 0, lastHabitWeeklyAt: 0 };
         let appPreferences = { currency: 'INR', language: 'en-IN', theme: 'light', dateFormat: 'DD-MM-YYYY' };
         let pendingRestoreBackup = null;
-
-        // Wallets (NEW)
-        let wallets = {
-            HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
-            HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
-        };
+        let localNotificationTimer = null;
 
         // Demo Data
         let demoData = {
@@ -2115,6 +2297,8 @@
             ],
             transactions: [],
             goals: [],
+            habits: [],
+            habitLogs: [],
             wallets: {
                 HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
                 HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
@@ -2136,8 +2320,20 @@
 
         function checkAuth() {
             authToken = localStorage.getItem('vf_token');
-            refreshToken = localStorage.getItem('vf_refresh_token');
             currentUser = localStorage.getItem('vf_username');
+
+            VaultFlowStore.setState(state => ({
+                ...state,
+                auth: {
+                    ...state.auth,
+                    token: authToken,
+                    user: currentUser ? {
+                        username: currentUser,
+                        email: localStorage.getItem('vf_email') || ''
+                    } : null,
+                    mode: authToken && currentUser ? 'authenticated' : 'signed_out'
+                }
+            }), { type: 'auth:hydrate' });
 
             if (authToken && currentUser) {
                 if (isTokenExpired(authToken)) {
@@ -2171,6 +2367,9 @@
             document.getElementById('userName').textContent = currentUser || 'User';
             renderSettingsPage();
             loadAllData();
+            if (!localNotificationTimer) {
+                localNotificationTimer = setInterval(() => maybeScheduleSmartLocalNotifications(false), 60000);
+            }
         }
 
         function showAuth() {
@@ -2233,6 +2432,24 @@
 
             // Transaction form
             document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
+            document.getElementById('habitForm')?.addEventListener('submit', handleHabitSubmit);
+            document.getElementById('addHabitBtn')?.addEventListener('click', () => openHabitModal());
+            document.querySelectorAll('[data-habit-filter]').forEach(btn => btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-habit-filter]').forEach(x => x.classList.remove('active'));
+                btn.classList.add('active');
+                habitUiState.filter = btn.dataset.habitFilter;
+                renderHabitsPage();
+            }));
+            document.getElementById('habitPrevDay')?.addEventListener('click', () => shiftHabitDate(-1));
+            document.getElementById('habitNextDay')?.addEventListener('click', () => shiftHabitDate(1));
+            document.querySelectorAll('input[name="habitFrequency"]').forEach(input => input.addEventListener('change', toggleHabitFrequencyFields));
+            document.getElementById('habitReminderEnabled')?.addEventListener('change', e => {
+                document.getElementById('habitReminderTime').disabled = !e.target.checked;
+            });
+            document.querySelectorAll('[data-close-habit]').forEach(b => b.addEventListener('click', () => closeModal('habitModal')));
+            document.querySelectorAll('[data-close-history]').forEach(b => b.addEventListener('click', () => closeModal('habitHistoryModal')));
+            document.getElementById('habitsList')?.addEventListener('click', handleHabitActionClick);
+
             document.getElementById('txnType').addEventListener('change', toggleVaultSelect);
 
             // Vault form
@@ -2240,6 +2457,26 @@
 
             // Goal form
             document.getElementById('goalForm').addEventListener('submit', handleGoalSubmit);
+            document.getElementById('habitForm')?.addEventListener('submit', handleHabitSubmit);
+            document.querySelectorAll('[data-habit-filter]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-habit-filter]').forEach(x=>x.classList.remove('active'));b.classList.add('active');habitUiState.filter=b.dataset.habitFilter;renderHabitsPage();}));
+            document.getElementById('habitPrevDay')?.addEventListener('click',()=>shiftHabitDate(-1));
+            document.getElementById('habitNextDay')?.addEventListener('click',()=>shiftHabitDate(1));
+            document.getElementById('habitAnalyticsRange')?.addEventListener('change',renderHabitAnalytics);
+            document.querySelectorAll('input[name="habitFrequency"]').forEach(i=>i.addEventListener('change',toggleHabitFrequencyFields));
+            document.getElementById('habitReminderEnabled')?.addEventListener('change',()=>document.getElementById('habitReminderTime').disabled=!document.getElementById('habitReminderEnabled').checked);
+
+
+            // Shared transaction actions for both desktop table and mobile cards.
+            document.addEventListener('click', async function(e) {
+                const actionButton = e.target.closest('[data-transaction-action][data-transaction-id]');
+                if (!actionButton) return;
+                const id = actionButton.dataset.transactionId;
+                if (actionButton.dataset.transactionAction === 'edit') {
+                    editTransaction(id);
+                } else if (actionButton.dataset.transactionAction === 'delete') {
+                    await deleteTransaction(id);
+                }
+            });
 
             // Search and filter
             document.getElementById('searchTransactions').addEventListener('input', filterTransactions);
@@ -2256,7 +2493,7 @@
             document.getElementById('installAppBtn')?.addEventListener('click', triggerInstallPrompt);
             document.getElementById('dismissInstallBtn')?.addEventListener('click', dismissInstallBanner);
             document.getElementById('notifEnableBtn')?.addEventListener('click', promptNotificationPermissionFlow);
-            ['notifDaily','notifWeekly','notifSavings'].forEach((id) => {
+            ['notifDaily','notifWeekly','notifSavings','notifHabitReminder','notifHabitWeekly','notifHabitRisk'].forEach((id) => {
                 document.getElementById(id)?.addEventListener('change', syncNotificationPrefToggles);
             });
             ['settingsCurrency','settingsLanguage','settingsTheme','settingsDateFormat'].forEach((id) => {
@@ -2454,8 +2691,10 @@
                 },
                 transactions: transactions.map(({ _id, userId, __v, ...txn }) => ({ ...txn, sourceId: _id || txn.sourceId || null })),
                 wallets: JSON.parse(JSON.stringify(wallets || {})),
-                vaults: vaults.map(({ _id, userId, __v, ...vault }) => ({ ...vault, sourceId: _id || vault.sourceId || null })),
-                goals: goals.map(({ _id, userId, __v, ...goal }) => ({ ...goal, sourceId: _id || goal.sourceId || null })),
+                vaults: getVaults().map(({ _id, userId, __v, ...vault }) => ({ ...vault, sourceId: _id || vault.sourceId || null })),
+                goals: getGoals().map(({ _id, userId, __v, ...goal }) => ({ ...goal, sourceId: _id || goal.sourceId || null })),
+                habits: getHabits().map(({ _id, userId, __v, ...habit }) => ({ ...habit, sourceId: _id || habit.sourceId || null })),
+                habitLogs: getHabitLogs().map(({ _id, userId, __v, ...log }) => ({ ...log, sourceId: _id || log.sourceId || null, sourceHabitId: log.habitId || log.sourceHabitId || null })),
                 settings: getPreferenceSnapshot(),
                 onboarding: {
                     completed: localStorage.getItem(ONBOARDING_KEY) === 'completed',
@@ -2488,7 +2727,7 @@
             const errors = [];
             if (!data || typeof data !== 'object' || Array.isArray(data)) errors.push('Backup must be a JSON object.');
             if (data && !data.version) errors.push('Missing version field.');
-            ['transactions', 'vaults', 'goals'].forEach((key) => {
+            ['transactions', 'vaults', 'goals', 'habits', 'habitLogs'].forEach((key) => {
                 if (!Array.isArray(data?.[key])) errors.push(`${key} must be an array.`);
             });
             if (!data?.wallets || typeof data.wallets !== 'object' || Array.isArray(data.wallets)) errors.push('wallets must be an object.');
@@ -2503,6 +2742,14 @@
             });
             (data?.goals || []).forEach((goal, index) => {
                 if (!goal?.name || Number.isNaN(Number(goal.targetAmount))) errors.push(`Goal ${index + 1} is missing name or target amount.`);
+            });
+            (data?.habits || []).forEach((habit, index) => {
+                if (!habit?.name || !habit?.startDate) errors.push(`Habit ${index + 1} is missing name or start date.`);
+                if (habit?.frequency?.type && !['daily', 'weekly'].includes(habit.frequency.type)) errors.push(`Habit ${index + 1} has an invalid frequency.`);
+            });
+            (data?.habitLogs || []).forEach((log, index) => {
+                if (!log?.scheduledDate || !['completed', 'skipped'].includes(log.status)) errors.push(`HabitLog ${index + 1} is missing a valid date or status.`);
+                if (!log?.habitId && !log?.sourceHabitId) errors.push(`HabitLog ${index + 1} is missing habit reference.`);
             });
             return { valid: errors.length === 0, errors };
         }
@@ -2544,6 +2791,8 @@
                 ['Transactions', backup.transactions?.length || 0],
                 ['Vaults', backup.vaults?.length || 0],
                 ['Goals', backup.goals?.length || 0],
+                ['Habits', backup.habits?.length || 0],
+                ['Habit logs', backup.habitLogs?.length || 0],
                 ['Exported', formatProfileDate(backup.exportedAt, true)]
             ];
             container.innerHTML = items.map(([label, value]) => `
@@ -2597,6 +2846,31 @@
             };
         }
 
+        function sanitizeHabitForRestore(habit) {
+            return {
+                name: String(habit.name || '').trim(),
+                description: habit.description || '',
+                category: habit.category || '',
+                icon: habit.icon || '✓',
+                frequency: habit.frequency || { type: 'daily', daysOfWeek: [] },
+                startDate: String(habit.startDate || '').slice(0, 10),
+                endDate: habit.endDate ? String(habit.endDate).slice(0, 10) : undefined,
+                preferredTime: habit.preferredTime || undefined,
+                reminder: habit.reminder || { enabled: false },
+                status: habit.status || 'active'
+            };
+        }
+
+        function sanitizeHabitLogForRestore(log, habitIdMap = {}) {
+            const sourceHabitId = log.sourceHabitId || log.habitId;
+            return {
+                habitId: habitIdMap[String(sourceHabitId)] || null,
+                scheduledDate: String(log.scheduledDate || '').slice(0, 10),
+                status: log.status,
+                note: log.note || ''
+            };
+        }
+
         async function confirmRestoreBackup(button = null) {
             if (!pendingRestoreBackup) return;
             setButtonLoading(button, true, 'Restoring...');
@@ -2636,18 +2910,34 @@
             else localStorage.removeItem(ONBOARDING_KEY);
             if (backup.profile?.memberSince) localStorage.setItem(MEMBER_SINCE_KEY, backup.profile.memberSince);
 
+            const habits = backup.habits || [];
+            const habitLogs = backup.habitLogs || [];
+
             if (isDemoMode) {
                 demoData.transactions = backup.transactions.map((txn, index) => ({ ...txn, _id: txn.sourceId || `rt${Date.now()}${index}` }));
                 demoData.vaults = backup.vaults.map((vault, index) => ({ ...vault, _id: vault.sourceId || `rv${Date.now()}${index}` }));
                 demoData.goals = backup.goals.map((goal, index) => ({ ...goal, _id: goal.sourceId || `rg${Date.now()}${index}` }));
+                demoData.habits = habits.map((habit, index) => ({ ...habit, _id: habit.sourceId || `rh${Date.now()}${index}` }));
+                const demoHabitMap = {};
+                habits.forEach((habit, index) => {
+                    const id = habit.sourceId || `rh${Date.now()}${index}`;
+                    if (habit.sourceId) demoHabitMap[String(habit.sourceId)] = id;
+                });
+                demoData.habitLogs = habitLogs.map((log, index) => ({ ...log, _id: log.sourceId || `rl${Date.now()}${index}`, habitId: demoHabitMap[String(log.sourceHabitId || log.habitId)] || log.habitId }));
                 demoData.wallets = backup.wallets || demoData.wallets;
                 await loadAllData();
                 return;
             }
 
-            for (const goal of [...goals]) await apiCall(`/api/goals/${goal._id}`, 'DELETE');
+            // Delete logs before habits so historical records cannot survive a restore by accident.
+            const existingHabitLogs = await apiCall('/api/habit-logs');
+            for (const log of existingHabitLogs) {
+                if (log?._id) await apiCall(`/api/habit-logs/${log._id}`, 'DELETE');
+            }
+            for (const habit of [...getHabits()]) await apiCall(`/api/habits/${habit._id}`, 'DELETE');
+            for (const goal of [...getGoals()]) await apiCall(`/api/goals/${goal._id}`, 'DELETE');
             for (const txn of [...transactions]) await apiCall(`/api/transactions/${txn._id}`, 'DELETE');
-            for (const vault of [...vaults]) await apiCall(`/api/vaults/${vault._id}`, 'DELETE');
+            for (const vault of [...getVaults()]) await apiCall(`/api/vaults/${vault._id}`, 'DELETE');
 
             const vaultIdMap = {};
             for (const vault of backup.vaults) {
@@ -2657,16 +2947,26 @@
                     if (vault._id) vaultIdMap[String(vault._id)] = created._id;
                 }
             }
-            const createdVaults = await apiCall('/api/vaults');
-            backup.vaults.forEach((vault) => {
-                const match = createdVaults.find(v => v.name === vault.name);
-                if (match?._id) {
-                    if (vault.sourceId) vaultIdMap[String(vault.sourceId)] = match._id;
-                    if (vault._id) vaultIdMap[String(vault._id)] = match._id;
-                }
-            });
             for (const txn of backup.transactions) await apiCall('/api/transactions', 'POST', sanitizeTransactionForRestore(txn, vaultIdMap));
             for (const goal of backup.goals) await apiCall('/api/goals', 'POST', sanitizeGoalForRestore(goal, vaultIdMap));
+
+            const habitIdMap = {};
+            for (const habit of habits) {
+                const created = await apiCall('/api/habits', 'POST', sanitizeHabitForRestore(habit));
+                if (created?._id) {
+                    if (habit.sourceId) habitIdMap[String(habit.sourceId)] = created._id;
+                    if (habit._id) habitIdMap[String(habit._id)] = created._id;
+                }
+            }
+            for (const log of habitLogs) {
+                const sanitized = sanitizeHabitLogForRestore(log, habitIdMap);
+                if (!sanitized.habitId) continue;
+                await apiCall(`/api/habits/${sanitized.habitId}/logs`, 'POST', {
+                    scheduledDate: sanitized.scheduledDate,
+                    status: sanitized.status,
+                    note: sanitized.note
+                });
+            }
         }
 
         function exportPdfReport(button = null) {
@@ -2684,7 +2984,7 @@
                 const email = localStorage.getItem('vf_email') || 'Not available';
                 const reportDate = formatProfileDate(new Date(), true);
                 const rowsHtml = categoryRows.length ? categoryRows.map(([name, value]) => `<tr><td>${name}</td><td>${formatMoney(value)}</td></tr>`).join('') : '<tr><td colspan="2">No spending categories yet.</td></tr>';
-                const goalsHtml = goals.length ? goals.map(goal => {
+                const goalsHtml = getGoals().length ? getGoals().map(goal => {
                     const progress = goal.targetAmount > 0 ? Math.min((Number(goal.currentAmount || 0) / Number(goal.targetAmount || 1)) * 100, 100) : 0;
                     return `<tr><td>${goal.name}</td><td>${formatMoney(goal.currentAmount || 0)} / ${formatMoney(goal.targetAmount || 0)}</td><td>${progress.toFixed(1)}%</td></tr>`;
                 }).join('') : '<tr><td colspan="3">No goals yet.</td></tr>';
@@ -2696,7 +2996,112 @@
                     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric{border:1px solid #e5e7eb;border-radius:12px;padding:14px;background:#f9fafb}.label{color:#6b7280;font-size:12px}.value{font-size:20px;font-weight:800;margin-top:4px}.user-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
                     table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e7eb}th{font-size:12px;color:#6b7280;text-transform:uppercase}footer{padding:18px 28px;color:#6b7280;font-size:12px;text-align:center}
                     @media(max-width:720px){body{padding:8px}.grid,.user-grid{grid-template-columns:1fr}.report{border-radius:0}}
-                    @media print{body{background:white;padding:0}.report{border:none;border-radius:0}button{display:none}}
+                    
+        /* VaultFlow 2.0 standard desktop density.
+           The reference desktop screenshot was captured at 67% browser zoom.
+           We reproduce that compact composition at normal 100% zoom with CSS,
+           rather than relying on browser zoom or transform scaling. */
+        @media (min-width: 1100px) and (max-width: 1599px) {
+            .sidebar {
+                width: 200px;
+                padding: 16px;
+            }
+
+            .logo {
+                font-size: 20px;
+                margin-bottom: 24px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                gap: 10px;
+                font-size: 14px;
+            }
+
+            .user-info {
+                padding-top: 16px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+                padding: 20px 22px;
+            }
+
+            .page-header {
+                margin-bottom: 22px;
+            }
+
+            .page-title {
+                font-size: 28px;
+                margin-bottom: 6px;
+            }
+
+            .page-subtitle {
+                font-size: 13px;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                gap: 12px;
+                margin-bottom: 24px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: 10px;
+            }
+
+            .card-label {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            .card-value {
+                font-size: 26px;
+                margin-bottom: 6px;
+                white-space: nowrap;
+            }
+
+            .card-change {
+                font-size: 11px;
+            }
+
+            .table-container {
+                border-radius: 10px;
+            }
+
+            .table-header {
+                padding: 14px 16px;
+                gap: 10px;
+            }
+
+            .table-title {
+                font-size: 16px;
+            }
+
+            .transactions-table th,
+            .transactions-table td {
+                padding: 9px 10px;
+                font-size: 11px;
+            }
+
+            .action-btn {
+                padding: 4px 7px;
+                font-size: 11px;
+                margin-right: 3px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .search-box {
+                min-width: 150px;
+            }
+        }
+
+        @media print{body{background:white;padding:0}.report{border:none;border-radius:0}button{display:none}}
                 </style></head><body><div class="report"><header><h1>VaultFlow</h1><div class="subtitle">Professional financial summary</div></header>
                 <section><h2>User Information</h2><div class="user-grid"><div><div class="label">Username</div><div>${currentUser || 'User'}</div></div><div><div class="label">Email</div><div>${email}</div></div><div><div class="label">Report Date</div><div>${reportDate}</div></div></div></section>
                 <section><h2>Financial Summary</h2><div class="grid"><div class="metric"><div class="label">Total Income</div><div class="value">${formatMoney(totalIncome)}</div></div><div class="metric"><div class="label">Total Expenses</div><div class="value">${formatMoney(totalExpenses)}</div></div><div class="metric"><div class="label">Net Savings</div><div class="value">${formatMoney(netSavings)}</div></div><div class="metric"><div class="label">Savings Rate</div><div class="value">${savingsRate}%</div></div></div></section>
@@ -2752,11 +3157,19 @@
             }
         }
 
-        function initNotificationPrefs() {
+        async function hydrateNotificationPrefsFromServer() {
+            if (isDemoMode || !authToken) return;
             try {
-                notificationPrefs = { ...notificationPrefs, ...(JSON.parse(localStorage.getItem(NOTIF_PREFS_KEY) || '{}')) };
+                const serverPrefs=await apiCall('/api/notifications/settings','GET');
+                notificationPrefs={...notificationPrefs,...serverPrefs};
+                persistNotificationPrefs(); renderNotificationPrefsUI();
+                if(notificationPrefs.enabled && 'Notification' in window && Notification.permission==='granted') { try { await ensureBackgroundPushSubscription(); } catch (_) {} }
             } catch (_) {}
+        }
+        function initNotificationPrefs() {
+            try { notificationPrefs = { ...notificationPrefs, ...(JSON.parse(localStorage.getItem(NOTIF_PREFS_KEY) || '{}')) }; } catch (_) {}
             renderNotificationPrefsUI();
+            setTimeout(hydrateNotificationPrefsFromServer, 400);
         }
         function persistNotificationPrefs() { localStorage.setItem(NOTIF_PREFS_KEY, JSON.stringify(notificationPrefs)); }
         function renderNotificationPrefsUI() {
@@ -2766,6 +3179,12 @@
             const daily = document.getElementById('notifDaily');
             const weekly = document.getElementById('notifWeekly');
             const savings = document.getElementById('notifSavings');
+            const habitReminder = document.getElementById('notifHabitReminder');
+            const habitWeekly = document.getElementById('notifHabitWeekly');
+            const habitRisk = document.getElementById('notifHabitRisk');
+            if (habitReminder) habitReminder.checked = !!notificationPrefs.habitReminder;
+            if (habitWeekly) habitWeekly.checked = !!notificationPrefs.habitWeeklySummary;
+            if (habitRisk) habitRisk.checked = !!notificationPrefs.habitRisk;
             if (daily) daily.checked = !!notificationPrefs.dailyReminder;
             if (weekly) weekly.checked = !!notificationPrefs.weeklySummary;
             if (savings) savings.checked = !!notificationPrefs.savingsInsights;
@@ -2774,8 +3193,37 @@
             notificationPrefs.dailyReminder = !!document.getElementById('notifDaily')?.checked;
             notificationPrefs.weeklySummary = !!document.getElementById('notifWeekly')?.checked;
             notificationPrefs.savingsInsights = !!document.getElementById('notifSavings')?.checked;
+            notificationPrefs.habitReminder = !!document.getElementById('notifHabitReminder')?.checked;
+            notificationPrefs.habitWeeklySummary = !!document.getElementById('notifHabitWeekly')?.checked;
+            notificationPrefs.habitRisk = !!document.getElementById('notifHabitRisk')?.checked;
             persistNotificationPrefs();
+            syncNotificationPrefsToServer();
             maybeScheduleSmartLocalNotifications();
+        }
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            return Uint8Array.from([...rawData].map(ch => ch.charCodeAt(0)));
+        }
+        async function ensureBackgroundPushSubscription() {
+            if (!('serviceWorker' in navigator) || !('PushManager' in window)) throw new Error('Background push is not supported by this browser.');
+            const keyResponse = await apiCall('/api/notifications/vapid-public-key', 'GET');
+            const registration = await navigator.serviceWorker.ready;
+            let subscription = await registration.pushManager.getSubscription();
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(keyResponse.publicKey) });
+            }
+            await apiCall('/api/notifications/subscribe', 'POST', { subscription: subscription.toJSON(), timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC' });
+            const status=document.getElementById('notifDeliveryStatus');
+            if(status) status.textContent='Background push is active on this device. Reminders can arrive even when VaultFlow is closed.';
+            return subscription;
+        }
+        async function syncNotificationPrefsToServer() {
+            if (isDemoMode || !authToken) return;
+            try {
+                await apiCall('/api/notifications/settings','PUT',{enabled:!!notificationPrefs.enabled,dailyReminder:!!notificationPrefs.dailyReminder,weeklySummary:!!notificationPrefs.weeklySummary,savingsInsights:!!notificationPrefs.savingsInsights,habitReminder:!!notificationPrefs.habitReminder,habitWeeklySummary:!!notificationPrefs.habitWeeklySummary,habitRisk:!!notificationPrefs.habitRisk});
+            } catch (_) {}
         }
         async function promptNotificationPermissionFlow() {
             if (!('Notification' in window)) return showToast('Notifications are not supported on this browser.', 'warning');
@@ -2786,9 +3234,17 @@
             persistNotificationPrefs();
             renderNotificationPrefsUI();
             if (result === 'granted') {
-                showToast('Finance reminders enabled.', 'success');
-                maybeScheduleSmartLocalNotifications(true);
+                try {
+                    await ensureBackgroundPushSubscription();
+                    await syncNotificationPrefsToServer();
+                    showToast('Background notifications enabled.', 'success');
+                    maybeScheduleSmartLocalNotifications(true);
+                } catch (error) {
+                    console.error('Background push setup failed:', error);
+                    showToast(error.message || 'Could not enable background notifications.', 'warning');
+                }
             } else {
+                await syncNotificationPrefsToServer();
                 showToast('Notification permission not granted.', 'warning');
             }
         }
@@ -2798,32 +3254,78 @@
             if (!reg) return;
             if (reg.active) reg.active.postMessage({ type: 'VF_LOCAL_NOTIFY', payload: { title, body, data } });
         }
-        function maybeScheduleSmartLocalNotifications(forceNow = false) {
+        function getLocalTimeMinutes(date = new Date()) {
+            return date.getHours() * 60 + date.getMinutes();
+        }
+
+        function getHabitReminderCandidates(date = HabitDomain.getTodayLocalDate(), now = new Date()) {
+            const minutes = getLocalTimeMinutes(now);
+            return getHabits().filter(habit => {
+                if (habit.status !== 'active' || !habit.reminder?.enabled || !habit.reminder.time) return false;
+                if (!HabitDomain.isScheduledOn(habit, date)) return false;
+                const [hour, minute] = habit.reminder.time.split(':').map(Number);
+                return minutes >= hour * 60 + minute;
+            }).filter(habit => HabitDomain.getHabitLog(habit._id, date, getHabitLogs())?.status !== 'completed');
+        }
+
+        async function maybeScheduleHabitNotifications(forceNow = false) {
+            if (!notificationPrefs.habitReminder || !notificationPrefs.enabled) return;
+            const today = HabitDomain.getTodayLocalDate();
+            for (const habit of getHabitReminderCandidates(today)) {
+                const key = `habit-reminder:${today}:${habit._id}`;
+                if (!forceNow && localStorage.getItem(key)) continue;
+                await sendLocalFinanceNotification(`Habit reminder: ${habit.name}`, 'Your scheduled habit is still pending.', { page: 'habits', habitId: String(habit._id), date: today, tag: key });
+                localStorage.setItem(key, String(Date.now()));
+            }
+        }
+
+        async function maybeScheduleHabitRiskNotification(forceNow = false) {
+            if (!notificationPrefs.habitRisk || !notificationPrefs.enabled) return;
+            const today = HabitDomain.getTodayLocalDate();
+            const active = getHabits().filter(h => h.status === 'active');
+            for (const habit of active) {
+                const streak = HabitDomain.getHabitStreak(habit._id, today, active, getHabitLogs());
+                if (streak.current < 2 || !HabitDomain.isScheduledOn(habit, today)) continue;
+                if (HabitDomain.getHabitStatus(habit._id, today, active, getHabitLogs()) !== 'pending') continue;
+                const key = `habit-risk:${today}:${habit._id}`;
+                if (!forceNow && localStorage.getItem(key)) continue;
+                await sendLocalFinanceNotification(`Protect your ${streak.current} ${streak.unit === 'weeks' ? 'week' : 'day'} streak`, `${habit.name} is still pending today.`, { page: 'habits', habitId: String(habit._id), date: today, tag: key });
+                localStorage.setItem(key, String(Date.now()));
+            }
+        }
+
+        async function maybeScheduleHabitWeeklySummary(forceNow = false) {
+            if (!notificationPrefs.habitWeeklySummary || !notificationPrefs.enabled) return;
+            const now = new Date();
+            if (!forceNow && (now.getDay() !== 0 || now.getHours() < 18)) return;
+            const key = `habit-weekly:${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+            if (!forceNow && localStorage.getItem(key)) return;
+            const today = HabitDomain.getTodayLocalDate();
+            const analytics = HabitDomain.getPortfolioAnalytics(HabitDomain.addDays(today,-6),today,getHabits(),getHabitLogs());
+            if (!analytics.active) return;
+            await sendLocalFinanceNotification('Your weekly habit review', `${Math.round(analytics.completionRate)}% completion across ${analytics.active} active habit${analytics.active === 1 ? '' : 's'} this week.`, { page:'habits', tag:key });
+            localStorage.setItem(key,String(Date.now()));
+            notificationPrefs.lastHabitWeeklyAt=Date.now();
+        }
+
+        async function maybeScheduleSmartLocalNotifications(forceNow = false) {
             if (!('Notification' in window) || Notification.permission !== 'granted' || !notificationPrefs.enabled) return;
-            const now = Date.now();
-            const dayMs = 24 * 60 * 60 * 1000;
-            const weekMs = 7 * dayMs;
-            const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + Number(t.amount || 0), 0);
-            const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + Number(t.amount || 0), 0);
-            const savings = Math.max(0, totalIncome - totalExpense);
-            const byCategory = {};
-            transactions.filter(t => t.type === 'expense').forEach(t => { byCategory[t.category || 'Other'] = (byCategory[t.category || 'Other'] || 0) + Number(t.amount || 0); });
-            const topCategory = Object.entries(byCategory).sort((a,b)=>b[1]-a[1])[0];
-            if ((forceNow || now - (notificationPrefs.lastDailyAt || 0) > dayMs) && notificationPrefs.dailyReminder) {
-                sendLocalFinanceNotification('Track today in VaultFlow', 'A quick expense update now keeps your weekly insights accurate.', { page: 'transactions' });
-                notificationPrefs.lastDailyAt = now;
-            }
-            if ((forceNow || now - (notificationPrefs.lastWeeklyAt || 0) > weekMs) && notificationPrefs.weeklySummary) {
-                const summary = topCategory ? `Top expense: ${topCategory[0]}. Savings so far: ${formatMoney(savings)}.` : `Savings so far: ${formatMoney(savings)}.`;
-                sendLocalFinanceNotification('Your weekly money snapshot', summary, { page: 'reports' });
-                notificationPrefs.lastWeeklyAt = now;
-            }
-            if (notificationPrefs.savingsInsights && savings > 0 && totalIncome > 0) {
-                const rate = ((savings / totalIncome) * 100).toFixed(1);
-                if (forceNow) sendLocalFinanceNotification('Nice progress this period', `You are saving ${rate}% of your income. Keep the streak going.`, { page: 'dashboard' });
-            }
+            const now=Date.now(), dayMs=86400000, weekMs=7*dayMs;
+            const totalIncome=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount||0),0);
+            const totalExpense=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount||0),0);
+            const savings=Math.max(0,totalIncome-totalExpense);
+            const byCategory={};
+            transactions.filter(t=>t.type==='expense').forEach(t=>{byCategory[t.category||'Other']=(byCategory[t.category||'Other']||0)+Number(t.amount||0);});
+            const topCategory=Object.entries(byCategory).sort((a,b)=>b[1]-a[1])[0];
+            if((forceNow||now-(notificationPrefs.lastDailyAt||0)>dayMs)&&notificationPrefs.dailyReminder){await sendLocalFinanceNotification('Track today in VaultFlow','A quick expense update now keeps your weekly insights accurate.',{page:'transactions',tag:'finance-daily'});notificationPrefs.lastDailyAt=now;}
+            if((forceNow||now-(notificationPrefs.lastWeeklyAt||0)>weekMs)&&notificationPrefs.weeklySummary){const summary=topCategory?`Top expense: ${topCategory[0]}. Savings so far: ${formatMoney(savings)}.`:`Savings so far: ${formatMoney(savings)}.`;await sendLocalFinanceNotification('Your weekly money snapshot',summary,{page:'reports',tag:'finance-weekly'});notificationPrefs.lastWeeklyAt=now;}
+            if(notificationPrefs.savingsInsights&&savings>0&&totalIncome>0&&forceNow){const rate=((savings/totalIncome)*100).toFixed(1);await sendLocalFinanceNotification('Nice progress this period',`You are saving ${rate}% of your income.`,{page:'dashboard',tag:'finance-savings'});}
+            await maybeScheduleHabitNotifications(forceNow);
+            await maybeScheduleHabitRiskNotification(forceNow);
+            await maybeScheduleHabitWeeklySummary(forceNow);
             persistNotificationPrefs();
         }
+
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
             window.addEventListener('load', () => {
@@ -2877,42 +3379,54 @@
             sync();
         }
 
-        // API Functions
+        // Current authentication is a single JWT access-token contract.
+        // A refresh-token flow will be introduced only as a complete end-to-end contract.
+        function handleSessionInvalid(message = 'Your session has expired. Please login again.') {
+            localStorage.removeItem('vf_token');
+            localStorage.removeItem('vf_username');
+            localStorage.removeItem('vf_email');
+            localStorage.removeItem(MEMBER_SINCE_KEY);
+            authToken = null;
+            currentUser = null;
+            isDemoMode = false;
+            setTransactions([]);
+            setVaults([]);
+            setGoals([]);
+            setHabits([]);
+            setHabitLogs([]);
+            VaultFlowStore.setState(state => ({
+                ...state,
+                auth: { token: null, user: null, mode: 'signed_out' }
+            }), { type: 'auth:logout' });
+            resetDemoData();
+            showAuth();
+            showToast(message, 'warning');
+        }
+
+        // API Functions — Phase 2B
+        // All production HTTP traffic now goes through VaultFlowApi.
+        // Demo mode intentionally remains a local adapter until domain parity is migrated.
         async function apiCall(endpoint, method = 'GET', data = null) {
             if (isDemoMode) {
                 return handleDemoApiCall(endpoint, method, data);
             }
 
-            const options = {
-                method,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
-
-            if (data && method !== 'GET') {
-                options.body = JSON.stringify(data);
-            }
-
             try {
-                const response = await fetch(API_BASE_URL + endpoint, options);
-                const result = await response.json();
-
-                if (response.status === 401 || response.status === 403) {
-                    const refreshed = await refreshAuthToken();
-                    if (refreshed) return apiCall(endpoint, method, data);
-                }
-
-                if (!response.ok) {
-                    throw new Error(result.error || 'Request failed');
-                }
+                const result = await VaultFlowApi.request(endpoint, {
+                    method,
+                    body: data,
+                    token: authToken
+                });
 
                 return result;
             } catch (error) {
+                if ((error.status === 401 || error.status === 403) &&
+                    authToken && !endpoint.startsWith('/api/auth/')) {
+                    handleSessionInvalid('Your session has expired. Please login again.');
+                }
+
                 console.error('API Error:', error);
-                showToast(error.message, 'error');
+                showToast(error.message || 'Request failed', 'error');
                 throw error;
             }
         }
@@ -2935,13 +3449,13 @@
                             demoData.wallets[txn.wallet].balance += txn.amount;
                             demoData.wallets[txn.wallet].totalIncome += txn.amount;
 
-                            demoData.vaults.forEach(vault => {
+                            demoData.getVaults().forEach(vault => {
                                 const allocation = (txn.amount * vault.percentage) / 100;
                                 vault.totalIncome += allocation;
                                 vault.balance += allocation;
                             });
                         } else if (txn.vaultId && txn.wallet) {
-                            const vault = demoData.vaults.find(v => v._id === txn.vaultId);
+                            const vault = demoData.getVaults().find(v => v._id === txn.vaultId);
                             if (vault) {
                                 vault.totalSpent += txn.amount;
                                 vault.balance -= txn.amount;
@@ -2964,7 +3478,7 @@
                         resolve(vault);
                     } else if (endpoint.startsWith('/api/vaults/') && method === 'PUT') {
                         const id = endpoint.split('/').pop();
-                        const vault = demoData.vaults.find(v => v._id === id);
+                        const vault = demoData.getVaults().find(v => v._id === id);
                         if (vault) {
                             Object.assign(vault, data);
                         }
@@ -2976,6 +3490,29 @@
                             demoData.vaults.splice(index, 1);
                         }
                         resolve({ message: 'Deleted' });
+                    } else if (endpoint === '/api/habits' && method === 'GET') {
+                        resolve(demoData.habits || []);
+                    } else if (endpoint === '/api/habit-logs' && method === 'GET') {
+                        resolve(demoData.habitLogs || []);
+                    } else if (endpoint.startsWith('/api/habits/') && endpoint.endsWith('/logs') && method === 'GET') {
+                        const id = endpoint.split('/')[3];
+                        resolve((demoData.habitLogs || []).filter(log => String(log.habitId) === String(id)));
+                    } else if (endpoint === '/api/habits' && method === 'POST') {
+                        const habit = { ...data, _id: Date.now().toString(), status: data.status || 'active' };
+                        demoData.habits = demoData.habits || []; demoData.habits.push(habit); resolve(habit);
+                    } else if (endpoint.startsWith('/api/habits/') && endpoint.endsWith('/logs') && method === 'POST') {
+                        const parts = endpoint.split('/'); const id = parts[3]; demoData.habitLogs = demoData.habitLogs || [];
+                        const existing = demoData.habitLogs.find(log => String(log.habitId) === String(id) && log.scheduledDate === data.scheduledDate);
+                        const log = { ...(existing || {}), ...data, _id: existing?._id || Date.now().toString(), habitId: id };
+                        demoData.habitLogs = [...demoData.habitLogs.filter(x => x._id !== log._id), log]; resolve(log);
+                    } else if (endpoint.startsWith('/api/habits/') && method === 'PUT') {
+                        const id = endpoint.split('/')[3]; const habit = (demoData.habits || []).find(x => String(x._id) === String(id));
+                        if (habit) Object.assign(habit, data); resolve(habit);
+                    } else if (endpoint.startsWith('/api/habits/') && method === 'DELETE') {
+                        const id = endpoint.split('/')[3]; const habit = (demoData.habits || []).find(x => String(x._id) === String(id));
+                        if (habit) habit.status = 'archived'; resolve(habit || { message: 'Archived' });
+                    } else if (endpoint.startsWith('/api/habit-logs/') && method === 'DELETE') {
+                        const id = endpoint.split('/').pop(); demoData.habitLogs = (demoData.habitLogs || []).filter(x => String(x._id) !== String(id)); resolve({ message: 'Deleted' });
                     } else if (endpoint === '/api/goals' && method === 'POST') {
                         const goal = { ...data, _id: Date.now().toString() };
                         demoData.goals.push(goal);
@@ -3007,12 +3544,20 @@
                 authToken = result.token;
                 currentUser = result.user.username;
                 localStorage.setItem('vf_token', authToken);
-                localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
                 localStorage.setItem('vf_email', result.user.email || (String(username).includes('@') ? username : ''));
                 if (result.user.createdAt) localStorage.setItem(MEMBER_SINCE_KEY, result.user.createdAt);
                 else if (!localStorage.getItem(MEMBER_SINCE_KEY)) localStorage.setItem(MEMBER_SINCE_KEY, new Date().toISOString());
                 isDemoMode = false;
+                VaultFlowStore.setState(state => ({
+                    ...state,
+                    auth: {
+                        ...state.auth,
+                        token: authToken,
+                        user: result.user || { username: currentUser },
+                        mode: 'authenticated'
+                    }
+                }), { type: 'auth:login' });
                 showToast('Login successful!', 'success');
                 showApp();
             } catch (error) {
@@ -3026,11 +3571,19 @@
                 authToken = result.token;
                 currentUser = result.user.username;
                 localStorage.setItem('vf_token', authToken);
-                localStorage.setItem('vf_refresh_token', result.refreshToken);
                 localStorage.setItem('vf_username', currentUser);
                 localStorage.setItem('vf_email', result.user.email || email);
                 localStorage.setItem(MEMBER_SINCE_KEY, result.user.createdAt || new Date().toISOString());
                 isDemoMode = false;
+                VaultFlowStore.setState(state => ({
+                    ...state,
+                    auth: {
+                        ...state.auth,
+                        token: authToken,
+                        user: result.user || { username: currentUser },
+                        mode: 'authenticated'
+                    }
+                }), { type: 'auth:signup' });
                 showToast('Account created successfully!', 'success');
                 showApp();
             } catch (error) {
@@ -3044,6 +3597,15 @@
             localStorage.setItem('vf_email', 'demo@vaultflow.local');
             localStorage.setItem(MEMBER_SINCE_KEY, new Date().toISOString());
             authToken = 'demo-token';
+            VaultFlowStore.setState(state => ({
+                ...state,
+                auth: {
+                    ...state.auth,
+                    token: authToken,
+                    user: { username: currentUser, email: 'demo@vaultflow.local' },
+                    mode: 'demo'
+                }
+            }), { type: 'auth:demo' });
             localStorage.setItem(ONBOARDING_KEY, 'completed');
             seedDemoShowcaseData();
             showToast('Demo mode activated!', 'success');
@@ -3068,14 +3630,19 @@
 
         function logout(message = 'Logged out successfully', type = 'success') {
             localStorage.removeItem('vf_token');
-            localStorage.removeItem('vf_refresh_token');
             localStorage.removeItem('vf_username');
             localStorage.removeItem('vf_email');
             localStorage.removeItem(MEMBER_SINCE_KEY);
             authToken = null;
-            refreshToken = null;
             currentUser = null;
             isDemoMode = false;
+            setTransactions([]);
+            setVaults([]);
+            setGoals([]);
+            VaultFlowStore.setState(state => ({
+                ...state,
+                auth: { token: null, user: null, mode: 'signed_out' }
+            }), { type: 'auth:invalidated' });
             resetDemoData();
             showAuth();
             showToast(message, type);
@@ -3161,8 +3728,10 @@
                 await Promise.all([
                     loadVaults(),
                     loadTransactions(),
-                    loadGoals()
+                    loadGoals(),
+                    loadHabits()
                 ]);
+                await loadAllHabitLogs();
                 calculateWalletBalances();
                 renderDashboard();
                 renderCurrentPage();
@@ -3175,7 +3744,7 @@
 
         function isFirstTimeUser() {
             const completed = localStorage.getItem(ONBOARDING_KEY) === 'completed';
-            const hasData = (transactions?.length || 0) > 0 || (vaults?.length || 0) > 0 || (goals?.length || 0) > 0;
+            const hasData = (transactions?.length || 0) > 0 || (getVaults()?.length || 0) > 0 || (getGoals()?.length || 0) > 0 || (getHabits()?.length || 0) > 0;
             return !isDemoMode && !completed && !hasData;
         }
 
@@ -3197,7 +3766,7 @@
         function applyGuidedHighlights() {
             document.querySelectorAll('.guided-pulse').forEach(el => el.classList.remove('guided-pulse'));
             if ((transactions?.length || 0) === 0) document.querySelector('.fab')?.classList.add('guided-pulse');
-            if ((vaults?.length || 0) === 0) document.querySelector('[data-page="vaults"]')?.classList.add('guided-pulse');
+            if ((getVaults()?.length || 0) === 0) document.querySelector('[data-page="vaults"]')?.classList.add('guided-pulse');
             document.querySelector('[data-page="reports"]')?.classList.add('guided-pulse');
             setTimeout(() => document.querySelector('[data-page="reports"]')?.classList.remove('guided-pulse'), 10000);
         }
@@ -3221,13 +3790,13 @@
         async function saveOnboardingWallet() { onboardingState.wallet = document.getElementById('obWalletName')?.value?.trim() || 'Main Wallet'; nextOnboardingStep(); }
         async function saveOnboardingIncome() {
             const amount = Number(document.getElementById('obIncomeAmount')?.value || 0); if (amount <= 0) return showToast('Enter income amount.', 'warning');
-            const category = document.getElementById('obIncomeCategory')?.value || 'Salary'; const vaultId = vaults[0]?._id || '';
+            const category = document.getElementById('obIncomeCategory')?.value || 'Salary'; const vaultId = getVaults()[0]?._id || '';
             await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '09:00', type: 'income', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding income' });
             onboardingState.income += amount; await loadAllData(); onboardingState.step = 4; renderOnboardingStep();
         }
         async function saveOnboardingExpense() {
             const amount = Number(document.getElementById('obExpenseAmount')?.value || 0); if (amount <= 0) return showToast('Enter expense amount.', 'warning');
-            const category = document.getElementById('obExpenseCategory')?.value || 'Food'; const vaultId = vaults[0]?._id || '';
+            const category = document.getElementById('obExpenseCategory')?.value || 'Food'; const vaultId = getVaults()[0]?._id || '';
             await apiCall('/api/transactions', 'POST', { date: new Date().toISOString().slice(0,10), time: '19:00', type: 'expense', amount, category, wallet: 'HR', paymentMethod: 'online', vaultId, notes: 'Onboarding expense' });
             onboardingState.expense += amount; await loadAllData(); onboardingState.step = 5; renderOnboardingStep();
         }
@@ -3239,51 +3808,163 @@
         }
         function skipOnboardingGoal() { onboardingState.step = 6; renderOnboardingStep(); }
 
-        let vaults = [];
-        let transactions = [];
-        let goals = [];
+        // Transactions, vaults, and goals now share the Store as their frontend source of truth.
+        function getTransactions() {
+            return VaultFlowStore.getState().finance.transactions;
+        }
+
+        function setTransactions(nextTransactions, meta = {}) {
+            const normalized = Array.isArray(nextTransactions) ? nextTransactions : [];
+            VaultFlowStore.setState(state => ({
+                ...state,
+                finance: { ...state.finance, transactions: normalized }
+            }), { type: 'transactions:set', ...meta });
+            return normalized;
+        }
+
+        function getVaults() {
+            return VaultFlowStore.getState().finance.vaults;
+        }
+
+        function setVaults(nextVaults, meta = {}) {
+            const normalized = Array.isArray(nextVaults) ? nextVaults : [];
+            VaultFlowStore.setState(state => ({
+                ...state,
+                finance: { ...state.finance, vaults: normalized }
+            }), { type: 'vaults:set', ...meta });
+            return normalized;
+        }
+
+        function getWallets() {
+            return VaultFlowStore.getState().finance.wallets;
+        }
+
+        function setWallets(nextWallets, meta = {}) {
+            const normalized = nextWallets && typeof nextWallets === 'object' ? nextWallets : {};
+            VaultFlowStore.setState(state => ({
+                ...state,
+                finance: { ...state.finance, wallets: normalized }
+            }), { type: 'wallets:set', ...meta });
+            return normalized;
+        }
+
+        function deriveWalletBalances(sourceTransactions = getTransactions()) {
+            const result = {
+                HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
+                HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
+            };
+
+            for (const txn of Array.isArray(sourceTransactions) ? sourceTransactions : []) {
+                const walletKey = String(txn.wallet || 'HR').trim().toUpperCase();
+                if (!result[walletKey]) continue;
+
+                const amount = Number(txn.amount) || 0;
+                if (txn.type === 'income') {
+                    result[walletKey].balance += amount;
+                    result[walletKey].totalIncome += amount;
+                } else if (txn.type === 'expense') {
+                    result[walletKey].balance -= amount;
+                    result[walletKey].totalSpent += amount;
+                }
+            }
+
+            return result;
+        }
+
+        function syncDerivedWallets(meta = {}) {
+            return setWallets(
+                deriveWalletBalances(),
+                { type: 'wallets:derived', ...meta }
+            );
+        }
+
+        function assertFinanceConsistency() {
+            const state = VaultFlowStore.getState();
+            const expected = deriveWalletBalances(state.finance.transactions);
+            const actual = state.finance.wallets || {};
+
+            for (const key of ['HR', 'HL']) {
+                const e = expected[key];
+                const a = actual[key] || {};
+                if (
+                    Number(a.balance || 0) !== Number(e.balance || 0) ||
+                    Number(a.totalIncome || 0) !== Number(e.totalIncome || 0) ||
+                    Number(a.totalSpent || 0) !== Number(e.totalSpent || 0)
+                ) {
+                    return { ok: false, wallet: key, expected: e, actual: a };
+                }
+            }
+
+            return { ok: true };
+        }
 
         async function loadVaults() {
-            vaults = await apiCall('/api/vaults');
+            return setVaults(await apiCall('/api/vaults'), { source: isDemoMode ? 'demo' : 'api' });
         }
 
         async function loadTransactions() {
-            transactions = await apiCall('/api/transactions');
+            return setTransactions(await apiCall('/api/transactions'), { source: isDemoMode ? 'demo' : 'api' });
+        }
+
+        function getGoals() {
+            return VaultFlowStore.getState().planning.goals;
+        }
+
+        function setGoals(nextGoals, meta = {}) {
+            const normalized = Array.isArray(nextGoals) ? nextGoals : [];
+            VaultFlowStore.setState(state => ({
+                ...state,
+                planning: { ...state.planning, goals: normalized }
+            }), { type: 'goals:set', ...meta });
+            return normalized;
+        }
+
+        function getHabits() {
+            return VaultFlowStore.getHabits();
+        }
+
+        function setHabits(nextHabits, meta = {}) {
+            return VaultFlowStore.setHabits(nextHabits, meta);
+        }
+
+        function getHabitLogs() {
+            return VaultFlowStore.getHabitLogs();
+        }
+
+        function setHabitLogs(nextLogs, meta = {}) {
+            return VaultFlowStore.setHabitLogs(nextLogs, meta);
+        }
+
+        async function loadHabits() {
+            const habits = await apiCall('/api/habits');
+            return setHabits(habits, { source: isDemoMode ? 'demo' : 'api' });
+        }
+
+        async function loadHabitLogs(habitId, { from, to } = {}) {
+            const params = new URLSearchParams();
+            if (from) params.set('from', from);
+            if (to) params.set('to', to);
+            const suffix = params.toString() ? '?' + params.toString() : '';
+            const logs = await apiCall(`/api/habits/${encodeURIComponent(habitId)}/logs${suffix}`);
+            const existing = getHabitLogs().filter(log => String(log.habitId) !== String(habitId));
+            return setHabitLogs([...existing, ...logs], { source: isDemoMode ? 'demo' : 'api', habitId });
+        }
+
+        async function loadAllHabitLogs({ from, to } = {}) {
+            const params = new URLSearchParams();
+            if (from) params.set('from', from);
+            if (to) params.set('to', to);
+            const suffix = params.toString() ? '?' + params.toString() : '';
+            const logs = await apiCall(`/api/habit-logs${suffix}`);
+            return setHabitLogs(logs, { source: isDemoMode ? 'demo' : 'api', scope: 'all' });
         }
 
         async function loadGoals() {
-            goals = await apiCall('/api/goals');
+            return setGoals(await apiCall('/api/goals'), { source: isDemoMode ? 'demo' : 'api' });
         }
 
         function calculateWalletBalances() {
-            if (isDemoMode) {
-                wallets = demoData.wallets;
-            } else {
-                wallets = {
-                    HR: { name: 'HR Wallet', balance: 0, totalIncome: 0, totalSpent: 0 },
-                    HL: { name: 'HL Wallet', balance: 0, totalIncome: 0, totalSpent: 0 }
-                };
-
-                console.log('Calculating wallet balances from transactions:', transactions.length);
-
-                transactions.forEach(txn => {
-                    console.log('Transaction:', txn.type, txn.amount, 'Wallet:', txn.wallet);
-
-                    const walletKey = txn.wallet || 'HR'; // Default to HR if not specified
-
-                    if (wallets[walletKey]) {
-                        if (txn.type === 'income') {
-                            wallets[walletKey].balance += txn.amount;
-                            wallets[walletKey].totalIncome += txn.amount;
-                        } else {
-                            wallets[walletKey].balance -= txn.amount;
-                            wallets[walletKey].totalSpent += txn.amount;
-                        }
-                    }
-                });
-
-                console.log('Final wallet balances:', wallets);
-            }
+            return syncDerivedWallets({ reason: 'calculateWalletBalances' });
         }
 
         // Page Navigation
@@ -3320,6 +4001,12 @@
                 case 'goals':
                     renderGoalsPage();
                     break;
+                case 'habits':
+                    renderHabitsPage();
+                    break;
+                case 'habits':
+                    renderHabitsPage();
+                    break;
                 case 'reports':
                     renderReportsPage();
                     break;
@@ -3329,6 +4016,100 @@
             }
         }
 
+        // Phase 3C — Habit UI
+        const habitUiState={date:null,filter:'today'};
+        function getHabitUiDate(){return habitUiState.date||(habitUiState.date=HabitDomain.getTodayLocalDate());}
+        function formatHabitDate(d){return new Date(`${d}T12:00:00`).toLocaleDateString(getCurrentLocale(),{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
+        function shiftHabitDate(n){habitUiState.date=HabitDomain.addDays(getHabitUiDate(),n);renderHabitsPage();}
+        function toggleHabitFrequencyFields(){const w=document.querySelector('input[name="habitFrequency"]:checked')?.value==='weekly';document.getElementById('habitWeekdayGroup').hidden=!w;document.getElementById('habitTargetGroup').hidden=!w;}
+        function resetHabitForm(){document.getElementById('habitForm').reset();document.getElementById('habitId').value='';document.getElementById('habitModalTitle').textContent='Create Habit';document.getElementById('habitSaveBtn').textContent='Create Habit';document.getElementById('habitStartDate').value=HabitDomain.getTodayLocalDate();document.getElementById('habitReminderTime').disabled=true;toggleHabitFrequencyFields();}
+        function openHabitModal(id=null){resetHabitForm();if(id){const h=HabitDomain.getHabitById(id);if(!h)return;document.getElementById('habitModalTitle').textContent='Edit Habit';document.getElementById('habitSaveBtn').textContent='Save Changes';document.getElementById('habitId').value=h._id;document.getElementById('habitName').value=h.name||'';document.getElementById('habitDescription').value=h.description||'';document.getElementById('habitCategory').value=h.category||'';document.getElementById('habitIcon').value=h.icon||'✓';document.getElementById('habitStartDate').value=h.startDate;document.getElementById('habitEndDate').value=h.endDate||'';document.getElementById('habitPreferredTime').value=h.preferredTime||'';document.getElementById('habitReminderEnabled').checked=!!h.reminder?.enabled;document.getElementById('habitReminderTime').disabled=!h.reminder?.enabled;document.getElementById('habitReminderTime').value=h.reminder?.time||'';document.querySelector(`input[name="habitFrequency"][value="${h.frequency?.type||'daily'}"]`).checked=true;document.querySelectorAll('#habitWeekdays input').forEach(x=>x.checked=(h.frequency?.daysOfWeek||[]).includes(+x.value));document.getElementById('habitTargetPerWeek').value=h.frequency?.targetPerWeek||3;toggleHabitFrequencyFields();}document.getElementById('habitModal').classList.add('active');}
+        async function handleHabitSubmit(e){e.preventDefault();const id=document.getElementById('habitId').value,type=document.querySelector('input[name="habitFrequency"]:checked').value,days=[...document.querySelectorAll('#habitWeekdays input:checked')].map(x=>+x.value),start=document.getElementById('habitStartDate').value,end=document.getElementById('habitEndDate').value,target=+document.getElementById('habitTargetPerWeek').value||1;if(type==='weekly'&&!days.length)return showToast('Choose at least one weekday.','warning');if(type==='weekly'&&target>days.length)return showToast('Weekly target cannot exceed selected weekdays.','warning');if(end&&end<start)return showToast('End date must be on or after start date.','warning');const data={name:document.getElementById('habitName').value.trim(),description:document.getElementById('habitDescription').value.trim(),category:document.getElementById('habitCategory').value,icon:document.getElementById('habitIcon').value,frequency:type==='weekly'?{type,daysOfWeek:days,targetPerWeek:target}:{type,daysOfWeek:[]},startDate:start,endDate:end||undefined,preferredTime:document.getElementById('habitPreferredTime').value||undefined,reminder:{enabled:document.getElementById('habitReminderEnabled').checked,time:document.getElementById('habitReminderTime').value||undefined}};if(!data.name)return showToast('Enter a habit name.','warning');try{const saved=await apiCall(id?`/api/habits/${id}`:'/api/habits',id?'PUT':'POST',data);VaultFlowStore.addHabit(saved);closeModal('habitModal');renderHabitsPage();showToast(id?'Habit updated.':'Habit created.','success');}catch(_){}}
+        async function setHabitOccurrence(id,date,status){try{const log=await apiCall(`/api/habits/${encodeURIComponent(id)}/logs`,'POST',{scheduledDate:date,status});VaultFlowStore.addOrUpdateHabitLog(log);renderHabitsPage();}catch(_){}}
+        async function archiveHabit(id){const h=HabitDomain.getHabitById(id);if(!h||!confirm(`Archive "${h.name}"? Its history will be preserved.`))return;try{const saved=await apiCall(`/api/habits/${encodeURIComponent(id)}`,'DELETE');VaultFlowStore.addHabit(saved);renderHabitsPage();showToast('Habit archived. History preserved.','success');}catch(_){}}
+        async function openHabitHistory(id){const h=HabitDomain.getHabitById(id);if(!h)return;try{await loadHabitLogs(id);const logs=getHabitLogs(),today=HabitDomain.getTodayLocalDate(),from=HabitDomain.addDays(today,-41),rate=HabitDomain.getHabitCompletionRate(id,from,today),streak=HabitDomain.getHabitStreak(id,today),cells=HabitDomain.getScheduledDates(h,from,today).map(d=>{const s=HabitDomain.getHabitStatus(id,d,getHabits(),logs);return `<div class="habit-history-day ${s}"><b>${d.slice(8)}</b><div>${s==='completed'?'✓':s==='skipped'?'–':s==='missed'?'×':'·'}</div></div>`}).join('');document.getElementById('habitHistoryTitle').textContent=h.name;document.getElementById('habitHistorySubtitle').textContent=`${rate.completed} of ${rate.scheduled} scheduled occurrences completed`;document.getElementById('habitHistoryContent').innerHTML=`<div class="habit-history-stats"><div class="habit-history-stat"><strong>${streak.current}</strong><span>Current streak</span></div><div class="habit-history-stat"><strong>${streak.best}</strong><span>Best streak</span></div><div class="habit-history-stat"><strong>${Math.round(rate.rate)}%</strong><span>Completion rate</span></div></div><div class="habit-history-grid">${cells}</div>`;document.getElementById('habitHistoryModal').classList.add('active');}catch(_){}}
+        function renderHabitAnalytics() {
+            const range = Number(document.getElementById('habitAnalyticsRange')?.value || 30);
+            const today = HabitDomain.getTodayLocalDate();
+            const from = HabitDomain.addDays(today, -(range - 1));
+            const analytics = HabitDomain.getPortfolioAnalytics(from, today, getHabits(), getHabitLogs());
+            const active = getHabits().filter(h => h.status === 'active');
+            const best = analytics.habits.reduce((max, item) => Math.max(max, item.bestStreak), 0);
+            const rateEl = document.getElementById('habitAnalyticsRate');
+            if (!rateEl) return;
+            rateEl.textContent = `${Math.round(analytics.completionRate)}%`;
+            document.getElementById('habitAnalyticsScore').textContent = Math.round(analytics.consistencyScore);
+            document.getElementById('habitAnalyticsCompleted').textContent = analytics.completed;
+            document.getElementById('habitAnalyticsBest').textContent = best;
+            document.getElementById('habitAnalyticsSubtitle').textContent = active.length ? `${active.length} active habit${active.length === 1 ? '' : 's'} • ${from} to ${today}` : 'Create an active habit to start analytics.';
+            const bars = document.getElementById('habitAnalyticsDaily');
+            if (bars) {
+                const max = Math.max(1, ...analytics.daily.map(x => x.rate));
+                bars.innerHTML = analytics.daily.map(x => {
+                    const height = Math.max(4, Math.round((x.rate / max) * 100));
+                    return `<div class="habit-analytics-bar${x.rate === 0 ? ' zero' : ''}" style="height:${height}%" title="${x.date}: ${Math.round(x.rate)}% (${x.completed}/${x.scheduled})"></div>`;
+                }).join('');
+            }
+            const list = document.getElementById('habitAnalyticsHabits');
+            if (list) {
+                list.innerHTML = analytics.habits.length ? analytics.habits.map(item => {
+                    const habit = HabitDomain.getHabitById(item.habitId);
+                    return `<div class="habit-analytics-habit"><div class="habit-analytics-habit-name">${escapeHtml(habit?.name || 'Habit')}</div><div class="habit-analytics-track"><span style="width:${Math.round(item.completionRate)}%"></span></div><div class="habit-analytics-percent">${Math.round(item.completionRate)}%</div></div>`;
+                }).join('') : '<div class="habit-muted">No active habits yet.</div>';
+            }
+        }
+
+        function renderHabitsPage(){renderHabitAnalytics();const date=getHabitUiDate(),habits=getHabits(),logs=getHabitLogs(),summary=HabitDomain.buildTodaySummary(date,habits,logs),pct=summary.total?Math.round(summary.completionRate):0;document.getElementById('habitProgressValue').textContent=`${pct}%`;document.getElementById('habitProgressBar').style.width=`${pct}%`;document.getElementById('habitProgressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e5e7eb 0deg)`;document.getElementById('habitTodaySubtitle').textContent=summary.total?`${summary.completed} of ${summary.total} scheduled today`:'No active habits are scheduled for this day.';document.getElementById('habitDateButton').textContent=formatHabitDate(date);const visible=habitUiState.filter==='today'?HabitDomain.getTodaysHabits(date,habits):habitUiState.filter==='archived'?habits.filter(h=>h.status==='archived'):habits.filter(h=>h.status==='active'),models=visible.map(x=>HabitDomain.buildHabitViewModel(x,date,habits,logs)),list=document.getElementById('habitsList');if(!models.length){list.innerHTML='<div class="habit-empty"><strong>Nothing to show</strong><span>Create a habit or choose another day/filter.</span><div style="margin-top:14px"><button class="btn btn-primary" onclick="openHabitModal()">Create Habit</button></div></div>';return;}list.innerHTML=models.map(m=>{const f=m.frequency.type==='weekly'?m.frequency.daysOfWeek.map(d=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d]).join(' · '):'Every day';return `<article class="habit-card"><div class="habit-card-top"><div class="habit-icon">${escapeHtml(m.icon||'✓')}</div><div style="flex:1"><div class="habit-card-title">${escapeHtml(m.name)}</div><div class="habit-card-meta"><span class="habit-chip">${escapeHtml(f)}</span>${m.category?`<span class="habit-chip">${escapeHtml(m.category)}</span>`:''}</div></div><div class="habit-status ${m.status}">${escapeHtml(m.status.replace('_',' '))}</div></div>${m.description?`<div class="habit-card-description">${escapeHtml(m.description)}</div>`:''}<div class="habit-card-bottom"><div>🔥 ${m.streak.current} ${m.streak.unit==='weeks'?'week':'day'} streak</div><div class="habit-actions">${m.actions.canComplete?`<button class="habit-action primary" onclick="setHabitOccurrence('${m.id}','${date}','completed')">✓ Complete</button>`:''}${m.actions.canSkip?`<button class="habit-action" onclick="setHabitOccurrence('${m.id}','${date}','skipped')">Skip</button>`:''}<button class="habit-action" onclick="openHabitHistory('${m.id}')">History</button>${m.actions.canEdit?`<button class="habit-action" onclick="openHabitModal('${m.id}')">Edit</button>`:''}${m.actions.canArchive?`<button class="habit-action danger" onclick="archiveHabit('${m.id}')">Archive</button>`:''}</div></div></article>`}).join('');}
+        function renderDashboardHabits() {
+            const container = document.getElementById('dashboardHabitItems');
+            if (!container) return;
+            const today = HabitDomain.getTodayLocalDate();
+            const summary = HabitDomain.buildTodaySummary(today, getHabits(), getHabitLogs());
+            const subtitle = document.getElementById('dashboardHabitSummary');
+            if (!summary.total) {
+                container.innerHTML = '<div class="habit-empty" style="grid-column:1/-1;padding:20px"><strong>No habits scheduled today</strong><span>Open Habits to create your routine.</span></div>';
+                if (subtitle) subtitle.textContent = 'No habits scheduled today.';
+                return;
+            }
+            if (subtitle) subtitle.textContent = `${summary.completed} of ${summary.total} completed today`;
+            container.innerHTML = summary.items.slice(0, 6).map(item => `<div class="habit-dashboard-item ${item.status === 'completed' ? 'completed' : ''}"><div class="habit-dashboard-check">${item.status === 'completed' ? '✓' : '○'}</div><div><b>${escapeHtml(item.name)}</b><div style="font-size:11px;color:var(--text-secondary,#6b7280)">${escapeHtml(item.status)}</div></div></div>`).join('');
+        }
+
+        function renderHabitReportSnapshot() {
+            const active = getHabits().filter(h => h.status === 'active');
+            const today = HabitDomain.getTodayLocalDate();
+            const summary = HabitDomain.buildTodaySummary(today, getHabits(), getHabitLogs());
+            const from = HabitDomain.addDays(today, -29);
+            const rate = active.length ? active.reduce((sum, habit) => sum + HabitDomain.getHabitCompletionRate(habit._id, from, today).rate, 0) / active.length : 0;
+            const best = active.reduce((max, habit) => Math.max(max, HabitDomain.getHabitStreak(habit._id, today).best), 0);
+            const activeEl = document.getElementById('habitReportActive');
+            if (!activeEl) return;
+            activeEl.textContent = active.length;
+            document.getElementById('habitReportToday').textContent = `${Math.round(summary.completionRate || 0)}%`;
+            document.getElementById('habitReportRate').textContent = `${Math.round(rate || 0)}%`;
+            document.getElementById('habitReportStreak').textContent = best;
+            document.getElementById('habitReportSubtitle').textContent = active.length ? `${summary.completed} of ${summary.total} scheduled today • last 30 days included` : 'Create an active habit to start tracking consistency.';
+        }
+
+
+        // Phase 10A — Habit Tracking
+        function habitToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+        function habitAddDays(s,n){const [y,m,d]=s.split('-').map(Number),x=new Date(Date.UTC(y,m-1,d+n));return `${x.getUTCFullYear()}-${String(x.getUTCMonth()+1).padStart(2,'0')}-${String(x.getUTCDate()).padStart(2,'0')}`;}
+        function habitEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+        function getHabitLog(id,date){return habitLogs.find(x=>String(x.habitId)===String(id)&&x.scheduledDate===date);}
+        function habitScheduledOn(h,date){if(!h||h.status!=='active'||date<h.startDate||(h.endDate&&date>h.endDate))return false;if(h.frequency?.type==='daily')return true;const [y,m,d]=date.split('-').map(Number);return (h.frequency?.daysOfWeek||[]).includes(new Date(Date.UTC(y,m-1,d)).getUTCDay());}
+        function habitStreak(id,end){let n=0,d=end;for(let i=0;i<1000;i++){const h=habits.find(x=>String(x._id)===String(id));if(!h)break;if(!habitScheduledOn(h,d)){d=habitAddDays(d,-1);continue;}if(getHabitLog(id,d)?.status!=='completed')break;n++;d=habitAddDays(d,-1);}return n;}
+        async function loadHabits(){habits=isDemoMode?[]:await apiCall('/api/habits');habitLogs=[];if(!isDemoMode){for(const h of habits.filter(x=>x.status!=='archived')){try{habitLogs.push(...await apiCall(`/api/habits/${encodeURIComponent(h._id)}/logs`));}catch(_){}}}return habits;}
+        function toggleHabitFrequencyFields(){const w=document.querySelector('input[name="habitFrequency"]:checked')?.value==='weekly';document.getElementById('habitWeekdayGroup').hidden=!w;document.getElementById('habitTargetGroup').hidden=!w;}
+        function resetHabitForm(){document.getElementById('habitForm').reset();document.getElementById('habitId').value='';document.getElementById('habitModalTitle').textContent='Create Habit';document.getElementById('habitSaveBtn').textContent='Create Habit';document.getElementById('habitStartDate').value=habitToday();document.getElementById('habitReminderTime').disabled=true;toggleHabitFrequencyFields();}
+        function openHabitModal(id=null){resetHabitForm();if(id){const h=habits.find(x=>String(x._id)===String(id));if(!h)return;document.getElementById('habitId').value=h._id;document.getElementById('habitModalTitle').textContent='Edit Habit';document.getElementById('habitSaveBtn').textContent='Save Changes';document.getElementById('habitName').value=h.name||'';document.getElementById('habitDescription').value=h.description||'';document.getElementById('habitCategory').value=h.category||'';document.getElementById('habitIcon').value=h.icon||'✓';document.getElementById('habitStartDate').value=h.startDate||habitToday();document.getElementById('habitEndDate').value=h.endDate||'';document.getElementById('habitPreferredTime').value=h.preferredTime||'';document.getElementById('habitReminderEnabled').checked=!!h.reminder?.enabled;document.getElementById('habitReminderTime').disabled=!h.reminder?.enabled;document.getElementById('habitReminderTime').value=h.reminder?.time||'';document.querySelector(`input[name="habitFrequency"][value="${h.frequency?.type||'daily'}"]`).checked=true;document.querySelectorAll('#habitWeekdays input').forEach(x=>x.checked=(h.frequency?.daysOfWeek||[]).includes(+x.value));document.getElementById('habitTargetPerWeek').value=h.frequency?.targetPerWeek||3;toggleHabitFrequencyFields();}document.getElementById('habitModal').classList.add('active');}
+        async function handleHabitSubmit(e){e.preventDefault();const id=document.getElementById('habitId').value,type=document.querySelector('input[name="habitFrequency"]:checked').value,days=[...document.querySelectorAll('#habitWeekdays input:checked')].map(x=>+x.value),start=document.getElementById('habitStartDate').value,end=document.getElementById('habitEndDate').value,target=+document.getElementById('habitTargetPerWeek').value||1,name=document.getElementById('habitName').value.trim();if(!name)return showToast('Enter a habit name.','warning');if(type==='weekly'&&!days.length)return showToast('Choose at least one weekday.','warning');if(type==='weekly'&&target>days.length)return showToast('Weekly target cannot exceed selected weekdays.','warning');if(end&&end<start)return showToast('End date must be on or after start date.','warning');const data={name,description:document.getElementById('habitDescription').value.trim(),category:document.getElementById('habitCategory').value,icon:document.getElementById('habitIcon').value,frequency:type==='weekly'?{type,daysOfWeek:days,targetPerWeek:target}:{type,daysOfWeek:[]},startDate:start,endDate:end||undefined,preferredTime:document.getElementById('habitPreferredTime').value||undefined,reminder:{enabled:document.getElementById('habitReminderEnabled').checked,time:document.getElementById('habitReminderTime').value||undefined}};try{const saved=await apiCall(id?`/api/habits/${id}`:'/api/habits',id?'PUT':'POST',data),i=habits.findIndex(x=>String(x._id)===String(saved._id));if(i>=0)habits[i]=saved;else habits.unshift(saved);closeModal('habitModal');renderHabitsPage();showToast(id?'Habit updated.':'Habit created.','success');}catch(_){}}
+        async function setHabitOccurrence(id,date,status){try{const log=await apiCall(`/api/habits/${encodeURIComponent(id)}/logs`,'POST',{scheduledDate:date,status}),i=habitLogs.findIndex(x=>String(x.habitId)===String(id)&&x.scheduledDate===date);if(i>=0)habitLogs[i]=log;else habitLogs.push(log);renderHabitsPage();}catch(_){}}
+        async function archiveHabit(id){const h=habits.find(x=>String(x._id)===String(id));if(!h||!confirm(`Archive "${h.name}"? Its history will be preserved.`))return;try{const saved=await apiCall(`/api/habits/${encodeURIComponent(id)}`,'DELETE'),i=habits.findIndex(x=>String(x._id)===String(id));if(i>=0)habits[i]=saved;renderHabitsPage();showToast('Habit archived. History preserved.','success');}catch(_){}}
+        async function openHabitHistory(id){const h=habits.find(x=>String(x._id)===String(id));if(!h)return;try{const to=habitToday(),from=habitAddDays(to,-41),logs=await apiCall(`/api/habits/${encodeURIComponent(id)}/logs?from=${from}&to=${to}`);habitLogs=habitLogs.filter(x=>String(x.habitId)!==String(id)).concat(logs);const cells=[];for(let d=from,i=0;i<42;i++,d=habitAddDays(d,1)){if(!habitScheduledOn(h,d)){cells.push(`<div class="habit-history-day"><b>${d.slice(8)}</b><div>·</div></div>`);continue;}const s=getHabitLog(id,d)?.status||'missed';cells.push(`<div class="habit-history-day ${s}"><b>${d.slice(8)}</b><div>${s==='completed'?'✓':s==='skipped'?'–':'×'}</div></div>`);}document.getElementById('habitHistoryTitle').textContent=h.name;document.getElementById('habitHistorySubtitle').textContent=`${logs.filter(x=>x.status==='completed').length} completed occurrences in the last 42 days`;document.getElementById('habitHistoryContent').innerHTML=`<div class="habit-history-stats"><div class="habit-history-stat"><strong>${habitStreak(id,to)}</strong><span>Current streak</span></div><div class="habit-history-stat"><strong>${logs.filter(x=>x.status==='completed').length}</strong><span>Completed</span></div><div class="habit-history-stat"><strong>42</strong><span>Days viewed</span></div></div><div class="habit-history-grid">${cells.join('')}</div>`;document.getElementById('habitHistoryModal').classList.add('active');}catch(_){}}
+        function handleHabitActionClick(e){const b=e.target.closest('[data-habit-action]');if(!b)return;const id=b.dataset.habitId,a=b.dataset.habitAction,d=b.dataset.habitDate||habitUiState.date;if(a==='complete')setHabitOccurrence(id,d,'completed');else if(a==='skip')setHabitOccurrence(id,d,'skipped');else if(a==='history')openHabitHistory(id);else if(a==='edit')openHabitModal(id);else if(a==='archive')archiveHabit(id);}
+        function renderHabitsPage(){const date=habitUiState.date||habitToday();habitUiState.date=date;document.getElementById('habitDateButton').textContent=new Date(`${date}T12:00:00`).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});const active=habits.filter(h=>h.status==='active'),today=active.filter(h=>habitScheduledOn(h,date)),completed=today.filter(h=>getHabitLog(h._id,date)?.status==='completed').length,pct=today.length?Math.round(completed/today.length*100):0;document.getElementById('habitProgressValue').textContent=`${pct}%`;document.getElementById('habitProgressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e5e7eb 0deg)`;document.getElementById('habitTodaySubtitle').textContent=today.length?`${completed} of ${today.length} scheduled today`:'No active habits are scheduled for this day.';const visible=habitUiState.filter==='today'?today:habitUiState.filter==='archived'?habits.filter(h=>h.status==='archived'):active,list=document.getElementById('habitsList');if(!visible.length){list.innerHTML='<div class="habit-empty"><strong>Nothing to show</strong><span>Create a habit or choose another filter.</span></div>';return;}list.innerHTML=visible.map(h=>{const log=getHabitLog(h._id,date),status=log?.status||'pending',freq=h.frequency?.type==='weekly'?(h.frequency.daysOfWeek||[]).map(d=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d]).join(' · '):'Every day';return `<article class="habit-card"><div class="habit-card-top"><div class="habit-icon">${habitEscape(h.icon||'✓')}</div><div style="flex:1"><div class="habit-card-title">${habitEscape(h.name)}</div><div class="habit-card-meta"><span class="habit-chip">${habitEscape(freq)}</span>${h.category?`<span class="habit-chip">${habitEscape(h.category)}</span>`:''}</div></div><div class="habit-status ${status}">${status}</div></div>${h.description?`<div class="habit-card-description">${habitEscape(h.description)}</div>`:''}<div class="habit-card-bottom"><div>🔥 ${habitStreak(h._id,date)} day streak</div><div class="habit-actions">${status==='pending'&&h.status==='active'?`<button class="habit-action primary" data-habit-action="complete" data-habit-id="${h._id}" data-habit-date="${date}">✓ Complete</button><button class="habit-action" data-habit-action="skip" data-habit-id="${h._id}" data-habit-date="${date}">Skip</button>`:''}<button class="habit-action" data-habit-action="history" data-habit-id="${h._id}">History</button>${h.status!=='archived'?`<button class="habit-action" data-habit-action="edit" data-habit-id="${h._id}">Edit</button><button class="habit-action danger" data-habit-action="archive" data-habit-id="${h._id}">Archive</button>`:''}</div></div></article>`}).join('');}
+        function shiftHabitDate(n){habitUiState.date=habitAddDays(habitUiState.date||habitToday(),n);renderHabitsPage();}
         // Dashboard
         function renderDashboard() {
             calculateWalletBalances();
@@ -3338,8 +4119,8 @@
             const netSavings = totalIncome - totalExpenses;
             const savingsRate = totalIncome > 0 ? ((netSavings / totalIncome) * 100).toFixed(1) : 0;
 
-            document.getElementById('hrWalletBalance').textContent = formatCurrency(wallets.HR.balance);
-            document.getElementById('hlWalletBalance').textContent = formatCurrency(wallets.HL.balance);
+            document.getElementById('hrWalletBalance').textContent = formatCurrency(getWallets().HR.balance);
+            document.getElementById('hlWalletBalance').textContent = formatCurrency(getWallets().HL.balance);
             document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
             document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
             document.getElementById('netSavings').textContent = formatCurrency(netSavings);
@@ -3348,6 +4129,17 @@
 
             const recent = transactions.slice(0, 5);
             renderTransactionTable(recent, 'recentTransactionsTable');
+            renderDashboardHabits();
+        }
+
+        // Compatibility escaping while renderers are migrated to DOM APIs.
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // Transactions Page
@@ -3355,8 +4147,38 @@
             renderTransactionTable(transactions, 'transactionsTable');
         }
 
+        function buildTransactionViewModel(txn) {
+            const dateObj = new Date(txn.date);
+            return {
+                id: String(txn._id || txn.id || ''),
+                date: formatAppDate(dateObj),
+                time: txn.time || '',
+                type: String(txn.type || 'expense'),
+                amount: Number(txn.amount || 0),
+                category: String(txn.category || '-'),
+                location: String(txn.location || '-'),
+                wallet: String(txn.wallet || '-'),
+                paymentMethod: txn.paymentMethod === 'online' ? 'online' : 'byhand',
+                vaultName: String(txn.vaultName || '-'),
+                notes: String(txn.notes || '-')
+            };
+        }
+
+        function renderTransactionActions(viewModel) {
+            const id = escapeHtml(viewModel.id);
+            return `
+                <button class="action-btn edit-btn" type="button"
+                    data-transaction-action="edit"
+                    data-transaction-id="${id}">Edit</button>
+                <button class="action-btn delete-btn" type="button"
+                    data-transaction-action="delete"
+                    data-transaction-id="${id}">Delete</button>
+            `;
+        }
+
         function renderTransactionTable(data, containerId) {
             const container = document.getElementById(containerId);
+            if (!container) return;
 
             if (data.length === 0) {
                 container.innerHTML = `
@@ -3373,77 +4195,60 @@
                 return;
             }
 
-            const isMobileView = window.innerWidth <= 768;
-            if (isMobileView) {
+            // Desktop and mobile consume the same normalized data/action contract.
+            const viewModels = data.map(buildTransactionViewModel);
+
+            if (window.innerWidth <= 768) {
                 let mobileHtml = '<div class="mobile-txn-list">';
-                data.forEach(txn => {
-                    const dateObj = new Date(txn.date);
-                    const dateStr = formatAppDate(dateObj);
+                viewModels.forEach(txn => {
                     mobileHtml += `
-                        <div class="mobile-txn-card">
+                        <div class="mobile-txn-card" data-transaction-id="${escapeHtml(txn.id)}">
                             <div class="mobile-txn-top">
-                                <strong>${dateStr} • ${txn.time || ''}</strong>
-                                <span class="badge ${txn.type}">${txn.type}</span>
+                                <strong>${escapeHtml(txn.date)} • ${escapeHtml(txn.time)}</strong>
+                                <span class="badge ${escapeHtml(txn.type)}">${escapeHtml(txn.type)}</span>
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div>
-                                    <div style="font-size:14px; color:var(--text-secondary);">${txn.category || '-'}</div>
+                                    <div style="font-size:14px; color:var(--text-secondary);">${escapeHtml(txn.category)}</div>
                                     <div class="mobile-txn-meta">
-                                        <span>Wallet: ${txn.wallet || '-'}</span>
-                                        <span>Vault: ${txn.vaultName || '-'}</span>
+                                        <span>Wallet: ${escapeHtml(txn.wallet)}</span>
+                                        <span>Vault: ${escapeHtml(txn.vaultName)}</span>
                                         <span>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</span>
                                     </div>
                                 </div>
                                 <div style="text-align:right;">
-                                    <div style="font-weight:700; font-size:20px;">${formatMoney(txn.amount || 0)}</div>
+                                    <div style="font-weight:700; font-size:20px;">${formatMoney(txn.amount)}</div>
                                 </div>
                             </div>
+                            <div class="mobile-txn-actions">${renderTransactionActions(txn)}</div>
                         </div>
                     `;
                 });
-                mobileHtml += '</div>';
-                container.innerHTML = mobileHtml;
+                container.innerHTML = mobileHtml + '</div>';
                 return;
             }
 
-            let html = `<table class="transactions-table"><thead><tr>`;
-            html += `<th>Date Time</th>`;
-            html += `<th>Type</th>`;
-            html += `<th>Amount</th>`;
-            html += `<th>Category</th>`;
-            html += `<th>Location</th>`;
-            html += `<th>Wallet</th>`;
-            html += `<th>Payment Method</th>`;
-            html += `<th>Vault</th>`;
-            html += `<th>Notes</th>`;
-            html += `<th>Actions</th>`;
-            html += `</tr></thead><tbody>`;
+            let tableHtml = `<table class="transactions-table"><thead><tr>`;
+            ['Date Time','Type','Amount','Category','Location','Wallet','Payment Method','Vault','Notes','Actions']
+                .forEach(label => { tableHtml += `<th>${label}</th>`; });
+            tableHtml += `</tr></thead><tbody>`;
 
-            data.forEach(txn => {
-                const dateObj = new Date(txn.date);
-                const dateStr = formatAppDate(dateObj);
-                const timeStr = txn.time;
-
-                // FIX: Changed txn.id to txn._id in the buttons below
-                html += `<tr>`;
-                html += `<td><strong>${dateStr}</strong><br><small>${timeStr}</small></td>`;
-                html += `<td><span class="badge ${txn.type}">${txn.type}</span></td>`;
-                html += `<td><strong>${formatMoney(txn.amount || 0)}</strong></td>`;
-                html += `<td>${txn.category}</td>`;
-                html += `<td>${txn.location ? txn.location : '-'}</td>`;
-                html += `<td>${txn.wallet}</td>`;
-                html += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
-                html += `<td>${txn.vaultName || '-'}</td>`;
-                html += `<td>${txn.notes || '-'}</td>`;
-                html += `<td>`;
-                html += `<button class="action-btn edit-btn" onclick="editTransaction('${txn._id}')">Edit</button>`;
-                html += `<button class="action-btn delete-btn" onclick="deleteTransaction('${txn._id}')">Delete</button>`;
-                html += `</td>`;
-                html += `</tr>`;
+            viewModels.forEach(txn => {
+                tableHtml += `<tr data-transaction-id="${escapeHtml(txn.id)}">`;
+                tableHtml += `<td><strong>${escapeHtml(txn.date)}</strong><br><small>${escapeHtml(txn.time)}</small></td>`;
+                tableHtml += `<td><span class="badge ${escapeHtml(txn.type)}">${escapeHtml(txn.type)}</span></td>`;
+                tableHtml += `<td><strong>${formatMoney(txn.amount)}</strong></td>`;
+                tableHtml += `<td>${escapeHtml(txn.category)}</td>`;
+                tableHtml += `<td>${escapeHtml(txn.location)}</td>`;
+                tableHtml += `<td>${escapeHtml(txn.wallet)}</td>`;
+                tableHtml += `<td>${txn.paymentMethod === 'online' ? '💳 Online' : '💵 By Hand'}</td>`;
+                tableHtml += `<td>${escapeHtml(txn.vaultName)}</td>`;
+                tableHtml += `<td>${escapeHtml(txn.notes)}</td>`;
+                tableHtml += `<td>${renderTransactionActions(txn)}</td>`;
+                tableHtml += `</tr>`;
             });
 
-            html += '</tbody></table>';
-            container.innerHTML = html;
+            container.innerHTML = tableHtml + '</tbody></table>';
         }
 
         function filterTransactions() {
@@ -3458,9 +4263,9 @@
 
             if (search) {
                 filtered = filtered.filter(t =>
-                    t.category.toLowerCase().includes(search) ||
-                    (t.location && t.location.toLowerCase().includes(search)) ||
-                    (t.notes && t.notes.toLowerCase().includes(search))
+                    String(t.category || '').toLowerCase().includes(search) ||
+                    String(t.location || '').toLowerCase().includes(search) ||
+                    String(t.notes || '').toLowerCase().includes(search)
                 );
             }
 
@@ -3471,7 +4276,7 @@
         function renderVaultsPage() {
             const container = document.getElementById('vaultsList');
 
-            if (vaults.length === 0) {
+            if (getVaults().length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">🏦</div>
@@ -3483,13 +4288,13 @@
             }
 
             let html = '';
-            vaults.forEach(vault => {
+            getVaults().forEach(vault => {
                 html += `
                     <div class="vault-card">
                         <div class="vault-header">
                             <div>
-                                <div class="vault-name">${vault.name}</div>
-                                <div class="vault-desc">${vault.description || ''}</div>
+                                <div class="vault-name">${escapeHtml(vault.name)}</div>
+                                <div class="vault-desc">${escapeHtml(vault.description || '')}</div>
                             </div>
                             <div class="vault-percentage">${vault.percentage}%</div>
                         </div>
@@ -3594,7 +4399,7 @@
         function renderGoalsPage() {
             const container = document.getElementById('goalsList');
 
-            if (goals.length === 0) {
+            if (getGoals().length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-icon">🎯</div>
@@ -3609,14 +4414,14 @@
             }
 
             let html = '';
-            goals.forEach(goal => {
+            getGoals().forEach(goal => {
                 const progress = goal.targetAmount > 0 ? ((goal.currentAmount / goal.targetAmount) * 100).toFixed(1) : 0;
 
                 html += `
                     <div class="goal-card">
                         <div class="goal-header">
                             <div>
-                                <div class="goal-name">${goal.name}</div>
+                                <div class="goal-name">${escapeHtml(goal.name)}</div>
                                 <div class="goal-amount">${formatMoney(goal.currentAmount)} / ${formatMoney(goal.targetAmount)}</div>
                                 ${goal.deadline ? `<div class="goal-amount">Due: ${formatAppDate(goal.deadline)}</div>` : ''}
                             </div>
@@ -3625,7 +4430,7 @@
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
                         </div>
-                        ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${goal.notes}</p>` : ''}
+                        ${goal.notes ? `<p style="margin-top: 10px; color: var(--text-secondary); font-size: 14px;">${escapeHtml(goal.notes)}</p>` : ''}
                         <div class="vault-actions" style="margin-top: 16px;">
                             <button class="btn btn-secondary" onclick="editGoal('${goal._id}')">Edit</button>
                             <button class="btn btn-secondary" onclick="deleteGoal('${goal._id}')">Delete</button>
@@ -3640,6 +4445,7 @@
         // Reports Page
         function renderReportsPage() {
     loadReports();
+    renderHabitReportSnapshot();
 }
 
         function renderMonthlyBreakdown() {
@@ -3696,9 +4502,9 @@
                 }
             } else {
                 title.textContent = 'Add Transaction';
+                setDefaultDateTime();
             }
 
-            setDefaultDateTime();
             populateVaultSelect();
             toggleVaultSelect();
             modal.classList.add('active');
@@ -3713,7 +4519,7 @@
             document.getElementById('vaultId').value = '';
 
             if (id) {
-                const vault = vaults.find(v => v._id === id);
+                const vault = getVaults().find(v => v._id === id);
                 if (vault) {
                     title.textContent = 'Edit Vault';
                     document.getElementById('vaultId').value = vault._id;
@@ -3737,7 +4543,7 @@
             document.getElementById('goalId').value = '';
 
             if (id) {
-                const goal = goals.find(g => g._id === id);
+                const goal = getGoals().find(g => g._id === id);
                 if (goal) {
                     title.textContent = 'Edit Goal';
                     document.getElementById('goalId').value = goal._id;
@@ -3763,7 +4569,7 @@
         function populateVaultSelect() {
             const select = document.getElementById('txnVault');
             select.innerHTML = '<option value="">Select vault...</option>';
-            vaults.forEach(vault => {
+            getVaults().forEach(vault => {
                 select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
             });
         }
@@ -3771,7 +4577,7 @@
         function populateGoalVaultSelect() {
             const select = document.getElementById('goalVault');
             select.innerHTML = '<option value="">Select vault...</option>';
-            vaults.forEach(vault => {
+            getVaults().forEach(vault => {
                 select.innerHTML += `<option value="${vault._id}">${vault.name}</option>`;
             });
         }
@@ -3806,7 +4612,7 @@
             // FIX: Only add vaultId if expense and value exists
             if (type === 'expense' && vaultIdValue) {
                 data.vaultId = vaultIdValue;
-                data.vaultName = vaults.find(v => v._id === vaultIdValue)?.name || '';
+                data.vaultName = getVaults().find(v => v._id === vaultIdValue)?.name || '';
             }
 
             try {
@@ -3865,7 +4671,7 @@
                 targetAmount: parseFloat(document.getElementById('goalTarget').value),
                 currentAmount: parseFloat(document.getElementById('goalCurrent').value) || 0,
                 vaultId: vaultId,
-                vaultName: vaults.find(v => v._id === vaultId)?.name || '',
+                vaultName: getVaults().find(v => v._id === vaultId)?.name || '',
                 deadline: document.getElementById('goalDeadline').value,
                 notes: document.getElementById('goalNotes').value,
                 status: 'active'
@@ -3948,14 +4754,15 @@
         }
 
         function setDefaultDateTime() {
-            const today = new Date().toISOString().split('T')[0];
             const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            const time = `${hours}:${minutes}`;
 
-            document.getElementById('txnDate').value = today;
-            document.getElementById('txnTime').value = time;
+            document.getElementById('txnDate').value = `${year}-${month}-${day}`;
+            document.getElementById('txnTime').value = `${hours}:${minutes}`;
         }
 
         function showToast(message, type = 'success') {
