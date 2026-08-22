@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v5';
+const CACHE_NAME = 'vaultflow-shell-v6';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icons/icon-192.svg', '/icons/icon-512.svg'];
 
@@ -14,11 +14,12 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  // Load the compatibility layer in <head>, before the monolithic application
-  // scripts execute. This is required for helpers such as escapeHtml and for
-  // auth restoration to be available during the initial page render.
-  const injection = '<script src="/js/core/frontend-restoration.js?v=v5"></script>';
+  // Load the fast transaction layer first. It installs a document-level capture
+  // handler before the restoration compatibility layer and the legacy app form
+  // listener, preventing duplicate POSTs while enabling optimistic rendering.
+  const injection = '<script src="/js/core/transaction-fast-path.js?v=v6"></script><script src="/js/core/frontend-restoration.js?v=v6"></script>';
   if (!html.includes('frontend-restoration.js')) html = html.replace('</head>', injection + '</head>');
+  else if (!html.includes('transaction-fast-path.js')) html = html.replace('<script src="/js/core/frontend-restoration.js?v=v5"></script>', injection);
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
