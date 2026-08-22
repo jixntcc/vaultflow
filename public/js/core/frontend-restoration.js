@@ -134,9 +134,57 @@
     window.__vfHabitsPatched = true;
   }
 
+  // The legacy transaction form already has a submit handler, but the current
+  // restoration stack can occasionally leave that listener detached while the
+  // modal remains visible. In that state the browser performs the form's native
+  // submission, reloads the SPA, and the transaction is never POSTed.
+  // Capture the submit before the native default can occur, then delegate to
+  // the canonical application handler. This preserves the existing API payload,
+  // validation, vault logic, refresh handling and rendering instead of creating
+  // a second transaction implementation here.
+  function installTransactionSubmitGuard() {
+    const form = document.getElementById('transactionForm');
+    if (!form || form.dataset.vfSubmitGuard === '1') return;
+    form.dataset.vfSubmitGuard = '1';
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      const handler = window.handleTransactionSubmit;
+      if (typeof handler !== 'function') {
+        console.error('[VaultFlow] Transaction handler is unavailable.');
+        if (typeof window.showToast === 'function') window.showToast('Transaction form is still loading. Please try again.', 'error');
+        return;
+      }
+
+      const submitButton = form.querySelector('button[type="submit"]');
+      if (submitButton && submitButton.dataset.vfSaving === '1') return;
+      if (submitButton) {
+        submitButton.dataset.vfSaving = '1';
+        submitButton.disabled = true;
+        submitButton.dataset.vfOriginalText = submitButton.textContent;
+        submitButton.textContent = 'Saving...';
+      }
+
+      Promise.resolve(handler(event)).catch(error => {
+        console.error('[VaultFlow] Transaction save failed:', error);
+        if (typeof window.showToast === 'function') window.showToast(error?.message || 'Could not save transaction.', 'error');
+      }).finally(() => {
+        if (submitButton) {
+          submitButton.dataset.vfSaving = '0';
+          submitButton.disabled = false;
+          submitButton.textContent = submitButton.dataset.vfOriginalText || 'Save';
+        }
+      });
+    }, true);
+  }
+
   function initialize() {
     patchDashboard();
     patchHabits();
+    installTransactionSubmitGuard();
+
     // The monolithic frontend defines its page functions asynchronously in a
     // few deployments. Retry briefly instead of racing those definitions.
     if (!window.__vfInitTimer) {
@@ -145,6 +193,7 @@
         attempts += 1;
         patchDashboard();
         patchHabits();
+        installTransactionSubmitGuard();
         if (typeof window.renderHabitsPage === 'function' && document.getElementById('habitsList')) {
           try { window.renderHabitsPage(); } catch (_) {}
         }
