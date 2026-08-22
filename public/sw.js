@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v4';
+const CACHE_NAME = 'vaultflow-shell-v5';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icons/icon-192.svg', '/icons/icon-512.svg'];
 
@@ -14,8 +14,11 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  const injection = '<script src="/js/core/frontend-restoration.js?v=v4"></script>';
-  if (!html.includes('frontend-restoration.js')) html = html.replace('</body>', injection + '</body>');
+  // Load the compatibility layer in <head>, before the monolithic application
+  // scripts execute. This is required for helpers such as escapeHtml and for
+  // auth restoration to be available during the initial page render.
+  const injection = '<script src="/js/core/frontend-restoration.js?v=v5"></script>';
+  if (!html.includes('frontend-restoration.js')) html = html.replace('</head>', injection + '</head>');
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
