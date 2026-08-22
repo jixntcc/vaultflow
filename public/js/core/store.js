@@ -13,10 +13,6 @@
         planning: { goals: [] },
         habits: { items: [], logs: [] },
         reports: { data: null, loading: false },
-        intelligence: { data: null, loading: false, lastUpdated: null },
-        automation: { rules: [], loading: false },
-        sync: { queue: [], status: 'idle', lastSyncedAt: null },
-        audit: { events: [] },
         preferences: { currency: 'INR', language: 'en-IN', theme: 'light', dateFormat: 'DD-MM-YYYY' },
         ui: { currentPage: 'dashboard', modal: null, loading: false }
     };
@@ -104,58 +100,9 @@
         }), { type: 'habits:log:remove', ...meta }).habits.logs;
     }
 
-
-    // Phase 4 cross-domain read models. These are derived/coordination state,
-    // not replacements for the underlying domain entities.
-    function setIntelligence(data, meta = {}) {
-        return setState(current => ({
-            ...current,
-            intelligence: { data: data || null, loading: false, lastUpdated: new Date().toISOString() }
-        }), { type: 'intelligence:set', ...meta }).intelligence;
-    }
-    function setIntelligenceLoading(loading) {
-        return setState(current => ({
-            ...current,
-            intelligence: { ...current.intelligence, loading: Boolean(loading) }
-        }), { type: 'intelligence:loading' }).intelligence;
-    }
-    function setAutomationRules(rules, meta = {}) {
-        return setState(current => ({
-            ...current,
-            automation: { ...current.automation, rules: Array.isArray(rules) ? rules : [], loading: false }
-        }), { type: 'automation:rules:set', ...meta }).automation.rules;
-    }
-    function setSyncQueue(queue, status = 'idle') {
-        return setState(current => ({
-            ...current,
-            sync: { ...current.sync, queue: Array.isArray(queue) ? queue : [], status }
-        }), { type: 'sync:queue:set' }).sync;
-    }
-    function addSyncMutation(mutation) {
-        if (!mutation || !mutation.key) throw new TypeError('Sync mutation requires a key');
-        return setState(current => ({
-            ...current,
-            sync: { ...current.sync, queue: [...current.sync.queue, mutation], status: 'pending' }
-        }), { type: 'sync:mutation:add' }).sync.queue;
-    }
-    function removeSyncMutation(key) {
-        return setState(current => ({
-            ...current,
-            sync: { ...current.sync, queue: current.sync.queue.filter(item => item.key !== key) }
-        }), { type: 'sync:mutation:remove' }).sync.queue;
-    }
-    function setAuditEvents(events) {
-        return setState(current => ({
-            ...current,
-            audit: { events: Array.isArray(events) ? events : [] }
-        }), { type: 'audit:set' }).audit.events;
-    }
-
     window.VaultFlowStore = Object.freeze({
         getState, setState, subscribe, reset,
         getHabits, setHabits, getHabitLogs, setHabitLogs,
-        addHabit, addOrUpdateHabitLog, removeHabitLog,
-        setIntelligence, setIntelligenceLoading, setAutomationRules,
-        setSyncQueue, addSyncMutation, removeSyncMutation, setAuditEvents
+        addHabit, addOrUpdateHabitLog, removeHabitLog
     });
 })();
