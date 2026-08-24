@@ -1,19 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-<title>VaultFlow - Personal Finance Manager</title>
-<meta content="#6366f1" name="theme-color"/>
-<meta content="yes" name="apple-mobile-web-app-capable"/>
-<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
-<meta content="VaultFlow" name="apple-mobile-web-app-title"/>
-<link href="/manifest.json" rel="manifest"/>
-<link href="/icons/icon-192.svg" rel="icon" type="image/svg+xml"/>
-<link href="/icons/icon-192.svg" rel="apple-touch-icon"/>
-<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>VaultFlow - Personal Finance Manager</title>
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="VaultFlow">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <style>
         /* Your original theme colors and design */
         * {
             margin: 0;
@@ -1781,771 +1780,735 @@
         }
 
 </style>
-<style>
-/* Phase 10B restored habit styles */
-/* Phase 10A — Habit Tracking */
-.habit-page-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
-.habit-summary-card{padding:20px;margin-bottom:18px}
-.habit-summary-main{display:flex;justify-content:space-between;align-items:center;gap:16px}
-.habit-progress{display:flex;align-items:center;gap:14px}
-.habit-progress-ring{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--primary) 0deg,#e5e7eb 0deg)}
-.habit-progress-ring::after{content:'';width:44px;height:44px;background:var(--card-bg,#fff);border-radius:50%;grid-area:1/1}
-.habit-progress-value{grid-area:1/1;z-index:1;font-size:12px;font-weight:700}
-.habit-toolbar{display:flex;gap:8px;align-items:center;margin:16px 0;flex-wrap:wrap}
-.habit-filter{border:1px solid var(--border,#e5e7eb);background:var(--card-bg,#fff);border-radius:999px;padding:8px 13px;cursor:pointer}
-.habit-filter.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-.habits-list{display:grid;gap:12px}
-.habit-card{padding:18px;border:1px solid var(--border,#e5e7eb);border-radius:14px;background:var(--card-bg,#fff)}
-.habit-card-top{display:flex;align-items:flex-start;gap:12px}
-.habit-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(99,102,241,.1);font-size:21px}
-.habit-card-title{font-size:16px;font-weight:700}
-.habit-card-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.habit-chip{font-size:11px;padding:4px 8px;border-radius:999px;background:#f3f4f6}
-.habit-status{margin-left:auto;font-size:12px;font-weight:700;text-transform:capitalize}
-.habit-status.completed{color:#15803d}.habit-status.pending{color:#a16207}.habit-status.skipped{color:#64748b}.habit-status.missed{color:#dc2626}
-.habit-card-description{margin:12px 0;color:var(--text-secondary,#64748b);font-size:13px}
-.habit-card-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
-.habit-actions{display:flex;gap:7px;flex-wrap:wrap}
-.habit-action{border:1px solid var(--border,#e5e7eb);background:transparent;border-radius:8px;padding:7px 10px;cursor:pointer}
-.habit-action.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
-.habit-action.danger{color:#dc2626}
-.habit-empty{padding:34px;text-align:center;border:1px dashed var(--border,#d1d5db);border-radius:14px;color:var(--text-secondary,#64748b)}
-.habit-date-nav{display:flex;align-items:center;gap:8px}
-.habit-date-nav button{border:0;background:transparent;cursor:pointer;font-size:18px;padding:4px 8px}
-.habit-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.habit-form-wide{grid-column:1/-1}
-.habit-weekdays{display:flex;gap:7px;flex-wrap:wrap}
-.habit-weekdays label{border:1px solid var(--border,#e5e7eb);padding:7px 9px;border-radius:8px;font-size:12px}
-.habit-history-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.habit-history-stat{padding:14px;border-radius:12px;background:#f8fafc;text-align:center}
-.habit-history-stat strong{display:block;font-size:20px}.habit-history-stat span{font-size:11px;color:#64748b}
-.habit-history-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.habit-history-day{padding:8px 3px;border-radius:8px;text-align:center;background:#f1f5f9;font-size:11px}
-.habit-history-day.completed{background:#dcfce7;color:#166534}
-.habit-history-day.skipped{background:#e2e8f0;color:#475569}
-.habit-history-day.missed{background:#fee2e2;color:#991b1b}
-@media(max-width:700px){
- .habit-page-header{flex-direction:column}.habit-modal-grid{grid-template-columns:1fr}.habit-history-stats{grid-template-columns:1fr 1fr}
- .habit-card-bottom{align-items:flex-start}.habit-actions{width:100%}.habit-action{flex:1}
-}
-
-</style><style>
-/* Phase 10B scroll restoration: pages must remain vertically scrollable. */
-html, body { min-height: 100%; height: auto; overflow-x: hidden; overflow-y: auto; }
-body { overscroll-behavior-y: auto; }
-.app-container { min-height: 100vh; height: auto; overflow: visible; }
-.main-content { min-height: 100vh; height: auto; overflow: visible; }
-@media (max-width: 768px) { body.mobile-nav-open { overflow: hidden; } .main-content { min-height: 100dvh; overflow: visible; } }
-</style></head>
+</head>
 <body>
-<!-- Auth Container -->
-<div class="auth-container" id="authContainer">
-<div class="auth-box">
-<div class="auth-logo">💰 VaultFlow</div>
-<div class="auth-subtitle">Your Personal Finance Vault Manager</div>
-<div class="auth-tabs">
-<div class="auth-tab active" data-tab="login">Login</div>
-<div class="auth-tab" data-tab="signup">Sign Up</div>
-</div>
-<!-- Login Form -->
-<form class="auth-form active" id="loginForm">
-<div class="form-group">
-<label class="form-label">Username or Email</label>
-<input class="form-input" id="loginUsername" required="" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Password</label>
-<input class="form-input" id="loginPassword" required="" type="password"/>
-</div>
-<button class="btn btn-primary" style="width: 100%;" type="submit">Login</button>
-<button class="btn btn-secondary" id="forgotPasswordLink" style="width:100%; margin-top:10px;" type="button">Forgot Password?</button>
-<button class="btn demo-btn" id="demoBtn" type="button">Try Demo Mode</button>
-</form>
-<!-- Signup Form -->
-<form class="auth-form" id="signupForm">
-<div class="form-group">
-<label class="form-label">Username</label>
-<input class="form-input" id="signupUsername" required="" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Email</label>
-<input class="form-input" id="signupEmail" required="" type="email"/>
-</div>
-<div class="form-group">
-<label class="form-label">Password (min 6 characters)</label>
-<input class="form-input" id="signupPassword" minlength="6" required="" type="password"/>
-</div>
-<button class="btn btn-primary" style="width: 100%;" type="submit">Sign Up</button>
-</form>
-</div>
-</div>
-<!-- Main App Container -->
-<div class="app-container hidden" id="appContainer">
-<!-- Mobile Menu Button -->
-<button aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation menu" class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-<div aria-hidden="true" class="mobile-overlay" id="mobileOverlay"></div>
-<!-- Sidebar -->
-<aside aria-hidden="true" class="sidebar" id="sidebar">
-<div class="logo">💰 VaultFlow</div>
-<nav>
-<div class="nav-item active" data-page="dashboard">
-<span>📊</span>
-<span>Dashboard</span>
-</div>
-<div class="nav-item" data-page="transactions">
-<span>💳</span>
-<span>Transactions</span>
-</div>
-<div class="nav-item" data-page="vaults">
-<span>🏦</span>
-<span>Vaults</span>
-</div>
-<div class="nav-item" data-page="wallets">
-<span>👛</span>
-<span>Wallets</span>
-</div>
-<div class="nav-item" data-page="goals">
-<span>🎯</span>
-<span>Future Goals</span>
-</div>
-<div class="nav-item" data-page="habits"><span>✓</span><span>Habits</span></div><div class="nav-item" data-page="insights"><span>🧠</span><span>Insights</span></div><div class="nav-item" data-page="reports">
-<span>📈</span>
-<span>Reports</span>
-</div>
-<div class="nav-item" data-page="settings">
-<span>⚙</span>
-<span>Settings</span>
-</div>
-</nav>
-<div class="user-info">
-<div class="user-name" id="userName">User</div>
-<button class="logout-btn" id="logoutBtn">Logout</button>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="main-content" id="mainContent">
-<!-- Dashboard Page -->
-<div class="page active" id="dashboard">
-<div class="page-header">
-<h1 class="page-title">Dashboard</h1>
-<p class="page-subtitle">Welcome back! Here's your financial overview.</p>
-</div>
-<div class="cards-grid">
-<div class="card">
-<div class="card-label">HR Wallet Balance</div>
-<div class="card-value" id="hrWalletBalance">0</div>
-<div class="card-change">Wallet 1</div>
-</div>
-<div class="card">
-<div class="card-label">HL Wallet Balance</div>
-<div class="card-value" id="hlWalletBalance">0</div>
-<div class="card-change">Wallet 2</div>
-</div>
-<div class="card">
-<div class="card-label">Total Income</div>
-<div class="card-value" id="totalIncome">0</div>
-<div class="card-change positive">This month</div>
-</div>
-<div class="card">
-<div class="card-label">Total Expenses</div>
-<div class="card-value" id="totalExpenses">0</div>
-<div class="card-change negative">This month</div>
-</div>
-<div class="card">
-<div class="card-label">Net Savings</div>
-<div class="card-value" id="netSavings">0</div>
-<div class="card-change positive" id="savingsRate">0% rate</div>
-</div>
-<div class="card">
-<div class="card-label">Total Transactions</div>
-<div class="card-value" id="totalTransactions">0</div>
-<div class="card-change">All time</div>
-</div>
-</div>
-<div class="retention-grid" id="dashboardRetentionGrid"></div>
-<div class="card" id="dashboardMonthlyReviewsCard" style="margin-bottom: 24px; display:none;">
-<div class="table-header" style="padding: 0 0 12px 0; border-bottom: none;">
-<h3 class="table-title">Monthly Review</h3>
-</div>
-<div class="monthly-review-strip" id="dashboardMonthlyReviews"></div>
-</div>
-<div class="card habit-dashboard-widget"><div class="card-header"><div><h3 class="table-title">Today's Habits</h3><p class="card-subtitle" id="dashboardHabitSummary">Loading habit progress…</p></div><button class="btn btn-secondary" onclick="switchPage('habits')" type="button">View Habits</button></div><div class="habit-dashboard-items" id="dashboardHabitItems"></div></div><div id="recentTransactionsTable"></div><div class="table-container">
-<div class="table-header">
-<h3 class="table-title">Recent Transactions</h3>
-<button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-logo">💰 VaultFlow</div>
+            <div class="auth-subtitle">Your Personal Finance Vault Manager</div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="signup">Sign Up</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" class="form-input" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                <button type="button" class="btn btn-secondary" id="forgotPasswordLink" style="width:100%; margin-top:10px;">Forgot Password?</button>
+                <button type="button" class="btn demo-btn" id="demoBtn">Try Demo Mode</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password (min 6 characters)</label>
+                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">☰</button>
+        <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar" aria-hidden="true">
+            <div class="logo">💰 VaultFlow</div>
+
+            <nav>
+                <div class="nav-item active" data-page="dashboard">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="transactions">
+                    <span>💳</span>
+                    <span>Transactions</span>
+                </div>
+                <div class="nav-item" data-page="vaults">
+                    <span>🏦</span>
+                    <span>Vaults</span>
+                </div>
+                <div class="nav-item" data-page="wallets">
+                    <span>👛</span>
+                    <span>Wallets</span>
+                </div>
+                <div class="nav-item" data-page="goals">
+                    <span>🎯</span>
+                    <span>Future Goals</span>
+                </div>
+                <div class="nav-item" data-page="reports">
+                    <span>📈</span>
+                    <span>Reports</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span>⚙</span>
+                    <span>Settings</span>
+                </div>
+            </nav>
+
+            <div class="user-info">
+                <div class="user-name" id="userName">User</div>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Dashboard Page -->
+            <div id="dashboard" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back! Here's your financial overview.</p>
+                </div>
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-label">HR Wallet Balance</div>
+                        <div class="card-value" id="hrWalletBalance">0</div>
+                        <div class="card-change">Wallet 1</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">HL Wallet Balance</div>
+                        <div class="card-value" id="hlWalletBalance">0</div>
+                        <div class="card-change">Wallet 2</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Income</div>
+                        <div class="card-value" id="totalIncome">0</div>
+                        <div class="card-change positive">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Expenses</div>
+                        <div class="card-value" id="totalExpenses">0</div>
+                        <div class="card-change negative">This month</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Net Savings</div>
+                        <div class="card-value" id="netSavings">0</div>
+                        <div class="card-change positive" id="savingsRate">0% rate</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-label">Total Transactions</div>
+                        <div class="card-value" id="totalTransactions">0</div>
+                        <div class="card-change">All time</div>
+                    </div>
+                </div>
+
+                <div class="retention-grid" id="dashboardRetentionGrid"></div>
+
+                <div class="card" id="dashboardMonthlyReviewsCard" style="margin-bottom: 24px; display:none;">
+                    <div class="table-header" style="padding: 0 0 12px 0; border-bottom: none;">
+                        <h3 class="table-title">Monthly Review</h3>
+                    </div>
+                    <div class="monthly-review-strip" id="dashboardMonthlyReviews"></div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">Recent Transactions</h3>
+                        <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                    </div>
+                    <div id="recentTransactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Transactions Page -->
+            <div id="transactions" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Transactions</h1>
+                    <p class="page-subtitle">View and manage all your income and expenses</p>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">All Transactions</h3>
+                        <div class="table-actions">
+                            <input type="text" class="search-box" id="searchTransactions" placeholder="Search transactions...">
+                            <select class="filter-select" id="filterType">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
+                        </div>
+                    </div>
+                    <div id="transactionsTable"></div>
+                </div>
+            </div>
+
+            <!-- Vaults Page -->
+            <div id="vaults" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Vault Management</h1>
+                    <p class="page-subtitle">Manage your budget vaults and allocation percentages</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showVaultModal()" style="margin-bottom: 20px;">+ Add Vault</button>
+
+                <div id="vaultsList"></div>
+            </div>
+
+            <!-- Wallets Page (NEW) -->
+            <div id="wallets" class="page">
+    <div class="page-header">
+        <h1 class="page-title">Wallet Balances</h1>
+        <p class="page-subtitle">Track your wallet balances by payment method</p>
+    </div>
+
+    <!-- HR Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🔴</span>
+            <h3 style="margin: 0; font-size: 20px;">HR Wallet</h3>
+        </div>
+        <div class="wallet-balance-grid">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HL Wallet Card -->
+    <div class="card" style="margin-bottom: 24px; padding: 24px;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="font-size: 28px; margin-right: 12px;">🟠</span>
+            <h3 style="margin: 0; font-size: 20px;">HL Wallet</h3>
+        </div>
+        <div class="wallet-balance-grid">
+            <div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
+                <div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
+                <div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
+            </div>
+            <div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
+                <div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="cards-grid" style="margin-top: 32px;">
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💳 Total Online Balance</div>
+            <div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💵 Total By-Hand Balance</div>
+            <div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">0</div>
+        </div>
+        <div class="card" style="padding: 24px; text-align: center;">
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">📊 Grand Total</div>
+            <div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">0</div>
+        </div>
+    </div>
 </div>
 
-</div>
-</div>
-<!-- Transactions Page -->
-<div class="page" id="transactions">
-<div class="page-header">
-<h1 class="page-title">Transactions</h1>
-<p class="page-subtitle">View and manage all your income and expenses</p>
-</div>
-<div class="table-container">
-<div class="table-header">
-<h3 class="table-title">All Transactions</h3>
-<div class="table-actions">
-<input class="search-box" id="searchTransactions" placeholder="Search transactions..." type="text"/>
-<select class="filter-select" id="filterType">
-<option value="all">All Types</option>
-<option value="income">Income</option>
-<option value="expense">Expense</option>
-</select>
-<button class="btn btn-primary" onclick="showTransactionModal()">+ Add Transaction</button>
-</div>
-</div>
-<div id="transactionsTable"></div>
-</div>
-</div>
-<!-- Vaults Page -->
-<div class="page" id="vaults">
-<div class="page-header">
-<h1 class="page-title">Vault Management</h1>
-<p class="page-subtitle">Manage your budget vaults and allocation percentages</p>
-</div>
-<button class="btn btn-primary" onclick="showVaultModal()" style="margin-bottom: 20px;">+ Add Vault</button>
-<div id="vaultsList"></div>
-</div>
-<!-- Wallets Page (NEW) -->
-<div class="page" id="wallets">
-<div class="page-header">
-<h1 class="page-title">Wallet Balances</h1>
-<p class="page-subtitle">Track your wallet balances by payment method</p>
-</div>
-<!-- HR Wallet Card -->
-<div class="card" style="margin-bottom: 24px; padding: 24px;">
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-<span style="font-size: 28px; margin-right: 12px;">🔴</span>
-<h3 style="margin: 0; font-size: 20px;">HR Wallet</h3>
-</div>
-<div class="wallet-balance-grid">
-<div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
-<div id="hrOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
-</div>
-<div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
-<div id="hrByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
-</div>
-<div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
-<div id="hrTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
-</div>
-</div>
-</div>
-<!-- HL Wallet Card -->
-<div class="card" style="margin-bottom: 24px; padding: 24px;">
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-<span style="font-size: 28px; margin-right: 12px;">🟠</span>
-<h3 style="margin: 0; font-size: 20px;">HL Wallet</h3>
-</div>
-<div class="wallet-balance-grid">
-<div style="text-align: center; padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💳 Online Balance</div>
-<div id="hlOnlineBalance" style="font-size: 18px; font-weight: 700;">0</div>
-</div>
-<div style="text-align: center; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">💵 By Hand Balance</div>
-<div id="hlByHandBalance" style="font-size: 18px; font-weight: 700;">0</div>
-</div>
-<div style="text-align: center; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">📊 Total Balance</div>
-<div id="hlTotalBalance" style="font-size: 18px; font-weight: 700; color: var(--primary);">0</div>
-</div>
-</div>
-</div>
-<!-- SUMMARY CARDS -->
-<div class="cards-grid" style="margin-top: 32px;">
-<div class="card" style="padding: 24px; text-align: center;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💳 Total Online Balance</div>
-<div id="totalOnlineBalance" style="font-size: 28px; font-weight: 700; color: var(--secondary);">0</div>
-</div>
-<div class="card" style="padding: 24px; text-align: center;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">💵 Total By-Hand Balance</div>
-<div id="totalByHandBalance" style="font-size: 28px; font-weight: 700; color: var(--warning);">0</div>
-</div>
-<div class="card" style="padding: 24px; text-align: center;">
-<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;">📊 Grand Total</div>
-<div id="grandTotalBalance" style="font-size: 28px; font-weight: 700; color: var(--primary);">0</div>
-</div>
-</div>
-</div>
-<!-- Goals Page -->
-<div class="page" id="goals">
-<div class="page-header">
-<h1 class="page-title">Future Goals</h1>
-<p class="page-subtitle">Track your financial goals and progress</p>
-</div>
-<button class="btn btn-primary" onclick="showGoalModal()" style="margin-bottom: 20px;">+ Add Goal</button>
-<div id="goalsList"></div>
-</div>
-<!-- Settings Page -->
-<div class="page" id="habits">
-<div class="page-header habit-page-header"><div><h1 class="page-title">Habits</h1><p class="page-subtitle">Build consistency with small actions that repeat.</p></div><button class="btn btn-primary" onclick="openHabitModal()" type="button">＋ Add Habit</button></div>
-<section class="habit-summary-card card"><div class="habit-summary-main"><div><div class="card-label">Today</div><h2>Today's habits</h2><p class="habit-muted" id="habitTodaySubtitle"></p></div><div class="habit-progress-ring" id="habitProgressRing"><span id="habitProgressValue">0%</span></div></div><div class="habit-progress-track"><span id="habitProgressBar"></span></div></section>
-<div class="habit-toolbar"><div class="habit-filter-group"><button class="habit-filter active" data-habit-filter="today">Today</button><button class="habit-filter" data-habit-filter="all">All Active</button><button class="habit-filter" data-habit-filter="archived">Archived</button></div><div class="habit-date-control"><button class="icon-btn" id="habitPrevDay">‹</button><button class="habit-date-button" id="habitDateButton"></button><button class="icon-btn" id="habitNextDay">›</button></div></div>
-<section class="habit-analytics-card card">
-<div class="habit-analytics-header">
-<div><h2>Habit Analytics</h2><p class="habit-muted" id="habitAnalyticsSubtitle">Last 30 days across active habits.</p></div>
-<select aria-label="Analytics range" class="habit-date-button" id="habitAnalyticsRange">
-<option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option>
-</select>
-</div>
-<div class="habit-analytics-kpis">
-<div><strong id="habitAnalyticsRate">0%</strong><span>Completion</span></div>
-<div><strong id="habitAnalyticsScore">0</strong><span>Consistency score</span></div>
-<div><strong id="habitAnalyticsCompleted">0</strong><span>Completed</span></div>
-<div><strong id="habitAnalyticsBest">0</strong><span>Best streak</span></div>
-</div>
-<div class="habit-analytics-section"><div class="habit-analytics-section-title">Daily consistency</div><div class="habit-analytics-bars" id="habitAnalyticsDaily"></div></div>
-<div class="habit-analytics-section"><div class="habit-analytics-section-title">Best performing habits</div><div class="habit-analytics-habits" id="habitAnalyticsHabits"></div></div>
-</section>
-<section class="habits-list" id="habitsList"></section>
-</div><div class="page" id="settings">
-<div class="page-header">
-<h1 class="page-title">Settings</h1>
-<p class="page-subtitle">Manage global profile, preferences, notifications, security, and app information.</p>
-</div>
-<div class="settings-grid">
-<section class="card settings-section">
-<h3>👤 Profile</h3>
-<p class="settings-help">Account information for your VaultFlow workspace.</p>
-<div class="settings-row"><span class="settings-label">Username</span><span class="settings-value" id="settingsUsername">User</span></div>
-<div class="settings-row"><span class="settings-label">Email</span><a class="settings-value" href="#" id="settingsEmail">Not available</a></div>
-<div class="settings-row"><span class="settings-label">Member Since</span><span class="settings-value" id="settingsMemberSince">Not available</span></div>
-<div class="settings-row"><span class="settings-label">Last Backup</span><span class="settings-value" id="settingsLastBackup">Never</span></div>
-<button class="btn btn-secondary" onclick="openChangePasswordFlow()" type="button">Change Password</button>
-</section>
-<section class="card settings-section">
-<h3>🎛 Preferences</h3>
-<p class="settings-help">Global display preferences used by Dashboard, Reports, Transactions, Wallets, Goals, Exports, and Smart Insights.</p>
-<div class="settings-row">
-<label class="settings-label" for="settingsCurrency">Currency</label>
-<select class="filter-select" id="settingsCurrency">
-<option value="INR">INR ₹</option>
-<option value="USD">USD $</option>
-<option value="EUR">EUR €</option>
-<option value="GBP">GBP £</option>
-<option value="AED">AED د.إ</option>
-<option value="SAR">SAR ﷼</option>
-<option value="SGD">SGD S$</option>
-<option value="MYR">MYR RM</option>
-</select>
-</div>
-<div class="settings-row">
-<label class="settings-label" for="settingsLanguage">Language</label>
-<select class="filter-select" id="settingsLanguage">
-<option value="en-IN">English (India)</option>
-<option value="en-US">English (US)</option>
-</select>
-</div>
-<div class="settings-row">
-<label class="settings-label" for="settingsTheme">Theme</label>
-<select class="filter-select" id="settingsTheme">
-<option value="light">Light</option>
-<option value="dark">Dark</option>
-<option value="system">System</option>
-</select>
-</div>
-<div class="settings-row">
-<label class="settings-label" for="settingsDateFormat">Date Format</label>
-<select class="filter-select" id="settingsDateFormat">
-<option value="DD-MM-YYYY">DD-MM-YYYY</option>
-<option value="MM-DD-YYYY">MM-DD-YYYY</option>
-<option value="YYYY-MM-DD">YYYY-MM-DD</option>
-</select>
-</div>
-</section>
-<section class="card settings-section">
-<h3>🧭 Retention Preferences</h3>
-<p class="settings-help">Control habit-building widgets without changing your financial data.</p>
-<div class="settings-row"><span class="settings-label">Show streaks</span><input class="notif-switch" id="retentionShowStreaks" type="checkbox"/></div>
-<div class="settings-row"><span class="settings-label">Show monthly reviews</span><input class="notif-switch" id="retentionShowReviews" type="checkbox"/></div>
-<div class="settings-row"><span class="settings-label">Show motivational insights</span><input class="notif-switch" id="retentionShowInsights" type="checkbox"/></div>
-</section>
-<section class="card settings-section">
-<h3>🔔 Notifications</h3>
-<p class="settings-help">Helpful nudges only. No spam.</p>
-<button class="btn btn-secondary" id="notifEnableBtn" type="button">Enable Notifications</button>
-<div class="settings-row"><span class="settings-label">Daily tracking reminders</span><input class="notif-switch" id="notifDaily" type="checkbox"/></div>
-<div class="settings-row"><span class="settings-label">Weekly summary</span><input class="notif-switch" id="notifWeekly" type="checkbox"/></div>
-<div class="settings-row"><span class="settings-label">Savings insights</span><input class="notif-switch" id="notifSavings" type="checkbox"/></div>
-</section>
-<section class="card settings-section">
-<h3>🔐 Security</h3>
-<p class="settings-help">Account protection controls.</p>
-<button class="btn btn-secondary" onclick="openChangePasswordFlow()" type="button">Change Password</button>
-<button class="btn btn-secondary" onclick="showPlaceholder('Logout All Devices')" type="button">Logout All Devices</button>
-<p class="placeholder-note">Logout all devices is prepared for backend support.</p>
-</section>
-<section class="card settings-section">
-<h3>📦 Data &amp; Backup</h3>
-<p class="settings-help">Your financial data belongs to you. Export, restore, and keep a safety copy before changes.</p>
-<div class="backup-actions">
-<button class="btn btn-secondary" id="exportCsvBtn" onclick="exportTransactionsCsv(this)" type="button">Export CSV</button>
-<button class="btn btn-secondary" id="exportPdfBtn" onclick="exportPdfReport(this)" type="button">Export PDF Report</button>
-<button class="btn btn-primary" id="exportBackupBtn" onclick="exportBackupJson(this)" type="button">Export Backup</button>
-<button class="btn btn-secondary" id="restoreBackupBtn" onclick="openRestoreBackupPicker(this)" type="button">Restore Backup</button>
-</div>
-<input accept="application/json,.json" class="hidden" id="restoreBackupInput" type="file"/>
-<div class="trust-status" id="backupStatusText">Last backup: Never</div>
-</section>
-<section class="card settings-section">
-<h3>ℹ About</h3>
-<p class="settings-help">VaultFlow app and policy information.</p>
-<div class="settings-row"><span class="settings-label">App Version</span><span class="settings-value">1.0.0</span></div>
-<div class="settings-row"><span class="settings-label">PWA Status</span><span class="settings-value" id="pwaStatus">Checking...</span></div>
-<div class="settings-row"><span class="settings-label">Privacy Policy</span><a class="settings-value" href="#" onclick="showPlaceholder('Privacy Policy'); return false;">View</a></div>
-<div class="settings-row"><span class="settings-label">Terms</span><a class="settings-value" href="#" onclick="showPlaceholder('Terms'); return false;">View</a></div>
-</section>
-</div>
-</div>
-<!-- Reports Page -->
-<div class="page" id="insights">
-<div class="page-header">
-<h1 class="page-title">Insights</h1>
-<p class="page-subtitle">A cross-domain view of your money, habits, goals, and financial health.</p>
-</div>
-<div class="card" id="insightsStatus" style="margin-bottom:16px;">Loading intelligence…</div>
-<div class="cards-grid" id="insightsKpis"></div>
-<div class="reports-grid" style="margin-top:16px;">
-<div class="card"><h3 class="section-title">Key Insights</h3><div id="insightsList"></div></div>
-<div class="card"><h3 class="section-title">Habit &amp; Finance Signal</h3><div id="insightsHabitFinance"></div></div>
-</div>
-<div class="card" style="margin-top:16px;"><h3 class="section-title">Goal Outlook</h3><div id="insightsGoals"></div></div>
-</div><div class="card habit-report-card" id="habitReportSnapshot"><div class="card-header"><div><h3 class="section-title" style="margin:0">✓ Habit Snapshot</h3><p class="card-subtitle" id="habitReportSubtitle">Consistency across your active habits.</p></div><button class="btn btn-secondary" onclick="switchPage('habits')" type="button">Open Habits</button></div><div class="habit-report-grid"><div><strong id="habitReportActive">0</strong><span>Active</span></div><div><strong id="habitReportToday">0%</strong><span>Today</span></div><div><strong id="habitReportRate">0%</strong><span>Recent rate</span></div><div><strong id="habitReportStreak">0</strong><span>Best streak</span></div></div></div><div class="page" id="reports">
-<div class="page-header">
-<h1 class="page-title">Financial Reports</h1>
-<p class="page-subtitle">Monthly and annual financial summaries</p>
-</div>
-<div class="card reports-filters collapsed" id="reportFiltersCard">
-<button class="report-filter-toggle" onclick="toggleReportFilters()" type="button">
-<span>Filters</span>
-<span id="reportFilterToggleIcon">▾</span>
-</button>
-<div class="report-filter-groups">
-<div class="report-filter-row single">
-<select class="filter-select" id="reportPreset">
-<option value="all">All time</option>
-<option value="week">This week</option>
-<option selected="" value="month">This month</option>
-<option value="year">This year</option>
-<option value="custom">Custom range</option>
-</select>
-</div>
-<div class="report-filter-row">
-<input class="search-box" id="reportFromDate" type="date"/>
-<input class="search-box" id="reportToDate" type="date"/>
-</div>
-<div class="report-filter-row single">
-<button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
-</div>
-</div>
-</div>
-<!-- Summary Cards -->
-<div class="cards-grid reports-summary-grid">
-<div class="card">
-<div class="card-label" id="monthIncomeLabel">This Month Income</div>
-<div class="card-value" id="monthIncomeDisplay">0</div>
-</div>
-<div class="card">
-<div class="card-label" id="monthExpenseLabel">This Month Expenses</div>
-<div class="card-value" id="monthExpensesDisplay">0</div>
-</div>
-<div class="card">
-<div class="card-label" id="monthSavingsLabel">This Month Savings</div>
-<div class="card-value" id="monthSavingsDisplay">0</div>
-</div>
-<div class="card">
-<div class="card-label" id="annualLabel">Annual Total</div>
-<div class="card-value" id="annualDisplay">0</div>
-</div>
-</div>
-<div class="card" style="padding:14px; margin-bottom: 16px;">
-<h3 class="section-title">✨ Smart Insights</h3>
-<div class="insights-grid" id="smartInsights"></div>
-</div>
-<div class="reports-grid">
-<div class="card report-chart-card chart-primary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
-<div id="incomeExpensesProgress"></div>
-</div>
-<div class="card report-chart-card chart-primary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📅 Monthly Trends</h3>
-<div class="chart-canvas-wrap"><canvas id="trendsChart"></canvas></div>
-</div>
-</div>
-<div class="reports-grid">
-<div class="card report-chart-card chart-secondary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
-<div class="chart-canvas-wrap"><canvas id="categoryChart"></canvas></div>
-</div>
-<div class="card report-chart-card chart-secondary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
-<div class="chart-canvas-wrap"><canvas id="vaultChart"></canvas></div>
-</div>
-</div>
-<div class="reports-grid">
-<div class="card report-chart-card chart-secondary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
-<div class="chart-canvas-wrap"><canvas id="savingsPortfolioChart"></canvas></div>
-</div>
-<div class="card report-chart-card chart-secondary">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
-<div class="chart-canvas-wrap"><canvas id="incomeCategoryChart"></canvas></div>
-</div>
-</div>
-<div class="card report-chart-card chart-secondary" style="margin-bottom: 24px;">
-<h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
-<div class="sankey-scroll"><div id="incomeFlowChart"></div></div>
-</div>
-<!-- Monthly Breakdown Table -->
-<div class="table-container">
-<div class="table-header">
-<h3 class="table-title">Monthly Breakdown</h3>
-</div>
-<div class="monthly-breakdown-scroll"><div id="monthlyBreakdown"></div></div>
-</div>
-</div>
-</main>
-<!-- FAB Button -->
-<button class="fab" onclick="showTransactionModal()">+</button>
-</div>
-<div class="offline-banner" id="offlineBanner">You’re offline. VaultFlow shell is available, but live data updates are paused.</div>
-<div class="pwa-install-banner" id="pwaInstallBanner">
-<div class="pwa-banner-row">
-<div>
-<div class="pwa-banner-title">Install VaultFlow</div>
-<div class="pwa-banner-text">Use VaultFlow like a native finance app.</div>
-</div>
-<div style="display:flex; gap:8px;">
-<button class="btn btn-secondary" id="dismissInstallBtn" style="padding:8px 10px;">Later</button>
-<button class="btn btn-primary" id="installAppBtn" style="padding:8px 10px;">Install</button>
-</div>
-</div>
-</div>
-<div class="onboarding-overlay" id="onboardingOverlay">
-<div class="onboarding-card">
-<div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
-<div id="onboardingContent"></div>
-</div>
-</div>
-<!-- Restore Backup Confirmation Modal -->
-<div class="modal" id="habitHistoryModal"><div class="modal-content habit-history-modal"><div class="modal-header"><div><h2 id="habitHistoryTitle">History</h2><p class="modal-subtitle" id="habitHistorySubtitle"></p></div><button class="modal-close" onclick="closeModal('habitHistoryModal')" type="button">×</button></div><div class="habit-history-content" id="habitHistoryContent"></div></div></div><div class="modal" id="habitModal"><div class="modal-content habit-modal-content"><div class="modal-header"><div><h2 id="habitModalTitle">Create Habit</h2><p class="modal-subtitle">Create a simple repeatable rule.</p></div><button class="modal-close" onclick="closeModal('habitModal')" type="button">×</button></div><form id="habitForm"><input id="habitId" type="hidden"/><div class="habit-form-grid">
-<div class="form-group habit-form-wide"><label class="form-label">Habit name</label><input class="form-input" id="habitName" maxlength="120" placeholder="e.g. Read 20 minutes" required=""/></div>
-<div class="form-group habit-form-wide"><label class="form-label">Description</label><textarea class="form-input" id="habitDescription" maxlength="1000"></textarea></div>
-<div class="form-group"><label class="form-label">Category</label><select class="form-input" id="habitCategory"><option value="">No category</option><option>Health</option><option>Fitness</option><option>Learning</option><option>Work</option><option>Finance</option><option>Personal</option></select></div>
-<div class="form-group"><label class="form-label">Icon</label><select class="form-input" id="habitIcon"><option>✓</option><option>📚</option><option>💪</option><option>💧</option><option>🧘</option><option>🎯</option><option>💼</option><option>💰</option></select></div>
-<div class="form-group habit-form-wide"><label class="form-label">Frequency</label><label class="habit-radio"><input checked="" name="habitFrequency" type="radio" value="daily"/> Every day</label> <label class="habit-radio"><input name="habitFrequency" type="radio" value="weekly"/> Selected days</label></div>
-<div class="form-group habit-form-wide" hidden="" id="habitWeekdayGroup"><label class="form-label">Days</label><div class="habit-weekdays" id="habitWeekdays"><label><input type="checkbox" value="1"/>Mon</label><label><input type="checkbox" value="2"/>Tue</label><label><input type="checkbox" value="3"/>Wed</label><label><input type="checkbox" value="4"/>Thu</label><label><input type="checkbox" value="5"/>Fri</label><label><input type="checkbox" value="6"/>Sat</label><label><input type="checkbox" value="0"/>Sun</label></div></div>
-<div class="form-group" hidden="" id="habitTargetGroup"><label class="form-label">Weekly target</label><input class="form-input" id="habitTargetPerWeek" max="7" min="1" type="number" value="3"/></div>
-<div class="form-group"><label class="form-label">Start date</label><input class="form-input" id="habitStartDate" required="" type="date"/></div><div class="form-group"><label class="form-label">End date</label><input class="form-input" id="habitEndDate" type="date"/></div>
-<div class="form-group"><label class="form-label">Preferred time</label><input class="form-input" id="habitPreferredTime" type="time"/></div><div class="form-group"><label class="habit-checkbox-line"><input id="habitReminderEnabled" type="checkbox"/> Prepare reminder</label><input class="form-input" disabled="" id="habitReminderTime" type="time"/></div>
-</div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('habitModal')" type="button">Cancel</button><button class="btn btn-primary" id="habitSaveBtn" type="submit">Create Habit</button></div></form></div></div><div class="modal" id="restoreBackupModal">
-<div class="modal-content" style="max-width:520px;">
-<div class="modal-header">
-<h3 class="modal-title">Restore Backup?</h3>
-<button class="close-modal" onclick="cancelRestoreBackup()">×</button>
-</div>
-<div class="modal-body">
-<p style="color:var(--text-secondary); margin-bottom: 8px;">This will replace your current VaultFlow data. A temporary backup of your current state will download first for recovery safety.</p>
-<div class="restore-summary" id="restoreBackupSummary"></div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="cancelRestoreBackup()" type="button">Cancel</button>
-<button class="btn btn-primary" id="confirmRestoreBackupBtn" onclick="confirmRestoreBackup(this)" type="button">Restore</button>
-</div>
-</div>
-</div>
-<!-- Transaction Modal -->
-<div class="modal" id="transactionModal">
-<div class="modal-content">
-<div class="modal-header">
-<h3 class="modal-title" id="transactionModalTitle">Add Transaction</h3>
-<button class="close-modal" onclick="closeModal('transactionModal')">×</button>
-</div>
-<form id="transactionForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
-<div class="modal-body">
-<div class="form-row">
-<div class="form-group">
-<label class="form-label">Date</label>
-<input class="form-input" id="txnDate" required="" type="date"/>
-</div>
-<div class="form-group">
-<label class="form-label">Time</label>
-<input class="form-input" id="txnTime" required="" type="time"/>
-</div>
-</div>
-<div class="form-group">
-<label class="form-label">Type</label>
-<select class="form-input" id="txnType" required="">
-<option value="income">Income</option>
-<option value="expense">Expense</option>
-</select>
-</div>
-<div class="form-group">
-<label class="form-label">Amount</label>
-<input class="form-input" id="txnAmount" min="0" required="" step="0.01" type="number"/>
-</div>
-<div class="form-group">
-<label class="form-label">Category</label>
-<input class="form-input" id="txnCategory" placeholder="e.g., Salary, Food, Transport" required="" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Location</label>
-<input class="form-input" id="txnLocation" placeholder="e.g., Delhi, Juma Masjid" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Wallet</label>
-<select class="form-input" id="txnWallet" required="">
-<option value="HR">HR Wallet</option>
-<option value="HL">HL Wallet</option>
-</select>
-</div>
-<div class="form-group">
-<label class="form-label">Payment Method</label>
-<select class="form-input" id="txnPaymentMethod" required="">
-<option value="online">💳 Online (UPI, Bank Transfer)</option>
-<option value="byhand">💵 By Hand (Cash)</option>
-</select>
-</div>
-<div class="form-group" id="vaultSelectGroup">
-<label class="form-label">Vault for expenses</label>
-<select class="form-input" id="txnVault"></select>
-</div>
-<div class="form-group">
-<label class="form-label">Notes</label>
-<textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
-</div>
-<input id="txnId" type="hidden"/>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="closeTransactionModal()" type="button">Cancel</button>
-<button class="btn btn-primary" type="submit">Save</button>
-</div>
-</form>
-</div>
-</div>
-<!-- Vault Modal -->
-<div class="modal" id="vaultModal">
-<div class="modal-content">
-<div class="modal-header">
-<h3 class="modal-title" id="vaultModalTitle">Add Vault</h3>
-<button class="close-modal" onclick="closeModal('vaultModal')">×</button>
-</div>
-<form id="vaultForm">
-<div class="modal-body">
-<div class="form-group">
-<label class="form-label">Vault Name</label>
-<input class="form-input" id="vaultName" placeholder="e.g., 💰 Emergency Fund" required="" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Allocation Percentage (%)</label>
-<input class="form-input" id="vaultPercentage" max="100" min="0" required="" step="1" type="number"/>
-</div>
-<div class="form-group">
-<label class="form-label">Description</label>
-<textarea class="form-input" id="vaultDescription" placeholder="Purpose of this vault..."></textarea>
-</div>
-<input id="vaultId" type="hidden"/>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="closeModal('vaultModal')" type="button">Cancel</button>
-<button class="btn btn-primary" type="submit">Save</button>
-</div>
-</form>
-</div>
-</div>
-<!-- Goal Modal -->
-<div class="modal" id="goalModal">
-<div class="modal-content">
-<div class="modal-header">
-<h3 class="modal-title" id="goalModalTitle">Add Goal</h3>
-<button class="close-modal" onclick="closeModal('goalModal')">×</button>
-</div>
-<form id="goalForm">
-<div class="modal-body">
-<div class="form-group">
-<label class="form-label">Goal Name</label>
-<input class="form-input" id="goalName" placeholder="e.g., New Laptop" required="" type="text"/>
-</div>
-<div class="form-group">
-<label class="form-label">Target Amount</label>
-<input class="form-input" id="goalTarget" min="0" required="" step="0.01" type="number"/>
-</div>
-<div class="form-group">
-<label class="form-label">Current Amount</label>
-<input class="form-input" id="goalCurrent" min="0" step="0.01" type="number" value="0"/>
-</div>
-<div class="form-group">
-<label class="form-label">Linked Vault</label>
-<select class="form-input" id="goalVault"></select>
-</div>
-<div class="form-group">
-<label class="form-label">Deadline</label>
-<input class="form-input" id="goalDeadline" type="date"/>
-</div>
-<div class="form-group">
-<label class="form-label">Notes</label>
-<textarea class="form-input" id="goalNotes" placeholder="Goal details..."></textarea>
-</div>
-<input id="goalId" type="hidden"/>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="closeModal('goalModal')" type="button">Cancel</button>
-<button class="btn btn-primary" type="submit">Save</button>
-</div>
-</form>
-</div>
-</div>
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-<div class="modal" id="forgotPasswordModal">
-<div class="modal-content" style="max-width:420px;">
-<div class="modal-header">
-<h3 class="modal-title">Forgot Password</h3>
-<button class="close-modal" onclick="closeModal('forgotPasswordModal')">×</button>
-</div>
-<form id="forgotPasswordForm">
-<div class="modal-body">
-<div class="form-group">
-<label class="form-label">Email</label>
-<input class="form-input" id="forgotIdentifier" required="" type="email"/>
-</div>
-</div>
-<div class="modal-footer">
-<button class="btn btn-primary" type="submit">Send Reset Link</button>
-</div>
-</form>
-</div>
-</div>
-<div class="modal" id="resetPasswordModal">
-<div class="modal-content" style="max-width:460px;">
-<div class="modal-header">
-<h3 class="modal-title">Reset Password</h3>
-</div>
-<form id="resetPasswordForm">
-<div class="modal-body">
-<input id="resetTokenInput" type="hidden"/>
-<div class="form-group">
-<label class="form-label">New Password</label>
-<input class="form-input" id="resetPassword" required="" type="password"/>
-</div>
-<div class="form-group">
-<label class="form-label">Confirm Password</label>
-<input class="form-input" id="resetConfirmPassword" required="" type="password"/>
-</div>
-<small id="resetPwdHint" style="color:var(--text-secondary);">Use 8+ chars with uppercase, lowercase, and number.</small>
-</div>
-<div class="modal-footer">
-<button class="btn btn-primary" type="submit">Reset Password</button>
-</div>
-</form>
-</div>
-</div>
-<script src="/js/core/store.js"></script><script src="/js/core/habit-domain.js"></script><script>
+            <!-- Goals Page -->
+            <div id="goals" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Future Goals</h1>
+                    <p class="page-subtitle">Track your financial goals and progress</p>
+                </div>
+
+                <button class="btn btn-primary" onclick="showGoalModal()" style="margin-bottom: 20px;">+ Add Goal</button>
+
+                <div id="goalsList"></div>
+            </div>
+
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                    <p class="page-subtitle">Manage global profile, preferences, notifications, security, and app information.</p>
+                </div>
+
+                <div class="settings-grid">
+                    <section class="card settings-section">
+                        <h3>👤 Profile</h3>
+                        <p class="settings-help">Account information for your VaultFlow workspace.</p>
+                        <div class="settings-row"><span class="settings-label">Username</span><span class="settings-value" id="settingsUsername">User</span></div>
+                        <div class="settings-row"><span class="settings-label">Email</span><a class="settings-value" id="settingsEmail" href="#">Not available</a></div>
+                        <div class="settings-row"><span class="settings-label">Member Since</span><span class="settings-value" id="settingsMemberSince">Not available</span></div>
+                        <div class="settings-row"><span class="settings-label">Last Backup</span><span class="settings-value" id="settingsLastBackup">Never</span></div>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🎛 Preferences</h3>
+                        <p class="settings-help">Global display preferences used by Dashboard, Reports, Transactions, Wallets, Goals, Exports, and Smart Insights.</p>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsCurrency">Currency</label>
+                            <select class="filter-select" id="settingsCurrency">
+                                <option value="INR">INR ₹</option>
+                                <option value="USD">USD $</option>
+                                <option value="EUR">EUR €</option>
+                                <option value="GBP">GBP £</option>
+                                <option value="AED">AED د.إ</option>
+                                <option value="SAR">SAR ﷼</option>
+                                <option value="SGD">SGD S$</option>
+                                <option value="MYR">MYR RM</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsLanguage">Language</label>
+                            <select class="filter-select" id="settingsLanguage">
+                                <option value="en-IN">English (India)</option>
+                                <option value="en-US">English (US)</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsTheme">Theme</label>
+                            <select class="filter-select" id="settingsTheme">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label" for="settingsDateFormat">Date Format</label>
+                            <select class="filter-select" id="settingsDateFormat">
+                                <option value="DD-MM-YYYY">DD-MM-YYYY</option>
+                                <option value="MM-DD-YYYY">MM-DD-YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🧭 Retention Preferences</h3>
+                        <p class="settings-help">Control habit-building widgets without changing your financial data.</p>
+                        <div class="settings-row"><span class="settings-label">Show streaks</span><input id="retentionShowStreaks" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show monthly reviews</span><input id="retentionShowReviews" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Show motivational insights</span><input id="retentionShowInsights" class="notif-switch" type="checkbox"></div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔔 Notifications</h3>
+                        <p class="settings-help">Helpful nudges only. No spam.</p>
+                        <button class="btn btn-secondary" id="notifEnableBtn" type="button">Enable Notifications</button>
+                        <div class="settings-row"><span class="settings-label">Daily tracking reminders</span><input id="notifDaily" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Weekly summary</span><input id="notifWeekly" class="notif-switch" type="checkbox"></div>
+                        <div class="settings-row"><span class="settings-label">Savings insights</span><input id="notifSavings" class="notif-switch" type="checkbox"></div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>🔐 Security</h3>
+                        <p class="settings-help">Account protection controls.</p>
+                        <button class="btn btn-secondary" type="button" onclick="openChangePasswordFlow()">Change Password</button>
+                        <button class="btn btn-secondary" type="button" onclick="showPlaceholder('Logout All Devices')">Logout All Devices</button>
+                        <p class="placeholder-note">Logout all devices is prepared for backend support.</p>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>📦 Data & Backup</h3>
+                        <p class="settings-help">Your financial data belongs to you. Export, restore, and keep a safety copy before changes.</p>
+                        <div class="backup-actions">
+                            <button class="btn btn-secondary" id="exportCsvBtn" type="button" onclick="exportTransactionsCsv(this)">Export CSV</button>
+                            <button class="btn btn-secondary" id="exportPdfBtn" type="button" onclick="exportPdfReport(this)">Export PDF Report</button>
+                            <button class="btn btn-primary" id="exportBackupBtn" type="button" onclick="exportBackupJson(this)">Export Backup</button>
+                            <button class="btn btn-secondary" id="restoreBackupBtn" type="button" onclick="openRestoreBackupPicker(this)">Restore Backup</button>
+                        </div>
+                        <input type="file" id="restoreBackupInput" accept="application/json,.json" class="hidden">
+                        <div class="trust-status" id="backupStatusText">Last backup: Never</div>
+                    </section>
+
+                    <section class="card settings-section">
+                        <h3>ℹ About</h3>
+                        <p class="settings-help">VaultFlow app and policy information.</p>
+                        <div class="settings-row"><span class="settings-label">App Version</span><span class="settings-value">1.0.0</span></div>
+                        <div class="settings-row"><span class="settings-label">PWA Status</span><span class="settings-value" id="pwaStatus">Checking...</span></div>
+                        <div class="settings-row"><span class="settings-label">Privacy Policy</span><a class="settings-value" href="#" onclick="showPlaceholder('Privacy Policy'); return false;">View</a></div>
+                        <div class="settings-row"><span class="settings-label">Terms</span><a class="settings-value" href="#" onclick="showPlaceholder('Terms'); return false;">View</a></div>
+                    </section>
+                </div>
+            </div>
+
+ <!-- Reports Page -->
+<div id="reports" class="page">
+    <div class="page-header">
+        <h1 class="page-title">Financial Reports</h1>
+        <p class="page-subtitle">Monthly and annual financial summaries</p>
+    </div>
+    <div class="card reports-filters collapsed" id="reportFiltersCard">
+        <button class="report-filter-toggle" type="button" onclick="toggleReportFilters()">
+            <span>Filters</span>
+            <span id="reportFilterToggleIcon">▾</span>
+        </button>
+        <div class="report-filter-groups">
+            <div class="report-filter-row single">
+                <select class="filter-select" id="reportPreset">
+                <option value="all">All time</option>
+                <option value="week">This week</option>
+                <option value="month" selected>This month</option>
+                <option value="year">This year</option>
+                <option value="custom">Custom range</option>
+            </select>
+            </div>
+            <div class="report-filter-row">
+                <input type="date" class="search-box" id="reportFromDate">
+                <input type="date" class="search-box" id="reportToDate">
+            </div>
+            <div class="report-filter-row single">
+                <button class="btn btn-primary" onclick="applyReportFilters()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="cards-grid reports-summary-grid">
+        <div class="card">
+            <div class="card-label" id="monthIncomeLabel">This Month Income</div>
+            <div class="card-value" id="monthIncomeDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="monthExpenseLabel">This Month Expenses</div>
+            <div class="card-value" id="monthExpensesDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="monthSavingsLabel">This Month Savings</div>
+            <div class="card-value" id="monthSavingsDisplay">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label" id="annualLabel">Annual Total</div>
+            <div class="card-value" id="annualDisplay">0</div>
+        </div>
+    </div>
+
+    <div class="card" style="padding:14px; margin-bottom: 16px;">
+        <h3 class="section-title">✨ Smart Insights</h3>
+        <div id="smartInsights" class="insights-grid"></div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-primary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📊 Income vs Expenses</h3>
+            <div id="incomeExpensesProgress"></div>
+        </div>
+        <div class="card report-chart-card chart-primary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📅 Monthly Trends</h3>
+            <div class="chart-canvas-wrap"><canvas id="trendsChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📈 Spending by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="categoryChart"></canvas></div>
+        </div>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">📋 Spending by Vault</h3>
+            <div class="chart-canvas-wrap"><canvas id="vaultChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="reports-grid">
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💹 Savings Portfolio Trend</h3>
+            <div class="chart-canvas-wrap"><canvas id="savingsPortfolioChart"></canvas></div>
+        </div>
+        <div class="card report-chart-card chart-secondary">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">💼 Income by Category</h3>
+            <div class="chart-canvas-wrap"><canvas id="incomeCategoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="card report-chart-card chart-secondary" style="margin-bottom: 24px;">
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 18px;">🧭 Financial Flow (Sankey style)</h3>
+        <div class="sankey-scroll"><div id="incomeFlowChart"></div></div>
+    </div>
+
+    <!-- Monthly Breakdown Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Monthly Breakdown</h3>
+        </div>
+        <div class="monthly-breakdown-scroll"><div id="monthlyBreakdown"></div></div>
+    </div>
+</div>
+        </main>
+
+        <!-- FAB Button -->
+        <button class="fab" onclick="showTransactionModal()">+</button>
+    </div>
+
+    <div id="offlineBanner" class="offline-banner">You’re offline. VaultFlow shell is available, but live data updates are paused.</div>
+    <div id="pwaInstallBanner" class="pwa-install-banner">
+        <div class="pwa-banner-row">
+            <div>
+                <div class="pwa-banner-title">Install VaultFlow</div>
+                <div class="pwa-banner-text">Use VaultFlow like a native finance app.</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="dismissInstallBtn" style="padding:8px 10px;">Later</button>
+                <button class="btn btn-primary" id="installAppBtn" style="padding:8px 10px;">Install</button>
+            </div>
+        </div>
+    </div>
+    <div id="onboardingOverlay" class="onboarding-overlay">
+        <div class="onboarding-card">
+            <div class="onboarding-progress" id="onboardingProgress">Step 1 of 6</div>
+            <div id="onboardingContent"></div>
+        </div>
+    </div>
+
+    <!-- Restore Backup Confirmation Modal -->
+    <div id="restoreBackupModal" class="modal">
+        <div class="modal-content" style="max-width:520px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Restore Backup?</h3>
+                <button class="close-modal" onclick="cancelRestoreBackup()">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary); margin-bottom: 8px;">This will replace your current VaultFlow data. A temporary backup of your current state will download first for recovery safety.</p>
+                <div class="restore-summary" id="restoreBackupSummary"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" onclick="cancelRestoreBackup()">Cancel</button>
+                <button class="btn btn-primary" id="confirmRestoreBackupBtn" type="button" onclick="confirmRestoreBackup(this)">Restore</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="transactionModalTitle">Add Transaction</h3>
+                <button class="close-modal" onclick="closeModal('transactionModal')">×</button>
+            </div>
+
+            <form id="transactionForm" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-input" id="txnDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Time</label>
+                            <input type="time" class="form-input" id="txnTime" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-input" id="txnType" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-input" id="txnAmount" required min="0" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <input type="text" class="form-input" id="txnCategory" required placeholder="e.g., Salary, Food, Transport">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" id="txnLocation" placeholder="e.g., Delhi, Juma Masjid">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Wallet</label>
+                        <select class="form-input" id="txnWallet" required>
+                            <option value="HR">HR Wallet</option>
+                            <option value="HL">HL Wallet</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select class="form-input" id="txnPaymentMethod" required>
+                            <option value="online">💳 Online (UPI, Bank Transfer)</option>
+                            <option value="byhand">💵 By Hand (Cash)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="vaultSelectGroup">
+                        <label class="form-label">Vault for expenses</label>
+                        <select class="form-input" id="txnVault"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="txnNotes" placeholder="Journey notes..."></textarea>
+                    </div>
+
+                    <input type="hidden" id="txnId">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeTransactionModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Vault Modal -->
+    <div id="vaultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="vaultModalTitle">Add Vault</h3>
+                <button class="close-modal" onclick="closeModal('vaultModal')">×</button>
+            </div>
+            <form id="vaultForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Vault Name</label>
+                        <input type="text" class="form-input" id="vaultName" required placeholder="e.g., 💰 Emergency Fund">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Allocation Percentage (%)</label>
+                        <input type="number" class="form-input" id="vaultPercentage" required min="0" max="100" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="vaultDescription" placeholder="Purpose of this vault..."></textarea>
+                    </div>
+                    <input type="hidden" id="vaultId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('vaultModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="goalModalTitle">Add Goal</h3>
+                <button class="close-modal" onclick="closeModal('goalModal')">×</button>
+            </div>
+            <form id="goalForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Goal Name</label>
+                        <input type="text" class="form-input" id="goalName" required placeholder="e.g., New Laptop">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Amount</label>
+                        <input type="number" class="form-input" id="goalTarget" required min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Amount</label>
+                        <input type="number" class="form-input" id="goalCurrent" min="0" step="0.01" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Linked Vault</label>
+                        <select class="form-input" id="goalVault"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Deadline</label>
+                        <input type="date" class="form-input" id="goalDeadline">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" id="goalNotes" placeholder="Goal details..."></textarea>
+                    </div>
+                    <input type="hidden" id="goalId">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Forgot Password</h3>
+                <button class="close-modal" onclick="closeModal('forgotPasswordModal')">×</button>
+            </div>
+            <form id="forgotPasswordForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" id="forgotIdentifier" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content" style="max-width:460px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Reset Password</h3>
+            </div>
+            <form id="resetPasswordForm">
+                <div class="modal-body">
+                    <input type="hidden" id="resetTokenInput">
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-input" id="resetPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" id="resetConfirmPassword" required>
+                    </div>
+                    <small id="resetPwdHint" style="color:var(--text-secondary);">Use 8+ chars with uppercase, lowercase, and number.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
         // Configuration
         const API_BASE_URL = window.location.origin;
 
@@ -2713,27 +2676,6 @@ body { overscroll-behavior-y: auto; }
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeMobileMenu();
             });
-
-            // Restored Habit UI events
-            document.getElementById('habitForm')?.addEventListener('submit', handleHabitSubmit);
-            document.getElementById('addHabitBtn')?.addEventListener('click', () => openHabitModal());
-            document.querySelectorAll('[data-habit-filter]').forEach(btn => btn.addEventListener('click', () => {
-                document.querySelectorAll('[data-habit-filter]').forEach(x => x.classList.remove('active'));
-                btn.classList.add('active');
-                habitUiState.filter = btn.dataset.habitFilter;
-                renderHabitsPage();
-            }));
-            document.getElementById('habitPrevDay')?.addEventListener('click', () => shiftHabitDate(-1));
-            document.getElementById('habitNextDay')?.addEventListener('click', () => shiftHabitDate(1));
-            document.getElementById('habitAnalyticsRange')?.addEventListener('change', renderHabitAnalytics);
-            document.querySelectorAll('input[name="habitFrequency"]').forEach(input => input.addEventListener('change', toggleHabitFrequencyFields));
-            document.getElementById('habitReminderEnabled')?.addEventListener('change', e => {
-                const time = document.getElementById('habitReminderTime');
-                if (time) time.disabled = !e.target.checked;
-            });
-            document.querySelectorAll('[data-close-habit]').forEach(b => b.addEventListener('click', () => closeModal('habitModal')));
-            document.querySelectorAll('[data-close-history]').forEach(b => b.addEventListener('click', () => closeModal('habitHistoryModal')));
-            document.getElementById('habitsList')?.addEventListener('click', handleHabitActionClick);
 
             // Transaction form
             document.getElementById('transactionForm').addEventListener('submit', handleTransactionSubmit);
@@ -3212,16 +3154,7 @@ body { overscroll-behavior-y: auto; }
                     table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #e5e7eb}th{font-size:12px;color:#6b7280;text-transform:uppercase}footer{padding:18px 28px;color:#6b7280;font-size:12px;text-align:center}
                     @media(max-width:720px){body{padding:8px}.grid,.user-grid{grid-template-columns:1fr}.report{border-radius:0}}
                     @media print{body{background:white;padding:0}.report{border:none;border-radius:0}button{display:none}}
-                    .reports-load-error {
-            margin: 8px 0 12px;
-            padding: 10px 12px;
-            border: 1px solid #fecaca;
-            border-radius: 10px;
-            background: #fff7f7;
-            color: #991b1b;
-            font-size: 13px;
-        }
-    </style></head><body><div class="report"><header><h1>VaultFlow</h1><div class="subtitle">Professional financial summary</div></header>
+                </style></head><body><div class="report"><header><h1>VaultFlow</h1><div class="subtitle">Professional financial summary</div></header>
                 <section><h2>User Information</h2><div class="user-grid"><div><div class="label">Username</div><div>${currentUser || 'User'}</div></div><div><div class="label">Email</div><div>${email}</div></div><div><div class="label">Report Date</div><div>${reportDate}</div></div></div></section>
                 <section><h2>Financial Summary</h2><div class="grid"><div class="metric"><div class="label">Total Income</div><div class="value">${formatMoney(totalIncome)}</div></div><div class="metric"><div class="label">Total Expenses</div><div class="value">${formatMoney(totalExpenses)}</div></div><div class="metric"><div class="label">Net Savings</div><div class="value">${formatMoney(netSavings)}</div></div><div class="metric"><div class="label">Savings Rate</div><div class="value">${savingsRate}%</div></div></div></section>
                 <section><h2>Category Breakdown</h2><table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody>${rowsHtml}</tbody></table></section>
@@ -3627,7 +3560,7 @@ body { overscroll-behavior-y: auto; }
         function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js?v=vf-frontend-restore-1').catch((e) => console.error('SW registration failed:', e));
+                navigator.serviceWorker.register('/sw.js').catch((e) => console.error('SW registration failed:', e));
             });
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data?.type === 'VF_NAVIGATE' && event.data?.page) switchPage(event.data.page);
@@ -3678,21 +3611,16 @@ body { overscroll-behavior-y: auto; }
         }
 
         // API Functions
-        const API_TIMEOUT_MS = 15000;
-
-        async function apiCall(endpoint, method = 'GET', data = null, timeoutMs = API_TIMEOUT_MS) {
+        async function apiCall(endpoint, method = 'GET', data = null) {
             if (isDemoMode) {
                 return handleDemoApiCall(endpoint, method, data);
             }
 
-            const controller = new AbortController();
-            const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
             const options = {
                 method,
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                signal: controller.signal
+                }
             };
 
             if (authToken) options.headers['Authorization'] = 'Bearer ' + authToken;
@@ -3703,37 +3631,22 @@ body { overscroll-behavior-y: auto; }
 
             try {
                 const response = await fetch(API_BASE_URL + endpoint, options);
-                let result = {};
-                if (response.status !== 204) {
-                    try { result = await response.json(); } catch (_) {}
-                }
+                const result = await response.json();
 
                 if (response.status === 401 || response.status === 403) {
                     const refreshed = await refreshAuthToken();
-                    if (refreshed) return apiCall(endpoint, method, data, timeoutMs);
+                    if (refreshed) return apiCall(endpoint, method, data);
                 }
 
                 if (!response.ok) {
-                    const error = new Error(result.error || `Request failed (${response.status})`);
-                    error.status = response.status;
-                    throw error;
+                    throw new Error(result.error || 'Request failed');
                 }
 
                 return result;
             } catch (error) {
-                if (error?.name === 'AbortError') {
-                    const timeoutError = new Error(`Request timed out after ${timeoutMs}ms: ${endpoint}`);
-                    timeoutError.code = 'REQUEST_TIMEOUT';
-                    timeoutError.status = 408;
-                    console.error('[API] Timeout:', endpoint);
-                    showToast(timeoutError.message, 'error');
-                    throw timeoutError;
-                }
                 console.error('API Error:', error);
                 showToast(error.message, 'error');
                 throw error;
-            } finally {
-                window.clearTimeout(timeoutId);
             }
         }
 
@@ -3977,38 +3890,25 @@ body { overscroll-behavior-y: auto; }
 
         // Data Loading
         async function loadAllData() {
-            const results = await Promise.allSettled([
-                loadVaults(),
-                loadTransactions(),
-                loadGoals(),
-                loadHabits()
-            ]);
-
-            results.forEach((result, index) => {
-                if (result.status === 'rejected') {
-                    const name = ['vaults', 'transactions', 'goals', 'habits'][index];
-                    console.error(`[Data] ${name} load failed:`, result.reason);
-                }
-            });
-
-            if (results[3]?.status === 'fulfilled') {
-                try {
-                    await loadAllHabitLogs();
-                } catch (error) {
-                    console.error('[Data] habit logs load failed:', error);
-                }
+            try {
+                await Promise.all([
+                    loadVaults(),
+                    loadTransactions(),
+                    loadGoals()
+                ]);
+                calculateWalletBalances();
+                renderDashboard();
+                renderCurrentPage();
+                maybeStartOnboarding();
+                maybeScheduleSmartLocalNotifications();
+            } catch (error) {
+                console.error('Error loading data:', error);
             }
-
-            calculateWalletBalances();
-            renderDashboard();
-            renderCurrentPage();
-            maybeStartOnboarding();
-            maybeScheduleSmartLocalNotifications();
         }
 
         function isFirstTimeUser() {
             const completed = localStorage.getItem(ONBOARDING_KEY) === 'completed';
-            const hasData = (transactions?.length || 0) > 0 || (vaults?.length || 0) > 0 || (goals?.length || 0) > 0 || (getHabits()?.length || 0) > 0;
+            const hasData = (transactions?.length || 0) > 0 || (vaults?.length || 0) > 0 || (goals?.length || 0) > 0;
             return !isDemoMode && !completed && !hasData;
         }
 
@@ -4081,45 +3981,11 @@ body { overscroll-behavior-y: auto; }
         }
 
         async function loadTransactions() {
-            const result = await apiCall('/api/transactions');
-            if (!Array.isArray(result)) throw new Error('Invalid transactions response');
-            transactions = result;
-            return transactions;
+            transactions = await apiCall('/api/transactions');
         }
 
         async function loadGoals() {
             goals = await apiCall('/api/goals');
-        }
-
-
-        // Phase 10B restored habit state helpers. Habits remain isolated from finance state.
-        function getHabits() { return VaultFlowStore.getHabits(); }
-        function setHabits(nextHabits, meta = {}) { return VaultFlowStore.setHabits(nextHabits, meta); }
-        function getHabitLogs() { return VaultFlowStore.getHabitLogs(); }
-        function setHabitLogs(nextLogs, meta = {}) { return VaultFlowStore.setHabitLogs(nextLogs, meta); }
-
-        async function loadHabits() {
-            if (isDemoMode) return setHabits([], { source: 'demo' });
-            return setHabits(await apiCall('/api/habits'), { source: 'api' });
-        }
-
-        async function loadHabitLogs(habitId, { from, to } = {}) {
-            const params = new URLSearchParams();
-            if (from) params.set('from', from);
-            if (to) params.set('to', to);
-            const suffix = params.toString() ? '?' + params.toString() : '';
-            const logs = await apiCall(`/api/habits/${encodeURIComponent(habitId)}/logs${suffix}`);
-            const existing = getHabitLogs().filter(log => String(log.habitId) !== String(habitId));
-            return setHabitLogs([...existing, ...logs], { source: 'api', habitId });
-        }
-
-        async function loadAllHabitLogs({ from, to } = {}) {
-            if (isDemoMode) return setHabitLogs([], { source: 'demo' });
-            const params = new URLSearchParams();
-            if (from) params.set('from', from);
-            if (to) params.set('to', to);
-            const suffix = params.toString() ? '?' + params.toString() : '';
-            return setHabitLogs(await apiCall(`/api/habit-logs${suffix}`), { source: 'api', scope: 'all' });
         }
 
         function calculateWalletBalances() {
@@ -4150,72 +4016,6 @@ body { overscroll-behavior-y: auto; }
                 });
 
                 console.log('Final wallet balances:', wallets);
-            }
-        }
-
-
-        // Phase 10B — standalone Insights restoration. Uses the existing /api/insights contract.
-        let insightsCache = null;
-        function insightMoney(value) {
-            const n = Number(value);
-            return Number.isFinite(n) ? formatCurrency(n) : '—';
-        }
-        function firstFinite(...values) {
-            for (const value of values) { const n = Number(value); if (Number.isFinite(n)) return n; }
-            return 0;
-        }
-        function collectInsightMessages(value, out = [], depth = 0) {
-            if (depth > 3 || out.length >= 12 || value == null) return out;
-            if (typeof value === 'string' && value.trim()) { out.push(value.trim()); return out; }
-            if (Array.isArray(value)) { for (const item of value) collectInsightMessages(item, out, depth + 1); return out; }
-            if (typeof value === 'object') {
-                for (const [key, item] of Object.entries(value)) {
-                    if (/message|title|summary|insight|recommendation|reason|action/i.test(key)) collectInsightMessages(item, out, depth + 1);
-                    if (out.length >= 12) break;
-                }
-            }
-            return out;
-        }
-        async function loadInsightsPage() {
-            const status = document.getElementById('insightsStatus');
-            if (!status) return;
-            status.textContent = 'Loading intelligence…';
-            try {
-                const data = await apiCall('/api/insights');
-                insightsCache = data;
-                const financial = data.financial || {};
-                const totals = financial.totals || {};
-                const health = financial.health || {};
-                const habits = data.habits || {};
-                const kpis = [
-                    ['Financial Health', `${Math.round(firstFinite(health.score, financial.healthScore))}/100`],
-                    ['Savings Rate', `${firstFinite(totals.savingsRate, financial.savingsRate).toFixed(1)}%`],
-                    ['Net Savings', insightMoney(firstFinite(totals.savings, totals.netSavings, financial.netSavings))],
-                    ['Habit Completion', `${firstFinite(habits.overallCompletionRate, habits.completionRate).toFixed(1)}%`]
-                ];
-                document.getElementById('insightsKpis').innerHTML = kpis.map(([label,value]) => `<div class="card"><div class="card-label">${escapeHtml(label)}</div><div class="card-value">${escapeHtml(value)}</div></div>`).join('');
-                const messages = collectInsightMessages(data.insights);
-                document.getElementById('insightsList').innerHTML = messages.length
-                    ? `<ul style="margin:0;padding-left:18px;display:grid;gap:10px">${messages.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`
-                    : '<div class="habit-muted">No generated insight messages are available yet.</div>';
-                const fh = data.financeHabit || {};
-                const fhRows = [
-                    ['Observed days', firstFinite(fh.observedDays)],
-                    ['Spending difference', fh.spendingDifferencePercent == null ? '—' : `${Number(fh.spendingDifferencePercent).toFixed(1)}%`],
-                    ['Habit completion', `${firstFinite(fh.habitCompletionRate).toFixed(1)}%`]
-                ];
-                document.getElementById('insightsHabitFinance').innerHTML = fhRows.map(([a,b]) => `<div class="settings-row"><span class="settings-label">${escapeHtml(a)}</span><span class="settings-value">${escapeHtml(String(b))}</span></div>`).join('');
-                const goals = Array.isArray(data.goals) ? data.goals : [];
-                document.getElementById('insightsGoals').innerHTML = goals.length
-                    ? goals.slice(0,8).map(g => `<div class="settings-row"><span class="settings-label">${escapeHtml(g.name || 'Goal')}</span><span class="settings-value">${escapeHtml(g.status || 'active')} · ${escapeHtml(String(g.progressPercent ?? g.progress ?? 0))}%</span></div>`).join('')
-                    : '<div class="habit-muted">No goal projections available.</div>';
-                status.textContent = `Intelligence updated ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}.`;
-            } catch (error) {
-                status.textContent = error?.code === 'REQUEST_TIMEOUT' ? 'Insights took too long to respond. Your core financial data remains available.' : (error?.message || 'Insights are temporarily unavailable.');
-                document.getElementById('insightsKpis').innerHTML = '';
-                document.getElementById('insightsList').innerHTML = '';
-                document.getElementById('insightsHabitFinance').innerHTML = '';
-                document.getElementById('insightsGoals').innerHTML = '';
             }
         }
 
@@ -4253,12 +4053,6 @@ body { overscroll-behavior-y: auto; }
                 case 'goals':
                     renderGoalsPage();
                     break;
-                case 'habits':
-                    renderHabitsPage();
-                    break;
-                case 'insights':
-                    loadInsightsPage();
-                    break;
                 case 'reports':
                     renderReportsPage();
                     break;
@@ -4267,83 +4061,6 @@ body { overscroll-behavior-y: auto; }
                     break;
             }
         }
-
-        // Phase 3C — Habit UI
-        const habitUiState={date:null,filter:'today'};
-        function getHabitUiDate(){return habitUiState.date||(habitUiState.date=HabitDomain.getTodayLocalDate());}
-        function formatHabitDate(d){return new Date(`${d}T12:00:00`).toLocaleDateString(getCurrentLocale(),{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
-        function shiftHabitDate(n){habitUiState.date=HabitDomain.addDays(getHabitUiDate(),n);renderHabitsPage();}
-        function toggleHabitFrequencyFields(){const w=document.querySelector('input[name="habitFrequency"]:checked')?.value==='weekly';document.getElementById('habitWeekdayGroup').hidden=!w;document.getElementById('habitTargetGroup').hidden=!w;}
-        function resetHabitForm(){document.getElementById('habitForm').reset();document.getElementById('habitId').value='';document.getElementById('habitModalTitle').textContent='Create Habit';document.getElementById('habitSaveBtn').textContent='Create Habit';document.getElementById('habitStartDate').value=HabitDomain.getTodayLocalDate();document.getElementById('habitReminderTime').disabled=true;toggleHabitFrequencyFields();}
-        function openHabitModal(id=null){resetHabitForm();if(id){const h=HabitDomain.getHabitById(id);if(!h)return;document.getElementById('habitModalTitle').textContent='Edit Habit';document.getElementById('habitSaveBtn').textContent='Save Changes';document.getElementById('habitId').value=h._id;document.getElementById('habitName').value=h.name||'';document.getElementById('habitDescription').value=h.description||'';document.getElementById('habitCategory').value=h.category||'';document.getElementById('habitIcon').value=h.icon||'✓';document.getElementById('habitStartDate').value=h.startDate;document.getElementById('habitEndDate').value=h.endDate||'';document.getElementById('habitPreferredTime').value=h.preferredTime||'';document.getElementById('habitReminderEnabled').checked=!!h.reminder?.enabled;document.getElementById('habitReminderTime').disabled=!h.reminder?.enabled;document.getElementById('habitReminderTime').value=h.reminder?.time||'';document.querySelector(`input[name="habitFrequency"][value="${h.frequency?.type||'daily'}"]`).checked=true;document.querySelectorAll('#habitWeekdays input').forEach(x=>x.checked=(h.frequency?.daysOfWeek||[]).includes(+x.value));document.getElementById('habitTargetPerWeek').value=h.frequency?.targetPerWeek||3;toggleHabitFrequencyFields();}document.getElementById('habitModal').classList.add('active');}
-        async function handleHabitSubmit(e){e.preventDefault();const id=document.getElementById('habitId').value,type=document.querySelector('input[name="habitFrequency"]:checked').value,days=[...document.querySelectorAll('#habitWeekdays input:checked')].map(x=>+x.value),start=document.getElementById('habitStartDate').value,end=document.getElementById('habitEndDate').value,target=+document.getElementById('habitTargetPerWeek').value||1;if(type==='weekly'&&!days.length)return showToast('Choose at least one weekday.','warning');if(type==='weekly'&&target>days.length)return showToast('Weekly target cannot exceed selected weekdays.','warning');if(end&&end<start)return showToast('End date must be on or after start date.','warning');const data={name:document.getElementById('habitName').value.trim(),description:document.getElementById('habitDescription').value.trim(),category:document.getElementById('habitCategory').value,icon:document.getElementById('habitIcon').value,frequency:type==='weekly'?{type,daysOfWeek:days,targetPerWeek:target}:{type,daysOfWeek:[]},startDate:start,endDate:end||undefined,preferredTime:document.getElementById('habitPreferredTime').value||undefined,reminder:{enabled:document.getElementById('habitReminderEnabled').checked,time:document.getElementById('habitReminderTime').value||undefined}};if(!data.name)return showToast('Enter a habit name.','warning');try{const saved=await apiCall(id?`/api/habits/${id}`:'/api/habits',id?'PUT':'POST',data);VaultFlowStore.addHabit(saved);closeModal('habitModal');renderHabitsPage();showToast(id?'Habit updated.':'Habit created.','success');}catch(_){}}
-        async function setHabitOccurrence(id,date,status){try{const log=await apiCall(`/api/habits/${encodeURIComponent(id)}/logs`,'POST',{scheduledDate:date,status});VaultFlowStore.addOrUpdateHabitLog(log);renderHabitsPage();}catch(_){}}
-        async function archiveHabit(id){const h=HabitDomain.getHabitById(id);if(!h||!confirm(`Archive "${h.name}"? Its history will be preserved.`))return;try{const saved=await apiCall(`/api/habits/${encodeURIComponent(id)}`,'DELETE');VaultFlowStore.addHabit(saved);renderHabitsPage();showToast('Habit archived. History preserved.','success');}catch(_){}}
-        async function openHabitHistory(id){const h=HabitDomain.getHabitById(id);if(!h)return;try{await loadHabitLogs(id);const logs=getHabitLogs(),today=HabitDomain.getTodayLocalDate(),from=HabitDomain.addDays(today,-41),rate=HabitDomain.getHabitCompletionRate(id,from,today),streak=HabitDomain.getHabitStreak(id,today),cells=HabitDomain.getScheduledDates(h,from,today).map(d=>{const s=HabitDomain.getHabitStatus(id,d,getHabits(),logs);return `<div class="habit-history-day ${s}"><b>${d.slice(8)}</b><div>${s==='completed'?'✓':s==='skipped'?'–':s==='missed'?'×':'·'}</div></div>`}).join('');document.getElementById('habitHistoryTitle').textContent=h.name;document.getElementById('habitHistorySubtitle').textContent=`${rate.completed} of ${rate.scheduled} scheduled occurrences completed`;document.getElementById('habitHistoryContent').innerHTML=`<div class="habit-history-stats"><div class="habit-history-stat"><strong>${streak.current}</strong><span>Current streak</span></div><div class="habit-history-stat"><strong>${streak.best}</strong><span>Best streak</span></div><div class="habit-history-stat"><strong>${Math.round(rate.rate)}%</strong><span>Completion rate</span></div></div><div class="habit-history-grid">${cells}</div>`;document.getElementById('habitHistoryModal').classList.add('active');}catch(_){}}
-        function renderHabitAnalytics() {
-            const range = Number(document.getElementById('habitAnalyticsRange')?.value || 30);
-            const today = HabitDomain.getTodayLocalDate();
-            const from = HabitDomain.addDays(today, -(range - 1));
-            const analytics = HabitDomain.getPortfolioAnalytics(from, today, getHabits(), getHabitLogs());
-            const active = getHabits().filter(h => h.status === 'active');
-            const best = analytics.habits.reduce((max, item) => Math.max(max, item.bestStreak), 0);
-            const rateEl = document.getElementById('habitAnalyticsRate');
-            if (!rateEl) return;
-            rateEl.textContent = `${Math.round(analytics.completionRate)}%`;
-            document.getElementById('habitAnalyticsScore').textContent = Math.round(analytics.consistencyScore);
-            document.getElementById('habitAnalyticsCompleted').textContent = analytics.completed;
-            document.getElementById('habitAnalyticsBest').textContent = best;
-            document.getElementById('habitAnalyticsSubtitle').textContent = active.length ? `${active.length} active habit${active.length === 1 ? '' : 's'} • ${from} to ${today}` : 'Create an active habit to start analytics.';
-            const bars = document.getElementById('habitAnalyticsDaily');
-            if (bars) {
-                const max = Math.max(1, ...analytics.daily.map(x => x.rate));
-                bars.innerHTML = analytics.daily.map(x => {
-                    const height = Math.max(4, Math.round((x.rate / max) * 100));
-                    return `<div class="habit-analytics-bar${x.rate === 0 ? ' zero' : ''}" style="height:${height}%" title="${x.date}: ${Math.round(x.rate)}% (${x.completed}/${x.scheduled})"></div>`;
-                }).join('');
-            }
-            const list = document.getElementById('habitAnalyticsHabits');
-            if (list) {
-                list.innerHTML = analytics.habits.length ? analytics.habits.map(item => {
-                    const habit = HabitDomain.getHabitById(item.habitId);
-                    return `<div class="habit-analytics-habit"><div class="habit-analytics-habit-name">${escapeHtml(habit?.name || 'Habit')}</div><div class="habit-analytics-track"><span style="width:${Math.round(item.completionRate)}%"></span></div><div class="habit-analytics-percent">${Math.round(item.completionRate)}%</div></div>`;
-                }).join('') : '<div class="habit-muted">No active habits yet.</div>';
-            }
-        }
-
-        function renderHabitsPage(){renderHabitAnalytics();const date=getHabitUiDate(),habits=getHabits(),logs=getHabitLogs(),summary=HabitDomain.buildTodaySummary(date,habits,logs),pct=summary.total?Math.round(summary.completionRate):0;document.getElementById('habitProgressValue').textContent=`${pct}%`;document.getElementById('habitProgressBar').style.width=`${pct}%`;document.getElementById('habitProgressRing').style.background=`conic-gradient(var(--primary) ${pct*3.6}deg,#e5e7eb 0deg)`;document.getElementById('habitTodaySubtitle').textContent=summary.total?`${summary.completed} of ${summary.total} scheduled today`:'No active habits are scheduled for this day.';document.getElementById('habitDateButton').textContent=formatHabitDate(date);const visible=habitUiState.filter==='today'?HabitDomain.getTodaysHabits(date,habits):habitUiState.filter==='archived'?habits.filter(h=>h.status==='archived'):habits.filter(h=>h.status==='active'),models=visible.map(x=>HabitDomain.buildHabitViewModel(x,date,habits,logs)),list=document.getElementById('habitsList');if(!models.length){list.innerHTML='<div class="habit-empty"><strong>Nothing to show</strong><span>Create a habit or choose another day/filter.</span><div style="margin-top:14px"><button class="btn btn-primary" onclick="openHabitModal()">Create Habit</button></div></div>';return;}list.innerHTML=models.map(m=>{const f=m.frequency.type==='weekly'?m.frequency.daysOfWeek.map(d=>['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d]).join(' · '):'Every day';return `<article class="habit-card"><div class="habit-card-top"><div class="habit-icon">${escapeHtml(m.icon||'✓')}</div><div style="flex:1"><div class="habit-card-title">${escapeHtml(m.name)}</div><div class="habit-card-meta"><span class="habit-chip">${escapeHtml(f)}</span>${m.category?`<span class="habit-chip">${escapeHtml(m.category)}</span>`:''}</div></div><div class="habit-status ${m.status}">${escapeHtml(m.status.replace('_',' '))}</div></div>${m.description?`<div class="habit-card-description">${escapeHtml(m.description)}</div>`:''}<div class="habit-card-bottom"><div>🔥 ${m.streak.current} ${m.streak.unit==='weeks'?'week':'day'} streak</div><div class="habit-actions">${m.actions.canComplete?`<button class="habit-action primary" onclick="setHabitOccurrence('${m.id}','${date}','completed')">✓ Complete</button>`:''}${m.actions.canSkip?`<button class="habit-action" onclick="setHabitOccurrence('${m.id}','${date}','skipped')">Skip</button>`:''}<button class="habit-action" onclick="openHabitHistory('${m.id}')">History</button>${m.actions.canEdit?`<button class="habit-action" onclick="openHabitModal('${m.id}')">Edit</button>`:''}${m.actions.canArchive?`<button class="habit-action danger" onclick="archiveHabit('${m.id}')">Archive</button>`:''}</div></div></article>`}).join('');}
-        function renderDashboardHabits() {
-            const container = document.getElementById('dashboardHabitItems');
-            if (!container) return;
-            const today = HabitDomain.getTodayLocalDate();
-            const summary = HabitDomain.buildTodaySummary(today, getHabits(), getHabitLogs());
-            const subtitle = document.getElementById('dashboardHabitSummary');
-            if (!summary.total) {
-                container.innerHTML = '<div class="habit-empty" style="grid-column:1/-1;padding:20px"><strong>No habits scheduled today</strong><span>Open Habits to create your routine.</span></div>';
-                if (subtitle) subtitle.textContent = 'No habits scheduled today.';
-                return;
-            }
-            if (subtitle) subtitle.textContent = `${summary.completed} of ${summary.total} completed today`;
-            container.innerHTML = summary.items.slice(0, 6).map(item => `<div class="habit-dashboard-item ${item.status === 'completed' ? 'completed' : ''}"><div class="habit-dashboard-check">${item.status === 'completed' ? '✓' : '○'}</div><div><b>${escapeHtml(item.name)}</b><div style="font-size:11px;color:var(--text-secondary,#6b7280)">${escapeHtml(item.status)}</div></div></div>`).join('');
-        }
-
-        function renderHabitReportSnapshot() {
-            const active = getHabits().filter(h => h.status === 'active');
-            const today = HabitDomain.getTodayLocalDate();
-            const summary = HabitDomain.buildTodaySummary(today, getHabits(), getHabitLogs());
-            const from = HabitDomain.addDays(today, -29);
-            const rate = active.length ? active.reduce((sum, habit) => sum + HabitDomain.getHabitCompletionRate(habit._id, from, today).rate, 0) / active.length : 0;
-            const best = active.reduce((max, habit) => Math.max(max, HabitDomain.getHabitStreak(habit._id, today).best), 0);
-            const activeEl = document.getElementById('habitReportActive');
-            if (!activeEl) return;
-            activeEl.textContent = active.length;
-            document.getElementById('habitReportToday').textContent = `${Math.round(summary.completionRate || 0)}%`;
-            document.getElementById('habitReportRate').textContent = `${Math.round(rate || 0)}%`;
-            document.getElementById('habitReportStreak').textContent = best;
-            document.getElementById('habitReportSubtitle').textContent = active.length ? `${summary.completed} of ${summary.total} scheduled today • last 30 days included` : 'Create an active habit to start tracking consistency.';
-        }
-
-
 
         // Dashboard
         function renderDashboard() {
@@ -4365,18 +4082,11 @@ body { overscroll-behavior-y: auto; }
             const recent = transactions.slice(0, 5);
             renderDashboardRetention();
             renderTransactionTable(recent, 'recentTransactionsTable');
-            renderDashboardHabits();
         }
 
         // Transactions Page
         function renderTransactionsPage() {
-            const searchEl = document.getElementById('searchTransactions');
-            const typeEl = document.getElementById('filterType');
-            if (!searchEl || !typeEl) {
-                renderTransactionTable(transactions, 'transactionsTable');
-                return;
-            }
-            filterTransactions();
+            renderTransactionTable(transactions, 'transactionsTable');
         }
 
         function renderTransactionTable(data, containerId) {
@@ -4482,9 +4192,9 @@ body { overscroll-behavior-y: auto; }
 
             if (search) {
                 filtered = filtered.filter(t =>
-                    String(t.category || '').toLowerCase().includes(search) ||
-                    String(t.location || '').toLowerCase().includes(search) ||
-                    String(t.notes || '').toLowerCase().includes(search)
+                    t.category.toLowerCase().includes(search) ||
+                    (t.location && t.location.toLowerCase().includes(search)) ||
+                    (t.notes && t.notes.toLowerCase().includes(search))
                 );
             }
 
@@ -4663,9 +4373,8 @@ body { overscroll-behavior-y: auto; }
 
         // Reports Page
         function renderReportsPage() {
-            renderHabitReportSnapshot();
-            loadReports();
-        }
+    loadReports();
+}
 
         function renderMonthlyBreakdown() {
             const monthlyData = {};
@@ -4845,14 +4554,9 @@ body { overscroll-behavior-y: auto; }
 
                 await loadTransactions();
                 await loadVaults();
-                const filterTypeEl = document.getElementById('filterType');
-                if (filterTypeEl) filterTypeEl.value = 'all';
-                const searchEl = document.getElementById('searchTransactions');
-                if (searchEl) searchEl.value = '';
                 closeModal('transactionModal');
-                calculateWalletBalances();
-                renderDashboard();
                 renderCurrentPage();
+                renderDashboard();
             } catch (error) {
                 // Error already shown
             }
@@ -5015,52 +4719,63 @@ body { overscroll-behavior-y: auto; }
             toggleMobileMenu(false);
         }
     </script>
+
 <!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 // Global charts object to store chart instances
 const chartsInstance = {};
 let reportsRawData = null;
 
 // Load reports when page opens
-async function loadReports() {
-    showReportsSkeleton();
-
+function loadReports() {
     try {
-        let data;
-        try {
-            data = await apiCall('/api/analytics/full');
-            if (!data || typeof data !== 'object') throw new Error('Invalid analytics response');
-        } catch (analyticsError) {
-            // Analytics is derived data. If that endpoint is slow/unavailable,
-            // reports must continue from the transactions already loaded.
-            console.warn('[Reports] analytics endpoint unavailable; using transaction fallback.', analyticsError);
-            data = buildAnalyticsFromTransactions(transactions);
+        showReportsSkeleton();
+
+        // Reports use the transaction data already loaded by the application.
+        // This avoids making Reports depend on /api/analytics/full.
+        if (!Array.isArray(transactions)) {
+            throw new Error('Transaction data is unavailable.');
         }
 
-        reportsRawData = data;
+        reportsRawData = { transactions };
         setupReportFilterDefaults();
-        await applyReportFilters();
+        applyReportFilters();
     } catch (error) {
-        console.error('[Reports] load/render failed:', error);
-        clearReportsSkeleton();
-        showReportsError(error);
+        console.error('[REPORTS] Failed to load reports:', error);
+        showReportsError('Unable to load reports. Please try again.');
     }
 }
 
-function showReportsError(error) {
-    const host = document.getElementById('reportActionHost') || document.getElementById('reports');
-    if (!host) return;
-    let el = host.querySelector('.reports-load-error');
-    if (!el) {
-        el = document.createElement('div');
-        el.className = 'reports-load-error';
-        el.setAttribute('role', 'status');
-        host.prepend(el);
+function showReportsError(message = 'Unable to load reports. Please try again.') {
+    clearReportsSkeleton();
+
+    const cardIds = [
+        'monthIncomeDisplay',
+        'monthExpensesDisplay',
+        'monthSavingsDisplay',
+        'annualDisplay'
+    ];
+
+    cardIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '—';
+    });
+
+    const container = document.getElementById('smartInsights');
+    if (container) {
+        const safeMessage = typeof escapeHtml === 'function'
+            ? escapeHtml(message)
+            : String(message);
+        container.innerHTML = `
+            <article class="insight-card">
+                <div class="insight-kicker">Reports unavailable</div>
+                <div class="insight-text">${safeMessage}</div>
+                <button type="button" class="btn btn-primary" onclick="loadReports()">Try Again</button>
+            </article>
+        `;
     }
-    el.textContent = error?.code === 'REQUEST_TIMEOUT'
-        ? 'Reports took too long to respond. Transaction data is still available.'
-        : (error?.message || 'Reports could not be loaded.');
 }
 
 function showReportsSkeleton() {
@@ -5155,8 +4870,10 @@ function renderSmartInsights(data, txns) {
 }
 
 async function applyReportFilters() {
-    if (!reportsRawData) return;
-    document.querySelectorAll('.reports-load-error').forEach(el => el.remove());
+    try {
+        if (!reportsRawData || !Array.isArray(transactions)) {
+            throw new Error('Transaction data is unavailable.');
+        }
 
     const preset = document.getElementById('reportPreset')?.value || 'all';
     const fromInput = document.getElementById('reportFromDate')?.value;
@@ -5194,9 +4911,13 @@ async function applyReportFilters() {
     });
 
     const analytics = buildAnalyticsFromTransactions(filtered);
-    renderSmartInsights(analytics, filtered);
-    await renderCharts(analytics);
-    if (window.innerWidth <= 768) toggleReportFilters(false);
+        renderSmartInsights(analytics, filtered);
+        renderCharts(analytics);
+        if (window.innerWidth <= 768) toggleReportFilters(false);
+    } catch (error) {
+        console.error('[REPORTS] Failed to render reports:', error);
+        showReportsError('Unable to render reports. Please try again.');
+    }
 }
 
 function buildAnalyticsFromTransactions(txns) {
@@ -5600,5 +5321,6 @@ function renderMonthlyBreakdownFromAnalytics(monthlyRows) {
     container.innerHTML = html;
 }
 </script>
+
 </body>
 </html>
