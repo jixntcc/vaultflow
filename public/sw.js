@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v6';
+const CACHE_NAME = 'vaultflow-shell-v7';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icons/icon-192.svg', '/icons/icon-512.svg'];
 
@@ -14,12 +14,12 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  // Load the fast transaction layer first. It installs a document-level capture
-  // handler before the restoration compatibility layer and the legacy app form
-  // listener, preventing duplicate POSTs while enabling optimistic rendering.
-  const injection = '<script src="/js/core/transaction-fast-path.js?v=v6"></script><script src="/js/core/frontend-restoration.js?v=v6"></script>';
-  if (!html.includes('frontend-restoration.js')) html = html.replace('</head>', injection + '</head>');
-  else if (!html.includes('transaction-fast-path.js')) html = html.replace('<script src="/js/core/frontend-restoration.js?v=v5"></script>', injection);
+  // Load the transaction fast path and restoration compatibility layer before
+  // the legacy app form listeners. The goal guard is injected alongside them
+  // so a detached goal submit listener cannot fall through to native navigation.
+  const injection = '<script src="/js/core/transaction-fast-path.js?v=v7"></script><script src="/js/core/frontend-restoration.js?v=v7"></script><script src="/js/core/goal-submit-guard.js?v=v7"></script>';
+  if (!html.includes('goal-submit-guard.js')) html = html.replace('</head>', injection + '</head>');
+  else if (!html.includes('transaction-fast-path.js')) html = html.replace('<script src="/js/core/frontend-restoration.js?v=v6"></script>', injection);
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
