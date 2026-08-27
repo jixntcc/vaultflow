@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v9';
+const CACHE_NAME = 'vaultflow-shell-v10';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icons/icon-192.svg', '/icons/icon-512.svg'];
 
@@ -14,7 +14,7 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  const injection = '<link rel="stylesheet" href="/css/habit-calendar.css?v=v9"><link rel="stylesheet" href="/css/habit-modal.css?v=v9"><script src="/js/core/transaction-fast-path.js?v=v9"></script><script src="/js/core/frontend-restoration.js?v=v9"></script><script src="/js/core/goal-submit-guard.js?v=v9"></script><script src="/js/core/habit-calendar.js?v=v9"></script><script src="/js/core/habit-calendar-anchor.js?v=v9"></script>';
+  const injection = '<link rel="stylesheet" href="/css/habit-calendar.css?v=v10"><link rel="stylesheet" href="/css/habit-modal.css?v=v10"><script src="/js/core/transaction-fast-path.js?v=v10"></script><script src="/js/core/frontend-restoration.js?v=v10"></script><script src="/js/core/goal-submit-guard.js?v=v10"></script><script src="/js/core/habit-calendar.js?v=v10"></script><script src="/js/core/habit-calendar-anchor.js?v=v10"></script><script src="/js/core/habit-modal.js?v=v10"></script>';
   if (!html.includes('habit-calendar.js')) html = html.replace('</head>', injection + '</head>');
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
