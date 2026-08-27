@@ -14,10 +14,7 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  // Keep the existing resilience layers first, then load the calendar-first
-  // habit UI. The habit module replaces only its page projection and continues
-  // to use the existing HabitDomain/store/API actions.
-  const injection = '<link rel="stylesheet" href="/css/habit-calendar.css?v=v8"><script src="/js/core/transaction-fast-path.js?v=v8"></script><script src="/js/core/frontend-restoration.js?v=v8"></script><script src="/js/core/goal-submit-guard.js?v=v8"></script><script src="/js/core/habit-calendar.js?v=v8"></script>';
+  const injection = '<link rel="stylesheet" href="/css/habit-calendar.css?v=v8"><script src="/js/core/transaction-fast-path.js?v=v8"></script><script src="/js/core/frontend-restoration.js?v=v8"></script><script src="/js/core/goal-submit-guard.js?v=v8"></script><script src="/js/core/habit-calendar.js?v=v8"></script><script src="/js/core/habit-calendar-anchor.js?v=v8"></script>';
   if (!html.includes('habit-calendar.js')) html = html.replace('</head>', injection + '</head>');
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
