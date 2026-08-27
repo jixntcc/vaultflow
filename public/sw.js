@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vaultflow-shell-v7';
+const CACHE_NAME = 'vaultflow-shell-v8';
 const OFFLINE_URL = '/';
 const SHELL_ASSETS = ['/', '/manifest.json', '/icons/icon-192.svg', '/icons/icon-512.svg'];
 
@@ -14,12 +14,8 @@ async function rewriteNavigation(response) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
   let html = await response.text();
-  // Load the transaction fast path and restoration compatibility layer before
-  // the legacy app form listeners. The goal guard is injected alongside them
-  // so a detached goal submit listener cannot fall through to native navigation.
-  const injection = '<script src="/js/core/transaction-fast-path.js?v=v7"></script><script src="/js/core/frontend-restoration.js?v=v7"></script><script src="/js/core/goal-submit-guard.js?v=v7"></script>';
-  if (!html.includes('goal-submit-guard.js')) html = html.replace('</head>', injection + '</head>');
-  else if (!html.includes('transaction-fast-path.js')) html = html.replace('<script src="/js/core/frontend-restoration.js?v=v6"></script>', injection);
+  const injection = '<link rel="stylesheet" href="/css/habit-calendar.css?v=v8"><script src="/js/core/transaction-fast-path.js?v=v8"></script><script src="/js/core/frontend-restoration.js?v=v8"></script><script src="/js/core/goal-submit-guard.js?v=v8"></script><script src="/js/core/habit-calendar.js?v=v8"></script><script src="/js/core/habit-calendar-anchor.js?v=v8"></script>';
+  if (!html.includes('habit-calendar.js')) html = html.replace('</head>', injection + '</head>');
   return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
