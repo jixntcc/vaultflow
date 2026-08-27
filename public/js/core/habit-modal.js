@@ -18,19 +18,22 @@
     if (current) select.value = current;
   }
 
-  function focusFirstField() {
+  function setup() {
+    ensureCategoryOptions();
     const modal = document.getElementById('habitModal');
-    if (!modal?.classList.contains('active')) return;
-    window.requestAnimationFrame(() => document.getElementById('habitName')?.focus({ preventScroll: true }));
+    if (!modal) return;
+
+    const observer = new MutationObserver(() => {
+      if (modal.classList.contains('active')) {
+        window.requestAnimationFrame(() => document.getElementById('habitName')?.focus({ preventScroll: true }));
+      }
+    });
+    observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
   }
 
-  ensureCategoryOptions();
-
-  const observer = new MutationObserver(() => {
-    ensureCategoryOptions();
-    focusFirstField();
-  });
-  observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-
-  window.addEventListener('load', ensureCategoryOptions, { once: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setup, { once: true });
+  } else {
+    setup();
+  }
 })(window, document);
