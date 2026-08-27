@@ -1,26 +1,33 @@
-/* VaultFlow Habit modal — aligned with the core transaction modal */
+/* VaultFlow Habit modal — match the established Transaction/Goal modal system */
 #habitModal {
-  padding: 16px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  padding: 20px;
 }
 
 #habitModal .habit-modal-content {
-  width: min(100%, 560px);
-  max-width: 560px;
-  max-height: calc(100dvh - 32px);
+  width: 100%;
+  max-width: 540px;
+  height: 90vh;
+  max-height: 90vh;
   min-height: 0;
-  margin: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  border-radius: 12px;
   background: var(--surface);
-  box-shadow: var(--shadow-lg);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
 }
 
 #habitModal .modal-header {
-  padding: 18px 20px;
-  min-height: 72px;
+  flex: 0 0 auto;
+  padding: 24px;
+  min-height: 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
 }
 
 #habitModal .modal-header > div {
@@ -29,24 +36,47 @@
 
 #habitModal .modal-title,
 #habitModal #habitModalTitle {
-  font-size: 18px;
+  font-size: 20px;
   line-height: 1.3;
+  font-weight: 700;
+  color: var(--text);
 }
 
 #habitModal .modal-subtitle {
-  margin-top: 3px;
+  margin: 3px 0 0;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.45;
 }
 
-#habitModal .close-modal,
-#habitModal .modal-close {
+#habitModal .modal-close,
+#habitModal .close-modal {
   flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
 }
 
+#habitModal .modal-close:hover,
+#habitModal .close-modal:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* The form itself is the flex column. The body below is the only scrolling region. */
 #habitModal #habitForm {
   min-height: 0;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -56,10 +86,11 @@
   min-height: 0;
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 14px;
-  padding: 18px 20px 4px;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+  padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-gutter: stable;
@@ -80,7 +111,7 @@
 
 #habitModal .form-group {
   min-width: 0;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 #habitModal .habit-form-wide {
@@ -88,41 +119,47 @@
 }
 
 #habitModal .form-label {
-  margin-bottom: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
   line-height: 1.35;
-}
-
-#habitModal .form-input {
-  min-height: 40px;
-  padding: 9px 11px;
-  border-radius: 8px;
-  font-size: 13px;
-  background: var(--surface);
+  font-weight: 600;
   color: var(--text);
 }
 
-#habitModal textarea.form-input {
-  min-height: 76px;
-  max-height: 140px;
+#habitModal .form-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: all 0.2s;
 }
 
-#habitModal select.form-input,
-#habitModal input[type="date"].form-input,
-#habitModal input[type="time"].form-input,
-#habitModal input[type="number"].form-input {
-  width: 100%;
+#habitModal .form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#habitModal textarea.form-input {
+  min-height: 90px;
+  resize: vertical;
 }
 
 #habitModal .habit-radio {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  margin: 0 14px 0 0;
+  min-height: 42px;
+  margin: 0 16px 0 0;
   color: var(--text);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -136,7 +173,7 @@
 #habitModal .habit-weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 
 #habitModal .habit-weekdays label {
@@ -144,21 +181,21 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 36px;
-  padding: 5px 4px;
+  min-height: 40px;
+  padding: 6px 4px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
   color: var(--text-secondary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color .15s, background .15s, color .15s;
+  transition: all 0.2s;
 }
 
 #habitModal .habit-weekdays label:has(input:checked) {
   border-color: var(--primary);
-  background: rgba(99, 102, 241, .08);
+  background: rgba(99, 102, 241, 0.1);
   color: var(--primary-dark);
 }
 
@@ -166,68 +203,79 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  min-height: 36px;
+  min-height: 42px;
+  margin-bottom: 8px;
   color: var(--text);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
 #habitModal #habitReminderTime:disabled {
-  opacity: .55;
+  opacity: 0.55;
   cursor: not-allowed;
   background: var(--bg);
 }
 
+/* Fixed footer, identical structural pattern to Transaction modal. */
 #habitModal .modal-footer {
-  padding: 14px 20px;
-  min-height: 64px;
-  justify-content: flex-end;
-  gap: 8px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  min-height: 0;
+  padding: 20px 24px;
   border-top: 1px solid var(--border);
+  border-radius: 0 0 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   background: var(--surface);
 }
 
 #habitModal .modal-footer .btn {
-  min-width: 94px;
-  min-height: 38px;
-  padding: 9px 15px;
+  min-height: 42px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 #habitModal .modal-footer #habitSaveBtn {
-  min-width: 112px;
+  min-width: 0;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   #habitModal {
-    padding: 10px;
     align-items: flex-start;
+    justify-content: center;
+    padding: 10px;
+    overflow: hidden;
   }
 
   #habitModal .habit-modal-content {
     width: 100%;
     max-width: none;
+    height: calc(100dvh - 20px);
     max-height: calc(100dvh - 20px);
     border-radius: 12px;
   }
 
   #habitModal .modal-header {
-    padding: 15px 16px;
-    min-height: 64px;
+    padding: 16px;
   }
 
-  #habitModal #habitModalTitle,
-  #habitModal .modal-title {
-    font-size: 17px;
+  #habitModal .modal-title,
+  #habitModal #habitModalTitle {
+    font-size: 18px;
+  }
+
+  #habitModal .modal-subtitle {
+    font-size: 12px;
   }
 
   #habitModal .habit-form-grid {
     grid-template-columns: 1fr;
     gap: 0;
-    padding: 16px 16px 2px;
+    padding: 20px 16px 4px;
   }
 
   #habitModal .habit-form-wide {
@@ -235,7 +283,7 @@
   }
 
   #habitModal .form-group {
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
 
   #habitModal .habit-weekdays {
@@ -243,8 +291,8 @@
   }
 
   #habitModal .modal-footer {
-    padding: 12px 16px;
-    min-height: 60px;
+    padding: 16px;
+    border-radius: 0 0 12px 12px;
   }
 
   #habitModal .modal-footer .btn {
@@ -259,6 +307,7 @@
   }
 
   #habitModal .habit-modal-content {
+    height: calc(100dvh - 12px);
     max-height: calc(100dvh - 12px);
   }
 
@@ -278,7 +327,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #habitModal .habit-weekdays label {
+  #habitModal .habit-weekdays label,
+  #habitModal .form-input {
     transition: none;
   }
 }
