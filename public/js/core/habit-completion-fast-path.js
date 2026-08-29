@@ -1,23 +1,18 @@
 (function (window, document) {
   'use strict';
 
+  // H1 completion resilience: this is intentionally a dedicated interaction
+  // layer so a missing/restored legacy binding cannot turn Complete into a no-op.
   if (window.__vfHabitCompletionFastPathInstalled) return;
   window.__vfHabitCompletionFastPathInstalled = true;
 
-  function token() {
-    return localStorage.getItem('vf_token') || '';
-  }
+  function token() { return localStorage.getItem('vf_token') || ''; }
 
   async function request(endpoint, options = {}) {
-    if (window.VaultFlowApi?.request) {
-      return window.VaultFlowApi.request(endpoint, { ...options, token: token() });
-    }
+    if (window.VaultFlowApi?.request) return window.VaultFlowApi.request(endpoint, { ...options, token: token() });
     const response = await fetch(endpoint, {
       method: options.method || 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token() ? { Authorization: `Bearer ${token()}` } : {})
-      },
+      headers: { 'Content-Type': 'application/json', ...(token() ? { Authorization: `Bearer ${token()}` } : {}) },
       body: options.body == null ? undefined : JSON.stringify(options.body)
     });
     let result = {};
@@ -26,53 +21,38 @@
     return result;
   }
 
-  function setBusy(button, busy) {
-    if (!button) return;
-    button.disabled = busy;
-    button.setAttribute('aria-busy', busy ? 'true' : 'false');
-  }
-
   async function handle(button) {
     const habitId = button.dataset.vfComplete;
     const date = button.dataset.vfDate;
     const requestedStatus = button.dataset.vfStatus || 'completed';
     if (!habitId || !date) return;
 
-    setBusy(button, true);
+    button.disabled = true;
     try {
       const logs = window.VaultFlowStore?.getHabitLogs?.() || [];
       const existing = logs.find(log => String(log.habitId) === String(habitId) && log.scheduledDate === date);
-      let result;
 
       if (requestedStatus === 'completed') {
-        result = await request(`/api/habits/${encodeURIComponent(habitId)}/logs`, {
-          method: 'POST',
-          body: { scheduledDate: date, status: 'completed' }
+        const result = await request(`/api/habits/${encodeURIComponent(habitId)}/logs`, {
+          method: 'POST', body: { scheduledDate: date, status: 'completed' }
         });
         window.VaultFlowStore?.addOrUpdateHabitLog?.(result);
       } else if (existing?._id) {
-        result = await request(`/api/habit-logs/${encodeURIComponent(existing._id)}`, { method: 'DELETE' });
+        await request(`/api/habit-logs/${encodeURIComponent(existing._id)}`, { method: 'DELETE' });
         window.VaultFlowStore?.removeHabitLog?.(existing._id);
-      } else {
-        return;
       }
 
-      window.dispatchEvent(new CustomEvent('vf:habit-completion-changed', {
-        detail: { habitId, date, status: requestedStatus }
-      }));
+      window.dispatchEvent(new CustomEvent('vf:habit-completion-changed', { detail: { habitId, date, status: requestedStatus } }));
     } catch (error) {
       console.error('[Habit Completion] failed:', error);
-      if (typeof window.showToast === 'function') {
-        window.showToast(error?.message || 'Unable to update habit completion', 'error');
-      }
+      if (typeof window.showToast === 'function') window.showToast(error?.message || 'Unable to update habit completion', 'error');
     } finally {
-      setBusy(button, false);
+      button.disabled = false;
     }
   }
 
-  // Capture before the calendar's existing delegated handler. This prevents a
-  // broken/missing legacy setHabitOccurrence binding from turning Complete into
-  // a no-op while keeping the existing calendar renderer and domain untouched.
+  // Capture before habit-calendar.js. stopImmediatePropagation guarantees that
+  // the older delegated listener cannot run a second completion request.
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-vf-complete]');
     if (!button) return;
