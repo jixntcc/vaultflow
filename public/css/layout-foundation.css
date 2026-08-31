@@ -154,6 +154,54 @@
   font-weight: 750;
 }
 
+/* Dashboard density correction.
+   Keep the existing Dashboard DOM and application logic intact; only make
+   the existing grids use the available desktop width more efficiently. */
+#dashboard .cards-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#dashboard .cards-grid .card {
+  min-width: 0;
+  padding: 16px;
+}
+
+#dashboard .cards-grid .card-label {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+#dashboard .cards-grid .card-value {
+  font-size: 24px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+#dashboard .cards-grid .card-change {
+  font-size: 11px;
+}
+
+#dashboard .retention-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+#dashboard .retention-grid > .card {
+  min-width: 0;
+  padding: 16px;
+}
+
+@media (max-width: 1100px) {
+  #dashboard .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #dashboard .retention-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Safe integration with the existing app shell.
    These only control the new wrapper when it is introduced; legacy pages are unchanged. */
 @media (max-width: 900px) {
@@ -179,6 +227,11 @@
     --vf-page-gutter: 16px;
     --vf-grid-gap: 12px;
     --vf-card-padding: 16px;
+  }
+
+  #dashboard .cards-grid,
+  #dashboard .retention-grid {
+    grid-template-columns: 1fr;
   }
 
   .vf-grid-12,
