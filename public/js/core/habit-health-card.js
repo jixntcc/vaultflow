@@ -15,6 +15,17 @@
     return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
   }
 
+  function isHabitsPage() {
+    const currentPage = window.VaultFlowStore?.getState?.()?.ui?.currentPage;
+    if (currentPage === 'habits') return true;
+
+    const habitsList = document.getElementById('habitsList');
+    if (habitsList?.closest('.page.active')) return true;
+    if (document.querySelector('.page.active .vf-habit-shell')) return true;
+
+    return false;
+  }
+
   function buildModel() {
     const domain = window.HabitDomain;
     if (!domain) return null;
@@ -70,8 +81,19 @@
 
   function render() {
     const root = document.getElementById('habitReportSnapshot');
+    if (!root) return;
+
+    // The Habit Health Card belongs exclusively to the Habits page. The
+    // snapshot mount exists in the shared SPA shell, so never leave the card
+    // visible while another page is active.
+    if (!isHabitsPage()) {
+      root.style.display = 'none';
+      return;
+    }
+
+    root.style.display = '';
     const model = buildModel();
-    if (!root || !model) return;
+    if (!model) return;
 
     const todayPct = Math.round(model.today.completionRate || 0);
     const recentPct = Math.round(model.recentRate || 0);
@@ -151,6 +173,11 @@
       window.VaultFlowStore.subscribe(() => window.requestAnimationFrame(render));
     }
     window.addEventListener('vf:habit-completion-changed', () => window.requestAnimationFrame(render));
+
+    // SPA navigation may change the active page without changing the store.
+    // Watch only page-level state so the card follows navigation immediately.
+    const observer = new MutationObserver(() => window.requestAnimationFrame(render));
+    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
