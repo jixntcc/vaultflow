@@ -1,0 +1,201 @@
+/* VaultFlow Layout Foundation — L1
+   Presentation-only primitives. Existing application logic and legacy classes remain untouched.
+*/
+:root {
+  /* Spacing scale */
+  --vf-space-1: 4px;
+  --vf-space-2: 8px;
+  --vf-space-3: 12px;
+  --vf-space-4: 16px;
+  --vf-space-5: 20px;
+  --vf-space-6: 24px;
+  --vf-space-7: 32px;
+  --vf-space-8: 40px;
+  --vf-space-9: 48px;
+
+  /* Typography scale */
+  --vf-font-xs: 11px;
+  --vf-font-sm: 13px;
+  --vf-font-md: 14px;
+  --vf-font-lg: 16px;
+  --vf-font-xl: 18px;
+  --vf-font-2xl: 22px;
+  --vf-font-3xl: 30px;
+  --vf-font-4xl: 32px;
+
+  --vf-line-tight: 1.2;
+  --vf-line-normal: 1.5;
+  --vf-line-relaxed: 1.6;
+
+  /* Layout tokens */
+  --vf-page-max: 1180px;
+  --vf-page-gutter: 24px;
+  --vf-grid-gap: 16px;
+  --vf-card-padding: 20px;
+  --vf-card-radius: 12px;
+  --vf-card-shadow: var(--shadow);
+}
+
+/* Page-level wrapper */
+.vf-page {
+  width: min(100%, var(--vf-page-max));
+  margin-inline: auto;
+  min-width: 0;
+}
+
+/* Responsive content grid */
+.vf-grid {
+  display: grid;
+  gap: var(--vf-grid-gap);
+  min-width: 0;
+}
+
+.vf-grid-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.vf-grid-auto {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+/* Explicit spans for intentional page composition */
+.vf-col-12 { grid-column: span 12; }
+.vf-col-9 { grid-column: span 9; }
+.vf-col-8 { grid-column: span 8; }
+.vf-col-6 { grid-column: span 6; }
+.vf-col-4 { grid-column: span 4; }
+.vf-col-3 { grid-column: span 3; }
+
+/* Shared card primitive */
+.vf-card {
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--vf-card-radius);
+  box-shadow: var(--vf-card-shadow);
+  padding: var(--vf-card-padding);
+}
+
+.vf-card--flat {
+  box-shadow: none;
+}
+
+.vf-card--compact {
+  padding: var(--vf-space-4);
+}
+
+/* Vertical rhythm helpers */
+.vf-stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.vf-stack--2 { gap: var(--vf-space-2); }
+.vf-stack--3 { gap: var(--vf-space-3); }
+.vf-stack--4 { gap: var(--vf-space-4); }
+.vf-stack--5 { gap: var(--vf-space-5); }
+.vf-stack--6 { gap: var(--vf-space-6); }
+.vf-stack--7 { gap: var(--vf-space-7); }
+
+.vf-cluster {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--vf-space-3);
+  min-width: 0;
+}
+
+/* Typography primitives */
+.vf-eyebrow {
+  margin: 0 0 var(--vf-space-2);
+  color: var(--primary);
+  font-size: var(--vf-font-xs);
+  line-height: var(--vf-line-tight);
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.vf-title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--vf-font-3xl);
+  line-height: var(--vf-line-tight);
+  font-weight: 700;
+}
+
+.vf-section-title {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--vf-font-xl);
+  line-height: var(--vf-line-tight);
+  font-weight: 650;
+}
+
+.vf-body {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--vf-font-md);
+  line-height: var(--vf-line-normal);
+}
+
+.vf-muted {
+  color: var(--text-secondary);
+  font-size: var(--vf-font-sm);
+  line-height: var(--vf-line-normal);
+}
+
+.vf-metric {
+  margin: 0;
+  color: var(--text);
+  font-size: var(--vf-font-2xl);
+  line-height: var(--vf-line-tight);
+  font-weight: 750;
+}
+
+/* Safe integration with the existing app shell.
+   These only control the new wrapper when it is introduced; legacy pages are unchanged. */
+@media (max-width: 900px) {
+  :root {
+    --vf-page-gutter: 20px;
+    --vf-grid-gap: 14px;
+    --vf-card-padding: 18px;
+  }
+
+  .vf-grid-12 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .vf-col-9,
+  .vf-col-8 { grid-column: span 6; }
+  .vf-col-6 { grid-column: span 3; }
+  .vf-col-4,
+  .vf-col-3 { grid-column: span 3; }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --vf-page-gutter: 16px;
+    --vf-grid-gap: 12px;
+    --vf-card-padding: 16px;
+  }
+
+  .vf-grid-12,
+  .vf-grid-auto {
+    grid-template-columns: 1fr;
+  }
+
+  .vf-col-12,
+  .vf-col-9,
+  .vf-col-8,
+  .vf-col-6,
+  .vf-col-4,
+  .vf-col-3 {
+    grid-column: 1 / -1;
+  }
+
+  .vf-title {
+    font-size: 26px;
+  }
+}
