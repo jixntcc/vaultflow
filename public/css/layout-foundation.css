@@ -389,3 +389,37 @@
   #transactions .transactions-table th,
   #transactions .transactions-table td { padding: 9px 8px; }
 }
+
+/* L2.3 — Global whitespace pass.
+   Moderate shell-level compaction only. No application logic, component
+   markup, navigation behavior, or data rendering is changed. */
+.main-content {
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.cards-grid {
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.reports-grid,
+.settings-grid,
+.retention-grid {
+  gap: 16px;
+}
+
+.card {
+  padding: 20px;
+}
+
+@media (max-width: 900px) {
+  .main-content { padding: 20px; }
+}
+
+@media (max-width: 640px) {
+  .main-content { padding: 16px; }
+}
