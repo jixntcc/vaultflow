@@ -242,6 +242,119 @@
   line-height: 1.2;
 }
 
+/* L2.2 — Today's Habits density pass.
+   Presentation-only: the existing renderDashboardHabits() markup and
+   completion/data logic remain unchanged. */
+#dashboard .habit-dashboard-widget {
+  padding: 16px;
+}
+
+#dashboard .habit-dashboard-widget .card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 0 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+#dashboard .habit-dashboard-widget .table-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+#dashboard .habit-dashboard-widget .card-subtitle {
+  margin: 3px 0 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+#dashboard .habit-dashboard-widget > .card-header .btn {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1.2;
+  border-radius: 7px;
+}
+
+#dashboard .habit-dashboard-items {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+#dashboard .habit-dashboard-item {
+  min-width: 0;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+#dashboard .habit-dashboard-item:hover {
+  background: var(--bg);
+}
+
+#dashboard .habit-dashboard-item.completed {
+  background: rgba(16, 185, 129, 0.05);
+}
+
+#dashboard .habit-dashboard-check {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+#dashboard .habit-dashboard-item.completed .habit-dashboard-check {
+  border-color: var(--secondary);
+  background: var(--secondary);
+  color: #fff;
+}
+
+#dashboard .habit-dashboard-item > div:last-child {
+  min-width: 0;
+  line-height: 1.25;
+}
+
+#dashboard .habit-dashboard-item b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text);
+}
+
+#dashboard .habit-dashboard-item > div:last-child > div {
+  margin-top: 2px;
+  font-size: 10px !important;
+  line-height: 1.2;
+  color: var(--text-secondary) !important;
+  text-transform: capitalize;
+}
+
+@media (max-width: 700px) {
+  #dashboard .habit-dashboard-items { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 1100px) {
   #dashboard .cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   #dashboard .retention-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
