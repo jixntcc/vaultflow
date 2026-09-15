@@ -1,0 +1,85 @@
+/* VaultFlow L2.4 — Vaults + Wallets density pass.
+   Presentation-only. No data, API, navigation, or interaction logic changes.
+*/
+
+/* Vault cards */
+#vaults .vault-card {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+#vaults .vault-header {
+  margin-bottom: 10px;
+  gap: 10px;
+}
+#vaults .vault-name {
+  font-size: 16px;
+  margin-bottom: 3px;
+}
+#vaults .vault-desc { font-size: 12px; }
+#vaults .vault-percentage { font-size: 20px; }
+#vaults .vault-stats {
+  gap: 10px;
+  margin-top: 12px;
+}
+#vaults .vault-stat-label {
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+#vaults .vault-stat-value { font-size: 16px; }
+#vaults .vault-actions {
+  gap: 8px;
+  margin-top: 12px;
+}
+#vaults .vault-actions .btn {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+/* Wallet cards */
+#wallets > .card {
+  margin-bottom: 16px !important;
+  padding: 16px !important;
+}
+#wallets > .card > div:first-child {
+  margin-bottom: 12px !important;
+}
+#wallets > .card > div:first-child span:first-child {
+  font-size: 24px !important;
+  margin-right: 9px !important;
+}
+#wallets > .card > div:first-child h3 {
+  font-size: 17px !important;
+}
+#wallets .wallet-balance-grid {
+  gap: 10px;
+}
+#wallets .wallet-balance-grid > div {
+  padding: 9px !important;
+}
+#wallets .wallet-balance-grid > div > div:first-child {
+  font-size: 10px !important;
+  margin-bottom: 3px !important;
+}
+#wallets .wallet-balance-grid > div > div:last-child {
+  font-size: 16px !important;
+}
+
+@media (min-width: 901px) {
+  #wallets .wallet-balance-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #vaults .vault-card {
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  #vaults .vault-stats { gap: 8px; }
+  #wallets > .card {
+    margin-bottom: 12px !important;
+    padding: 14px !important;
+  }
+  #wallets .wallet-balance-grid { gap: 8px; }
+}
