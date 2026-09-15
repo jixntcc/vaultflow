@@ -192,6 +192,69 @@
   padding: 16px;
 }
 
+/* Dashboard typography pass.
+   Deliberately scoped to #dashboard so Transactions, Goals, Habits and the
+   rest of the application keep their existing typography. */
+#dashboard .page-title {
+  font-size: 28px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+#dashboard .page-subtitle {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#dashboard .retention-grid .card-label {
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+#dashboard .retention-grid .card-value {
+  font-size: 20px;
+  line-height: 1.2;
+  margin-bottom: 5px;
+}
+
+#dashboard .retention-grid .card-change {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+#dashboard .table-container {
+  font-size: 12px;
+}
+
+#dashboard .table-title {
+  font-size: 16px;
+}
+
+#dashboard .table-header {
+  padding: 16px 20px;
+  gap: 12px;
+}
+
+#dashboard th {
+  padding: 10px 16px;
+  font-size: 11px;
+}
+
+#dashboard td {
+  padding: 12px 16px;
+  font-size: 12px;
+}
+
+#dashboard .badge {
+  font-size: 10px;
+  padding: 3px 9px;
+}
+
+#dashboard .action-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
 @media (max-width: 1100px) {
   #dashboard .cards-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
