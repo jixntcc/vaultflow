@@ -1,0 +1,143 @@
+/* P3.3 Portfolio UI — isolated from existing page styles */
+#portfolio {
+  display: none;
+}
+
+#portfolio.vf-portfolio-active {
+  display: block;
+}
+
+#portfolio .portfolio-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#portfolio .portfolio-toolbar-copy {
+  min-width: 0;
+}
+
+#portfolio .portfolio-table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+#portfolio .portfolio-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+#portfolio table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+#portfolio th,
+#portfolio td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+#portfolio th {
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+#portfolio th:first-child,
+#portfolio td:first-child {
+  text-align: left;
+}
+
+#portfolio tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+#portfolio tbody tr:hover {
+  background: var(--bg);
+}
+
+#portfolio .portfolio-asset {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+#portfolio .portfolio-asset-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, .1);
+  font-size: 13px;
+}
+
+#portfolio .portfolio-asset-copy {
+  min-width: 0;
+}
+
+#portfolio .portfolio-symbol {
+  color: var(--text);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#portfolio .portfolio-name {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#portfolio .portfolio-positive {
+  color: var(--secondary);
+  font-weight: 700;
+}
+
+#portfolio .portfolio-negative {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+#portfolio .portfolio-empty,
+#portfolio .portfolio-error,
+#portfolio .portfolio-loading {
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+#portfolio .portfolio-error {
+  color: var(--danger);
+}
+
+#portfolio .portfolio-refresh {
+  min-height: 34px;
+  padding: 7px 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  #portfolio .portfolio-toolbar {
+    align-items: flex-start;
+  }
+
+  #portfolio .portfolio-refresh {
+    flex: 0 0 auto;
+  }
+}
