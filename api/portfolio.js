@@ -7,7 +7,6 @@
 
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const PortfolioAsset = require('../models/portfolio-asset');
 
 const JWT_ISSUER = process.env.JWT_ISSUER || 'vaultflow';
@@ -56,8 +55,9 @@ function sendJson(res, status, payload) {
 function getPortfolioId(req) {
   const rawUrl = String(req.url || '');
   const pathname = rawUrl.split('?')[0];
-  const prefix = '/api/portfolio';
-  if (!pathname.startsWith(prefix)) return null;
+  const prefixes = ['/api/portfolio', '/api/portfolio.js'];
+  const prefix = prefixes.find(value => pathname === value || pathname.startsWith(`${value}/`));
+  if (!prefix) return null;
   const suffix = pathname.slice(prefix.length).replace(/^\/+|\/+$/g, '');
   return suffix || null;
 }
