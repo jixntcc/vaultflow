@@ -2,7 +2,6 @@
    Presentation-only primitives. Existing application logic and legacy classes remain untouched.
 */
 :root {
-  /* Spacing scale */
   --vf-space-1: 4px;
   --vf-space-2: 8px;
   --vf-space-3: 12px;
@@ -12,8 +11,6 @@
   --vf-space-7: 32px;
   --vf-space-8: 40px;
   --vf-space-9: 48px;
-
-  /* Typography scale */
   --vf-font-xs: 11px;
   --vf-font-sm: 13px;
   --vf-font-md: 14px;
@@ -22,12 +19,9 @@
   --vf-font-2xl: 22px;
   --vf-font-3xl: 30px;
   --vf-font-4xl: 32px;
-
   --vf-line-tight: 1.2;
   --vf-line-normal: 1.5;
   --vf-line-relaxed: 1.6;
-
-  /* Layout tokens */
   --vf-page-max: 1180px;
   --vf-page-gutter: 24px;
   --vf-grid-gap: 16px;
@@ -36,29 +30,20 @@
   --vf-card-shadow: var(--shadow);
 }
 
-/* Page-level wrapper */
 .vf-page {
   width: min(100%, var(--vf-page-max));
   margin-inline: auto;
   min-width: 0;
 }
 
-/* Responsive content grid */
 .vf-grid {
   display: grid;
   gap: var(--vf-grid-gap);
   min-width: 0;
 }
 
-.vf-grid-12 {
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-}
-
-.vf-grid-auto {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-}
-
-/* Explicit spans for intentional page composition */
+.vf-grid-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.vf-grid-auto { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 .vf-col-12 { grid-column: span 12; }
 .vf-col-9 { grid-column: span 9; }
 .vf-col-8 { grid-column: span 8; }
@@ -66,7 +51,6 @@
 .vf-col-4 { grid-column: span 4; }
 .vf-col-3 { grid-column: span 3; }
 
-/* Shared card primitive */
 .vf-card {
   min-width: 0;
   background: var(--surface);
@@ -75,22 +59,10 @@
   box-shadow: var(--vf-card-shadow);
   padding: var(--vf-card-padding);
 }
+.vf-card--flat { box-shadow: none; }
+.vf-card--compact { padding: var(--vf-space-4); }
 
-.vf-card--flat {
-  box-shadow: none;
-}
-
-.vf-card--compact {
-  padding: var(--vf-space-4);
-}
-
-/* Vertical rhythm helpers */
-.vf-stack {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
+.vf-stack { display: flex; flex-direction: column; min-width: 0; }
 .vf-stack--2 { gap: var(--vf-space-2); }
 .vf-stack--3 { gap: var(--vf-space-3); }
 .vf-stack--4 { gap: var(--vf-space-4); }
@@ -106,7 +78,6 @@
   min-width: 0;
 }
 
-/* Typography primitives */
 .vf-eyebrow {
   margin: 0 0 var(--vf-space-2);
   color: var(--primary);
@@ -116,7 +87,6 @@
   letter-spacing: .12em;
   text-transform: uppercase;
 }
-
 .vf-title {
   margin: 0;
   color: var(--text);
@@ -124,7 +94,6 @@
   line-height: var(--vf-line-tight);
   font-weight: 700;
 }
-
 .vf-section-title {
   margin: 0;
   color: var(--text);
@@ -132,20 +101,17 @@
   line-height: var(--vf-line-tight);
   font-weight: 650;
 }
-
 .vf-body {
   margin: 0;
   color: var(--text);
   font-size: var(--vf-font-md);
   line-height: var(--vf-line-normal);
 }
-
 .vf-muted {
   color: var(--text-secondary);
   font-size: var(--vf-font-sm);
   line-height: var(--vf-line-normal);
 }
-
 .vf-metric {
   margin: 0;
   color: var(--text);
@@ -154,135 +120,143 @@
   font-weight: 750;
 }
 
-/* Dashboard density correction.
-   Keep the existing Dashboard DOM and application logic intact; only make
-   the existing grids use the available desktop width more efficiently. */
+/* Dashboard density correction. */
 #dashboard .cards-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 14px;
 }
-
 #dashboard .cards-grid .card {
   min-width: 0;
   padding: 16px;
 }
-
 #dashboard .cards-grid .card-label {
   font-size: 12px;
   margin-bottom: 6px;
 }
-
 #dashboard .cards-grid .card-value {
   font-size: 24px;
   line-height: 1.2;
   margin-bottom: 6px;
 }
-
-#dashboard .cards-grid .card-change {
-  font-size: 11px;
-}
-
+#dashboard .cards-grid .card-change { font-size: 11px; }
 #dashboard .retention-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
-
 #dashboard .retention-grid > .card {
   min-width: 0;
   padding: 16px;
 }
 
-/* Dashboard typography pass.
-   Deliberately scoped to #dashboard so Transactions, Goals, Habits and the
-   rest of the application keep their existing typography. */
+/* Dashboard typography pass. */
 #dashboard .page-title {
   font-size: 28px;
   line-height: 1.2;
   margin-bottom: 6px;
 }
+#dashboard .page-subtitle { font-size: 13px; line-height: 1.45; }
+#dashboard .retention-grid .card-label { font-size: 11px; margin-bottom: 5px; }
+#dashboard .retention-grid .card-value { font-size: 20px; line-height: 1.2; margin-bottom: 5px; }
+#dashboard .retention-grid .card-change { font-size: 11px; line-height: 1.35; }
+#dashboard .table-container { font-size: 12px; }
+#dashboard .table-title { font-size: 16px; }
+#dashboard .table-header { padding: 16px 20px; gap: 12px; }
+#dashboard th { padding: 10px 16px; font-size: 11px; }
+#dashboard td { padding: 12px 16px; font-size: 12px; }
+#dashboard .badge { font-size: 10px; padding: 3px 9px; }
+#dashboard .action-btn { font-size: 11px; padding: 5px 10px; }
 
-#dashboard .page-subtitle {
-  font-size: 13px;
-  line-height: 1.45;
+/* L2.2 — Transactions density pass.
+   Scope is deliberately limited to #transactions. Application logic and
+   Dashboard's recent-transactions module are not changed. */
+#transactions .table-container { min-width: 0; }
+#transactions .table-header {
+  padding: 14px 20px;
+  gap: 10px;
 }
-
-#dashboard .retention-grid .card-label {
-  font-size: 11px;
-  margin-bottom: 5px;
+#transactions .table-title { font-size: 16px; }
+#transactions .table-actions { gap: 8px; }
+#transactions .search-box,
+#transactions .filter-select {
+  padding: 7px 11px;
+  font-size: 12px;
+  min-height: 36px;
 }
-
-#dashboard .retention-grid .card-value {
-  font-size: 20px;
-  line-height: 1.2;
-  margin-bottom: 5px;
+#transactions #transactionsTable {
+  min-width: 0;
+  overflow-x: auto;
 }
-
-#dashboard .retention-grid .card-change {
-  font-size: 11px;
+#transactions .transactions-table {
+  width: 100%;
+  table-layout: fixed;
+}
+#transactions .transactions-table th,
+#transactions .transactions-table td {
+  padding: 9px 10px;
+  font-size: 12px;
   line-height: 1.35;
+  vertical-align: middle;
+  overflow-wrap: normal;
+  word-break: normal;
 }
-
-#dashboard .table-container {
-  font-size: 12px;
-}
-
-#dashboard .table-title {
-  font-size: 16px;
-}
-
-#dashboard .table-header {
-  padding: 16px 20px;
-  gap: 12px;
-}
-
-#dashboard th {
-  padding: 10px 16px;
-  font-size: 11px;
-}
-
-#dashboard td {
-  padding: 12px 16px;
-  font-size: 12px;
-}
-
-#dashboard .badge {
+#transactions .transactions-table th {
   font-size: 10px;
-  padding: 3px 9px;
+  line-height: 1.25;
+  letter-spacing: .35px;
+  white-space: normal;
 }
 
-#dashboard .action-btn {
+/* Generated columns: Date/Time, Type, Amount, Category, Location, Wallet,
+   Payment Method, Vault, Notes, Actions. */
+#transactions .transactions-table th:nth-child(1),
+#transactions .transactions-table td:nth-child(1) { width: 9%; }
+#transactions .transactions-table th:nth-child(2),
+#transactions .transactions-table td:nth-child(2) { width: 7%; }
+#transactions .transactions-table th:nth-child(3),
+#transactions .transactions-table td:nth-child(3) { width: 8%; }
+#transactions .transactions-table th:nth-child(4),
+#transactions .transactions-table td:nth-child(4) { width: 10%; }
+#transactions .transactions-table th:nth-child(5),
+#transactions .transactions-table td:nth-child(5) { width: 10%; }
+#transactions .transactions-table th:nth-child(6),
+#transactions .transactions-table td:nth-child(6) { width: 7%; }
+#transactions .transactions-table th:nth-child(7),
+#transactions .transactions-table td:nth-child(7) { width: 13%; }
+#transactions .transactions-table th:nth-child(8),
+#transactions .transactions-table td:nth-child(8) { width: 7%; }
+#transactions .transactions-table th:nth-child(9),
+#transactions .transactions-table td:nth-child(9) { width: 20%; }
+#transactions .transactions-table th:nth-child(10),
+#transactions .transactions-table td:nth-child(10) { width: 9%; }
+
+#transactions .transactions-table .badge {
+  padding: 3px 8px;
+  font-size: 10px;
+  line-height: 1.2;
+}
+#transactions .transactions-table .action-btn {
+  margin-right: 3px;
+  margin-bottom: 2px;
+  padding: 4px 8px;
   font-size: 11px;
-  padding: 5px 10px;
+  line-height: 1.2;
 }
 
 @media (max-width: 1100px) {
-  #dashboard .cards-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  #dashboard .retention-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  #dashboard .cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #dashboard .retention-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-/* Safe integration with the existing app shell.
-   These only control the new wrapper when it is introduced; legacy pages are unchanged. */
 @media (max-width: 900px) {
   :root {
     --vf-page-gutter: 20px;
     --vf-grid-gap: 14px;
     --vf-card-padding: 18px;
   }
-
-  .vf-grid-12 {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .vf-col-9,
-  .vf-col-8 { grid-column: span 6; }
+  .vf-grid-12 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .vf-col-9, .vf-col-8 { grid-column: span 6; }
   .vf-col-6 { grid-column: span 3; }
-  .vf-col-4,
-  .vf-col-3 { grid-column: span 3; }
+  .vf-col-4, .vf-col-3 { grid-column: span 3; }
 }
 
 @media (max-width: 640px) {
@@ -291,27 +265,14 @@
     --vf-grid-gap: 12px;
     --vf-card-padding: 16px;
   }
-
   #dashboard .cards-grid,
-  #dashboard .retention-grid {
-    grid-template-columns: 1fr;
-  }
+  #dashboard .retention-grid { grid-template-columns: 1fr; }
+  .vf-grid-12, .vf-grid-auto { grid-template-columns: 1fr; }
+  .vf-col-12, .vf-col-9, .vf-col-8, .vf-col-6, .vf-col-4, .vf-col-3 { grid-column: 1 / -1; }
+  .vf-title { font-size: 26px; }
 
-  .vf-grid-12,
-  .vf-grid-auto {
-    grid-template-columns: 1fr;
-  }
-
-  .vf-col-12,
-  .vf-col-9,
-  .vf-col-8,
-  .vf-col-6,
-  .vf-col-4,
-  .vf-col-3 {
-    grid-column: 1 / -1;
-  }
-
-  .vf-title {
-    font-size: 26px;
-  }
+  /* Mobile keeps its existing dedicated transaction list behavior. */
+  #transactions .transactions-table { table-layout: auto; }
+  #transactions .transactions-table th,
+  #transactions .transactions-table td { padding: 9px 8px; }
 }
