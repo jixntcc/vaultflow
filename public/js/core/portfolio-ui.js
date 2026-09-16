@@ -214,7 +214,7 @@
     if (!page) return;
     document.querySelectorAll('.page').forEach(item => item.classList.remove('active'));
     document.querySelectorAll(NAV_SELECTOR).forEach(item => item.classList.remove('active'));
-    page.classList.add('active');
+    page.classList.add('active', 'vf-portfolio-active');
     const navItem = document.querySelector(`${NAV_SELECTOR}[data-page="${PAGE_ID}"]`);
     if (navItem) navItem.classList.add('active');
     loadPortfolio();
@@ -228,7 +228,7 @@
   function hidePortfolioWhenOtherPageSelected(target) {
     if (!target || target.dataset.page === PAGE_ID) return;
     const page = getPage();
-    if (page) page.classList.remove('active');
+    if (page) page.classList.remove('active', 'vf-portfolio-active');
   }
 
   function initialize() {
