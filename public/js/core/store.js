@@ -196,14 +196,14 @@
     function removeSyncMutation(key) {
         return setState(current => ({
             ...current,
-            sync: { ...current.sync, queue: current.sync.queue.filter(item => item.key !== key), status: 'idle' }
+            sync: { ...current.sync, queue: current.sync.queue.filter(item => item.key !== key) }
         }), { type: 'sync:mutation:remove' }).sync.queue;
     }
     function setAuditEvents(events) {
         return setState(current => ({
             ...current,
             audit: { events: Array.isArray(events) ? events : [] }
-        }), { type: 'audit:set', ...meta }).audit.events;
+        }), { type: 'audit:set' }).audit.events;
     }
 
     window.VaultFlowStore = Object.freeze({
