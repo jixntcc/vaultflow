@@ -1,5 +1,69 @@
+/*
+ * VaultFlow shared store
+ *
+ * The shell loads this file directly from index.html. Keep the presentation
+ * bootstrap here so the application does not depend on a service-worker HTML
+ * rewrite to receive the current UI assets.
+ */
 (function () {
     'use strict';
+
+    // P3/L2 asset bootstrap: index.html is the source of truth, while the
+    // service worker is only a cache layer. This makes first-load, localhost,
+    // incognito and already-controlled sessions use the same UI.
+    (function bootstrapPresentationAssets() {
+        const VERSION = 'v20';
+        const styles = [
+            '/css/layout-foundation.css',
+            '/css/vault-wallet-density.css',
+            '/css/portfolio-ui.css',
+            '/css/habit-calendar.css',
+            '/css/habit-modal.css',
+            '/css/habit-health-card.css',
+            '/css/habit-health-card-compact.css'
+        ];
+        const scripts = [
+            '/js/core/transaction-fast-path.js',
+            '/js/core/frontend-restoration.js',
+            '/js/core/goal-submit-guard.js',
+            '/js/core/habit-completion-fast-path.js',
+            '/js/core/habit-calendar.js',
+            '/js/core/habit-calendar-anchor.js',
+            '/js/core/habit-modal.js',
+            '/js/core/habit-health-card.js',
+            '/js/core/portfolio-ui.js'
+        ];
+
+        styles.forEach(path => {
+            if (document.querySelector(`link[data-vf-asset="${path}"]`)) return;
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = `${path}?v=${VERSION}`;
+            link.dataset.vfAsset = path;
+            document.head.appendChild(link);
+        });
+
+        let chain = Promise.resolve();
+        scripts.forEach(path => {
+            chain = chain.then(() => new Promise(resolve => {
+                if (document.querySelector(`script[data-vf-asset="${path}"]`)) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = `${path}?v=${VERSION}`;
+                script.dataset.vfAsset = path;
+                script.async = false;
+                script.onload = resolve;
+                script.onerror = () => {
+                    console.error(`[VaultFlow] Failed to load ${path}`);
+                    resolve();
+                };
+                document.head.appendChild(script);
+            }));
+        });
+    })();
+
     const initialState = {
         auth: { token: null, user: null, mode: 'signed_out' },
         finance: {
@@ -132,14 +196,14 @@
     function removeSyncMutation(key) {
         return setState(current => ({
             ...current,
-            sync: { ...current.sync, queue: current.sync.queue.filter(item => item.key !== key) }
+            sync: { ...current.sync, queue: current.sync.queue.filter(item => item.key !== key), status: 'idle' }
         }), { type: 'sync:mutation:remove' }).sync.queue;
     }
     function setAuditEvents(events) {
         return setState(current => ({
             ...current,
             audit: { events: Array.isArray(events) ? events : [] }
-        }), { type: 'audit:set' }).audit.events;
+        }), { type: 'audit:set', ...meta }).audit.events;
     }
 
     window.VaultFlowStore = Object.freeze({
