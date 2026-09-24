@@ -78,7 +78,10 @@
             <h1 class="page-title">Portfolio</h1>
             <p class="page-subtitle">Track your invested positions and current value.</p>
           </div>
-          <button type="button" class="btn btn-secondary portfolio-refresh" id="portfolioRefreshButton">↻ Refresh</button>
+          <div class="portfolio-toolbar-actions">
+            <button type="button" class="btn btn-secondary portfolio-refresh" id="portfolioRefreshButton">↻ Refresh</button>
+            <button type="button" class="btn btn-primary portfolio-add" id="portfolioAddButton">+ Add Investment</button>
+          </div>
         </div>
       </div>
 
@@ -94,21 +97,59 @@
         <div class="portfolio-table-wrap">
           <table aria-label="Portfolio holdings">
             <colgroup>
-              <col style="width:26%"><col style="width:11%"><col style="width:15%">
-              <col style="width:16%"><col style="width:16%"><col style="width:16%">
+              <col style="width:24%"><col style="width:10%"><col style="width:14%">
+              <col style="width:15%"><col style="width:15%"><col style="width:12%"><col style="width:10%">
             </colgroup>
             <thead><tr>
-              <th>Asset</th><th>Qty</th><th>Avg Cost</th><th>Invested Value</th><th>Current Value</th><th>P/L</th>
+              <th>Asset</th><th>Qty</th><th>Avg Cost</th><th>Invested Value</th><th>Current Value</th><th>P/L</th><th>Actions</th>
             </tr></thead>
             <tbody id="portfolioTableBody">
-              <tr><td colspan="6"><div class="portfolio-loading">Loading portfolio…</div></td></tr>
+              <tr><td colspan="7"><div class="portfolio-loading">Loading portfolio…</div></td></tr>
             </tbody>
           </table>
         </div>
+      <div class="portfolio-modal" id="portfolioModal" hidden>
+        <div class="portfolio-modal-backdrop" data-portfolio-close></div>
+        <div class="portfolio-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="portfolioModalTitle">
+          <div class="portfolio-modal-header">
+            <div><h2 id="portfolioModalTitle">Add Investment</h2><p>Record an investment position for tracking.</p></div>
+            <button type="button" class="portfolio-modal-close" aria-label="Close" data-portfolio-close>×</button>
+          </div>
+          <form id="portfolioForm" class="portfolio-form">
+            <input type="hidden" id="portfolioAssetId" name="id">
+            <div class="portfolio-form-grid">
+              <label>Asset Type<select id="portfolioAssetType" name="assetType" required><option value="stock">Stock</option><option value="crypto">Crypto</option><option value="gold">Gold</option><option value="bond">Bond</option><option value="forex">Forex</option><option value="other">Other</option></select></label>
+              <label>Symbol<input id="portfolioSymbol" name="symbol" maxlength="40" placeholder="e.g. BTC" required></label>
+              <label class="portfolio-form-wide">Name<input id="portfolioName" name="name" maxlength="160" placeholder="e.g. Bitcoin" required></label>
+              <label>Quantity<input id="portfolioQuantity" name="quantity" type="number" min="0" step="any" required></label>
+              <label>Average Cost<input id="portfolioAverageCost" name="averageCost" type="number" min="0" step="any" required></label>
+              <label>Current Price<input id="portfolioCurrentPrice" name="currentPrice" type="number" min="0" step="any" value="0"></label>
+              <label>Currency<select id="portfolioCurrency" name="currency" required><option value="INR">INR — Indian Rupee</option><option value="USD">USD — US Dollar</option><option value="EUR">EUR — Euro</option><option value="GBP">GBP — British Pound</option><option value="AED">AED — UAE Dirham</option><option value="USDT">USDT — Tether</option><option value="USDC">USDC — USD Coin</option><option value="OTHER">Other</option></select></label>
+              <label>Broker<input id="portfolioBroker" name="broker" maxlength="160" placeholder="Optional"></label>
+              <label>Exchange<input id="portfolioExchange" name="exchange" maxlength="160" placeholder="Optional"></label>
+              <label>Wallet<input id="portfolioWallet" name="wallet" maxlength="160" placeholder="Optional"></label>
+              <label>Status<select id="portfolioStatus" name="status"><option value="active">Active</option><option value="closed">Closed</option></select></label>
+              <label class="portfolio-form-wide">Notes<textarea id="portfolioNotes" name="notes" maxlength="2000" rows="3" placeholder="Optional notes"></textarea></label>
+            </div>
+            <div class="portfolio-form-error" id="portfolioFormError" role="alert" hidden></div>
+            <div class="portfolio-form-footer"><button type="button" class="btn btn-secondary" data-portfolio-close>Cancel</button><button type="submit" class="btn btn-primary" id="portfolioSaveButton">Save Investment</button></div>
+          </form>
+        </div>
+      </div>
       </div>`;
 
     main.appendChild(page);
     page.querySelector('#portfolioRefreshButton').addEventListener('click', loadPortfolio);
+    page.querySelector('#portfolioAddButton').addEventListener('click', () => openForm());
+    page.querySelector('#portfolioForm').addEventListener('submit', saveForm);
+    page.addEventListener('click', event => {
+      const close = event.target.closest('[data-portfolio-close]');
+      if (close) closeForm();
+      const edit = event.target.closest('[data-portfolio-edit]');
+      if (edit) openForm(edit.dataset.portfolioEdit);
+      const remove = event.target.closest('[data-portfolio-delete]');
+      if (remove) deleteAsset(remove.dataset.portfolioDelete);
+    });
     return page;
   }
 
@@ -166,7 +207,7 @@
     const body = document.getElementById('portfolioTableBody');
     if (!body) return;
     if (!assets.length) {
-      body.innerHTML = '<tr><td colspan="6"><div class="portfolio-empty">No portfolio investments yet.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="7"><div class="portfolio-empty">No portfolio investments yet.</div></td></tr>';
       return;
     }
     body.innerHTML = assets.map(asset => {
@@ -181,8 +222,81 @@
         <td>${formatMoney(asset.investedValue, asset.currency)}</td>
         <td>${formatMoney(asset.currentValue, asset.currency)}</td>
         <td class="${pnl > 0 ? 'portfolio-positive' : pnl < 0 ? 'portfolio-negative' : ''}">${formatPnl(pnl, asset.currency)}</td>
+        <td><div class="portfolio-row-actions">
+          <button type="button" class="portfolio-action-btn" data-portfolio-edit="${esc(asset._id)}">Edit</button>
+          <button type="button" class="portfolio-action-btn portfolio-delete-btn" data-portfolio-delete="${esc(asset._id)}">Delete</button>
+        </div></td>
       </tr>`;
     }).join('');
+  }
+
+  function getAssetById(id) {
+    return (window.__VAULTFLOW_PORTFOLIO_ASSETS__ || []).find(asset => String(asset._id) === String(id)) || null;
+  }
+
+  function setFormValue(id, value) {
+    const field = document.getElementById(id);
+    if (field) field.value = value ?? '';
+  }
+
+  function openForm(id = '') {
+    ensurePage();
+    const modal = document.getElementById('portfolioModal');
+    const form = document.getElementById('portfolioForm');
+    const title = document.getElementById('portfolioModalTitle');
+    const error = document.getElementById('portfolioFormError');
+    if (!modal || !form) return;
+    form.reset();
+    setFormValue('portfolioAssetId', ''); setFormValue('portfolioAssetType', 'stock');
+    setFormValue('portfolioCurrency', 'INR'); setFormValue('portfolioCurrentPrice', '0'); setFormValue('portfolioStatus', 'active');
+    if (error) { error.hidden = true; error.textContent = ''; }
+    const asset = id ? getAssetById(id) : null;
+    if (asset) {
+      title.textContent = 'Edit Investment';
+      setFormValue('portfolioAssetId', asset._id); setFormValue('portfolioAssetType', asset.assetType); setFormValue('portfolioSymbol', asset.symbol);
+      setFormValue('portfolioName', asset.name); setFormValue('portfolioQuantity', asset.quantity); setFormValue('portfolioAverageCost', asset.averageCost);
+      setFormValue('portfolioCurrentPrice', asset.currentPrice); setFormValue('portfolioCurrency', asset.currency); setFormValue('portfolioBroker', asset.broker);
+      setFormValue('portfolioExchange', asset.exchange); setFormValue('portfolioWallet', asset.wallet); setFormValue('portfolioStatus', asset.status); setFormValue('portfolioNotes', asset.notes);
+    } else title.textContent = 'Add Investment';
+    modal.hidden = false; document.body.classList.add('portfolio-modal-open'); document.getElementById('portfolioSymbol')?.focus();
+  }
+
+  function closeForm() {
+    const modal = document.getElementById('portfolioModal');
+    if (modal) modal.hidden = true;
+    document.body.classList.remove('portfolio-modal-open');
+  }
+
+  function formPayload() {
+    const data = new FormData(document.getElementById('portfolioForm'));
+    return { assetType:data.get('assetType'), symbol:data.get('symbol'), name:data.get('name'), quantity:data.get('quantity'), averageCost:data.get('averageCost'), currentPrice:data.get('currentPrice') || 0, currency:data.get('currency'), broker:data.get('broker'), exchange:data.get('exchange'), wallet:data.get('wallet'), status:data.get('status') || 'active', notes:data.get('notes') };
+  }
+
+  async function saveForm(event) {
+    event.preventDefault();
+    const form = document.getElementById('portfolioForm'), button = document.getElementById('portfolioSaveButton'), error = document.getElementById('portfolioFormError');
+    const id = document.getElementById('portfolioAssetId')?.value;
+    if (!form || !getToken() || !form.reportValidity()) return;
+    if (button) { button.disabled = true; button.textContent = 'Saving…'; }
+    if (error) { error.hidden = true; error.textContent = ''; }
+    try {
+      const response = await fetch(id ? `${API_URL}/${encodeURIComponent(id)}` : API_URL, { method:id ? 'PUT' : 'POST', headers:{Authorization:`Bearer ${getToken()}`,'Content-Type':'application/json'}, body:JSON.stringify(formPayload()) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Could not save investment');
+      closeForm(); await loadPortfolio();
+    } catch (err) { if (error) { error.hidden = false; error.textContent = err.message || 'Could not save investment.'; } }
+    finally { if (button) { button.disabled = false; button.textContent = 'Save Investment'; } }
+  }
+
+  async function deleteAsset(id) {
+    const asset = getAssetById(id), label = asset ? `${asset.symbol} — ${asset.name}` : 'this investment';
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+    try {
+      const response = await fetch(`${API_URL}/${encodeURIComponent(id)}`, { method:'DELETE', headers:{Authorization:`Bearer ${getToken()}`} });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Could not delete investment');
+      await loadPortfolio();
+    } catch (err) { window.alert(err.message || 'Could not delete investment.'); }
   }
 
   async function loadPortfolio() {
@@ -190,19 +304,21 @@
     const button = document.getElementById('portfolioRefreshButton');
     if (!body) return;
     if (!getToken()) {
-      body.innerHTML = '<tr><td colspan="6"><div class="portfolio-error">Please log in to view your portfolio.</div></td></tr>';
+      body.innerHTML = '<tr><td colspan="7"><div class="portfolio-error">Please log in to view your portfolio.</div></td></tr>';
       return;
     }
     if (button) { button.disabled = true; button.textContent = 'Loading…'; }
-    body.innerHTML = '<tr><td colspan="6"><div class="portfolio-loading">Loading portfolio…</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="7"><div class="portfolio-loading">Loading portfolio…</div></td></tr>';
     try {
       const response = await fetch(API_URL, { headers: { Authorization: `Bearer ${getToken()}` } });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.error || 'Could not load portfolio');
-      render(Array.isArray(payload) ? payload : []);
+      const assets = Array.isArray(payload) ? payload : [];
+      window.__VAULTFLOW_PORTFOLIO_ASSETS__ = assets;
+      render(assets);
     } catch (error) {
       console.error('[VaultFlow] Portfolio load failed:', error);
-      body.innerHTML = `<tr><td colspan="6"><div class="portfolio-error">${esc(error.message || 'Could not load portfolio.')}</div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="7"><div class="portfolio-error">${esc(error.message || 'Could not load portfolio.')}</div></td></tr>`;
     } finally {
       if (button) { button.disabled = false; button.textContent = '↻ Refresh'; }
     }
