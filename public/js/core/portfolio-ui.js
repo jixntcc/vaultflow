@@ -108,6 +108,7 @@
             </tbody>
           </table>
         </div>
+      </div>
       <div class="portfolio-modal" id="portfolioModal" hidden>
         <div class="portfolio-modal-backdrop" data-portfolio-close></div>
         <div class="portfolio-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="portfolioModalTitle">
@@ -135,7 +136,6 @@
             <div class="portfolio-form-footer"><button type="button" class="btn btn-secondary" data-portfolio-close>Cancel</button><button type="submit" class="btn btn-primary" id="portfolioSaveButton">Save Investment</button></div>
           </form>
         </div>
-      </div>
       </div>`;
 
     main.appendChild(page);
