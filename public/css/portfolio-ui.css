@@ -47,6 +47,7 @@
 #portfolio .portfolio-refresh { min-height:34px; padding:7px 12px; font-size:12px; }
 
 @media (max-width:640px) {
+  #portfolio .portfolio-toolbar-copy { padding-left:58px; }
   #portfolio .portfolio-toolbar { align-items:flex-start; }
   #portfolio .portfolio-summary { grid-template-columns:1fr; }
   #portfolio .portfolio-refresh { flex:0 0 auto; }
