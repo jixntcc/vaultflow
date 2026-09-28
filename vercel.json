@@ -8,9 +8,17 @@
     {
       "src": "api/portfolio.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/memories.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/memories(?:/.*)?",
+      "dest": "/api/memories.js"
+    },
     {
       "src": "/api/portfolio(?:/.*)?",
       "dest": "/api/portfolio.js"
