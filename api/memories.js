@@ -102,7 +102,7 @@ function cleanString(value, field, maxLength) {
 
 function normalizeDate(value) {
   const date = cleanString(value, 'date', 10);
-  if (!date || !/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) throw new Error('date must use YYYY-MM-DD');
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('date must use YYYY-MM-DD');
   const parsed = new Date(date + 'T00:00:00');
   if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== date) {
     throw new Error('date must be a valid calendar date');
