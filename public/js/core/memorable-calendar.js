@@ -119,7 +119,7 @@
       const md=eventsForMonthDay(d.getMonth()+1,d.getDate());
       return `<button type="button" class="memory-day ${inMonth?'':'outside'} ${state.selectedDate===ds?'selected':''} ${current===ds?'today':''}" data-memory-date="${ds}">
         <span class="memory-day-number">${d.getDate()}</span>
-        ${md.length?`<span class="memory-day-count">${md.length} memory${md.length===1?'':'ies'}</span><span class="memory-dots">${md.slice(0,4).map(()=>'<i class="memory-dot"></i>').join('')}${md.length>4?'<span class="memory-dot more">+</span>':''}</span>`:''}
+        ${md.length?`<span class="memory-day-count">${md.length} ${md.length===1?'memory':'memories'}</span><span class="memory-dots">${md.slice(0,4).map(()=>'<i class="memory-dot"></i>').join('')}${md.length>4?'<span class="memory-dot more">+</span>':''}</span>`:''}
       </button>`;
     }).join('');
   }
@@ -128,7 +128,7 @@
     const ds=state.selectedDate||today(), d=parseDate(ds), items=eventsForMonthDay(d.getMonth()+1,d.getDate());
     const label=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
     document.getElementById('memoryDayTitle').textContent=label;
-    document.getElementById('memoryDaySubtitle').textContent=items.length?`${items.length} memory ${items.length===1?'':'ies'} from across the years`:'No memories recorded for this date yet.';
+    document.getElementById('memoryDaySubtitle').textContent=items.length?`${items.length} ${items.length===1?'memory':'memories'} from across the years`:'No memories recorded for this date yet.';
     const list=document.getElementById('memoryDayList');
     list.innerHTML=items.length?items.map(e=>`
       <article class="memory-item">
