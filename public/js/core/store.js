@@ -12,11 +12,12 @@
     // service worker is only a cache layer. This makes first-load, localhost,
     // incognito and already-controlled sessions use the same UI.
     (function bootstrapPresentationAssets() {
-        const VERSION = 'v23';
+        const VERSION = 'v24';
         const styles = [
             '/css/layout-foundation.css',
             '/css/vault-wallet-density.css',
             '/css/portfolio-ui.css',
+            '/css/memorable-calendar.css',
             '/css/habit-calendar.css',
             '/css/habit-modal.css',
             '/css/habit-health-card.css',
@@ -31,7 +32,8 @@
             '/js/core/habit-calendar-anchor.js',
             '/js/core/habit-modal.js',
             '/js/core/habit-health-card.js',
-            '/js/core/portfolio-ui.js'
+            '/js/core/portfolio-ui.js',
+            '/js/core/memorable-calendar.js'
         ];
 
         styles.forEach(path => {
