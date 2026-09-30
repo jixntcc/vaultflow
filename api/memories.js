@@ -64,7 +64,7 @@ function getMemoryId(req) {
   const prefixes = ['/api/memories', '/api/memories.js'];
   const prefix = prefixes.find(value => pathname === value || pathname.startsWith(value + '/'));
   if (!prefix) return null;
-  return pathname.slice(prefix.length).replace(/^\\/+|\\/+$/g, '') || null;
+  return pathname.slice(prefix.length).replace(/^\/+|\/+$/g, '') || null;
 }
 
 function authenticate(req) {
