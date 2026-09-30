@@ -46,6 +46,19 @@ function sendJson(res, status, payload) {
   res.status(status).json(payload);
 }
 
+function getRequestBody(req) {
+  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+    return req.body;
+  }
+  if (typeof req.body === 'string') {
+    try { return JSON.parse(req.body); } catch (_) { throw Object.assign(new Error('Invalid JSON request body'), { status: 400 }); }
+  }
+  if (Buffer.isBuffer(req.body)) {
+    try { return JSON.parse(req.body.toString('utf8')); } catch (_) { throw Object.assign(new Error('Invalid JSON request body'), { status: 400 }); }
+  }
+  return {};
+}
+
 function getMemoryId(req) {
   const pathname = String(req.url || '').split('?')[0];
   const prefixes = ['/api/memories', '/api/memories.js'];
@@ -166,7 +179,7 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'POST') {
       if (id) return sendJson(res, 400, { error: 'POST does not accept a memory id' });
-      const value = normalizePayload(req.body || {});
+      const value = normalizePayload(getRequestBody(req));
       const item = await MemoryEvent.create({ userId: user._id, ...value, createdAt: new Date(), updatedAt: new Date() });
       return sendJson(res, 201, serialize(item.toObject()));
     }
@@ -177,7 +190,7 @@ module.exports = async function handler(req, res) {
       const existing = await MemoryEvent.findOne({ _id: id, userId: user._id }).lean().maxTimeMS(10000);
       if (!existing) return sendJson(res, 404, { error: 'Memory not found' });
 
-      const value = normalizePayload(req.body || {}, existing);
+      const value = normalizePayload(getRequestBody(req), existing);
       const updated = await MemoryEvent.findOneAndUpdate(
         { _id: id, userId: user._id },
         { $set: { ...value, updatedAt: new Date() } },
@@ -192,10 +205,10 @@ module.exports = async function handler(req, res) {
     if (!deleted) return sendJson(res, 404, { error: 'Memory not found' });
     return sendJson(res, 200, { message: 'Memory deleted successfully', id: String(deleted._id) });
   } catch (error) {
-    const status = Number(error?.status) || 500;
+    const status = Number(error?.status) || (error?.name === 'ValidationError' ? 400 : 500);
     console.error('Memorable Calendar API error:', error);
-    return sendJson(res, status, { error: status === 500 && error?.name !== 'ValidationError'
-      ? 'Server error processing memory request'
-      : (error.message || 'Invalid memory data') });
+    return sendJson(res, status, {
+      error: status >= 500 ? 'Server error processing memory request' : (error.message || 'Invalid memory data')
+    });
   }
 };
