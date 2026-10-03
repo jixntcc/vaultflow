@@ -116,6 +116,59 @@
     }
   }
 
+  // Transaction search/filter bridge: keep filtering functional even if the
+  // legacy page initializer misses its direct input/change listeners.
+  function applyTransactionFiltersFallback() {
+    const searchEl = document.getElementById('searchTransactions');
+    const typeEl = document.getElementById('filterType');
+    const container = document.getElementById('transactionsTable');
+    const transactions = getTransactions();
+    if (!searchEl || !typeEl || !container || !Array.isArray(transactions)) return;
+
+    const search = String(searchEl.value || '').trim().toLowerCase();
+    const type = String(typeEl.value || 'all');
+    const filtered = transactions.filter(transaction => {
+      if (type !== 'all' && String(transaction?.type || '') !== type) return false;
+      if (!search) return true;
+      const haystack = [
+        transaction?.date,
+        transaction?.time,
+        transaction?.type,
+        transaction?.amount,
+        transaction?.category,
+        transaction?.location,
+        transaction?.wallet,
+        transaction?.paymentMethod,
+        transaction?.vaultName,
+        transaction?.notes
+      ].map(value => String(value ?? '').toLowerCase()).join(' ');
+      return haystack.includes(search);
+    });
+
+    if (typeof window.renderTransactionTable === 'function') {
+      window.renderTransactionTable(filtered, 'transactionsTable');
+    }
+  }
+
+  function applyTransactionFilters() {
+    try {
+      if (typeof window.filterTransactions === 'function') {
+        window.filterTransactions();
+        return;
+      }
+    } catch (error) {
+      console.warn('[VaultFlow] Legacy transaction filter failed; using fallback.', error);
+    }
+    applyTransactionFiltersFallback();
+  }
+
+  document.addEventListener('input', function (event) {
+    if (event.target?.id === 'searchTransactions') applyTransactionFilters();
+  });
+  document.addEventListener('change', function (event) {
+    if (event.target?.id === 'filterType') applyTransactionFilters();
+  });
+
   document.addEventListener('submit', function (event) {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || form.id !== 'transactionForm') return;
