@@ -12,9 +12,17 @@
     {
       "src": "api/memories.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/activity.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/activity(?:/.*)?",
+      "dest": "/api/activity.js"
+    },
     {
       "src": "/api/memories(?:/.*)?",
       "dest": "/api/memories.js"
