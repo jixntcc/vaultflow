@@ -1,0 +1,74 @@
+/* OS3 — dashboard-only Personal OS styles. All selectors are scoped. */
+#personalOsDashboard { margin: 0 0 24px; }
+#personalOsDashboard .vf-os-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; box-shadow: var(--shadow); min-width: 0; }
+#personalOsDashboard .vf-os-heading, #personalOsDashboard .vf-os-subheading, #personalOsDashboard .vf-os-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+#personalOsDashboard .vf-os-heading { margin-bottom: 18px; flex-wrap: wrap; }
+#personalOsDashboard .vf-os-eyebrow { color: var(--primary); font-size: 10px; font-weight: 800; letter-spacing: 1.25px; margin-bottom: 3px; }
+#personalOsDashboard h2 { color: var(--text); font-size: 21px; line-height: 1.3; }
+#personalOsDashboard .vf-os-date-label { color: var(--text-secondary); font-size: 13px; margin-top: 4px; }
+#personalOsDashboard .vf-os-date-controls { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+#personalOsDashboard .vf-os-date-controls button, #personalOsDashboard .vf-os-date-controls input, #personalOsDashboard .vf-os-refresh-btn { min-height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; font-size: 12px; }
+#personalOsDashboard .vf-os-date-controls input { padding: 5px 8px; max-width: 145px; }
+#personalOsDashboard .vf-os-icon-btn { width: 34px; font-size: 20px !important; cursor: pointer; }
+#personalOsDashboard .vf-os-today-btn { padding: 5px 10px; cursor: pointer; }
+#personalOsDashboard .vf-os-date-controls button:hover, #personalOsDashboard .vf-os-refresh-btn:hover { border-color: var(--primary); color: var(--primary); }
+#personalOsDashboard .vf-os-status { padding: 13px 15px; border-radius: 9px; background: var(--bg); color: var(--text-secondary); font-size: 13px; }
+#personalOsDashboard .vf-os-status.is-error { color: var(--danger); background: rgba(239,68,68,.08); }
+#personalOsDashboard .vf-os-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+#personalOsDashboard .vf-os-metric { min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: var(--bg); display: flex; flex-direction: column; gap: 4px; }
+#personalOsDashboard .vf-os-metric-label { color: var(--text-secondary); font-size: 12px; font-weight: 600; }
+#personalOsDashboard .vf-os-metric strong { color: var(--text); font-size: 21px; line-height: 1.35; overflow-wrap: anywhere; }
+#personalOsDashboard .vf-os-metric-note { color: var(--text-secondary); font-size: 11px; min-height: 16px; }
+#personalOsDashboard .vf-os-metric.income strong, #personalOsDashboard .vf-os-metric.positive strong { color: var(--secondary); }
+#personalOsDashboard .vf-os-metric.expense strong, #personalOsDashboard .vf-os-metric.negative strong { color: var(--danger); }
+#personalOsDashboard .vf-os-progress { height: 4px; background: var(--border); border-radius: 9px; overflow: hidden; margin-top: 4px; }
+#personalOsDashboard .vf-os-progress span { display: block; height: 100%; background: var(--primary); border-radius: inherit; }
+#personalOsDashboard .vf-os-lower-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(240px, 1fr); gap: 14px; }
+#personalOsDashboard .vf-os-side-stack { display: grid; gap: 14px; align-content: start; }
+#personalOsDashboard .vf-os-subpanel { min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 15px; }
+#personalOsDashboard .vf-os-subheading { margin-bottom: 12px; }
+#personalOsDashboard .vf-os-subheading h3 { color: var(--text); font-size: 14px; font-weight: 700; }
+#personalOsDashboard .vf-os-subheading > span { color: var(--text-secondary); font-size: 11px; }
+#personalOsDashboard .vf-os-timeline { display: grid; }
+#personalOsDashboard .vf-os-activity { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+#personalOsDashboard .vf-os-activity:last-child { border-bottom: 0; }
+#personalOsDashboard .vf-os-activity-icon { width: 29px; height: 29px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 29px; background: rgba(99,102,241,.1); color: var(--primary); font-size: 14px; font-weight: 700; }
+#personalOsDashboard .vf-os-activity-icon.transaction { background: rgba(16,185,129,.1); color: var(--secondary); }
+#personalOsDashboard .vf-os-activity-icon.habit { background: rgba(245,158,11,.12); color: #d97706; }
+#personalOsDashboard .vf-os-activity-icon.memory { background: rgba(139,92,246,.12); color: #8b5cf6; }
+#personalOsDashboard .vf-os-activity-main { min-width: 0; flex: 1; }
+#personalOsDashboard .vf-os-activity-title { color: var(--text); font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+#personalOsDashboard .vf-os-activity-meta, #personalOsDashboard .vf-os-activity-description { color: var(--text-secondary); font-size: 11px; overflow-wrap: anywhere; }
+#personalOsDashboard .vf-os-activity-meta span { padding: 0 3px; }
+#personalOsDashboard .vf-os-activity-amount { white-space: nowrap; font-size: 12px; font-weight: 700; padding-top: 2px; }
+#personalOsDashboard .vf-os-activity-amount.is-income { color: var(--secondary); }
+#personalOsDashboard .vf-os-activity-amount.is-expense { color: var(--danger); }
+#personalOsDashboard .vf-os-memory-list { display: grid; gap: 10px; }
+#personalOsDashboard .vf-os-memory { display: flex; gap: 10px; align-items: flex-start; }
+#personalOsDashboard .vf-os-memory-year { min-width: 42px; padding: 3px 5px; border-radius: 6px; background: var(--bg); color: var(--primary); font-size: 11px; font-weight: 700; text-align: center; }
+#personalOsDashboard .vf-os-memory strong { display: block; color: var(--text); font-size: 12px; overflow-wrap: anywhere; }
+#personalOsDashboard .vf-os-memory span:last-child { display: block; color: var(--text-secondary); font-size: 11px; }
+#personalOsDashboard .vf-os-snapshot-tag { padding: 2px 7px; border-radius: 5px; background: var(--bg); }
+#personalOsDashboard .vf-os-portfolio-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; color: var(--text); font-size: 12px; }
+#personalOsDashboard .vf-os-portfolio-row + .vf-os-portfolio-row { border-top: 1px solid var(--border); }
+#personalOsDashboard .vf-os-portfolio-row small { display: block; color: var(--text-secondary); font-size: 10px; }
+#personalOsDashboard .vf-os-footnote { color: var(--text-secondary); font-size: 10px; margin-top: 7px; line-height: 1.4; }
+#personalOsDashboard .vf-os-empty { color: var(--text-secondary); font-size: 12px; padding: 10px 0; line-height: 1.5; }
+#personalOsDashboard .vf-os-footer { justify-content: flex-end; margin-top: 12px; }
+#personalOsDashboard .vf-os-footer > span { margin-right: auto; color: var(--text-secondary); font-size: 10px; }
+#personalOsDashboard .vf-os-refresh-btn { padding: 4px 10px; cursor: pointer; }
+@media (max-width: 900px) {
+  #personalOsDashboard .vf-os-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #personalOsDashboard .vf-os-lower-grid { grid-template-columns: minmax(0, 1fr); }
+  #personalOsDashboard .vf-os-side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  #personalOsDashboard .vf-os-panel { padding: 15px; }
+  #personalOsDashboard .vf-os-heading { align-items: flex-start; }
+  #personalOsDashboard .vf-os-date-controls { width: 100%; }
+  #personalOsDashboard .vf-os-date-controls input { flex: 1; max-width: none; min-width: 0; }
+  #personalOsDashboard .vf-os-metrics { gap: 8px; }
+  #personalOsDashboard .vf-os-metric { padding: 11px; }
+  #personalOsDashboard .vf-os-metric strong { font-size: 18px; }
+  #personalOsDashboard .vf-os-side-stack { grid-template-columns: minmax(0, 1fr); }
+}
