@@ -162,7 +162,7 @@ module.exports = async function handler(req, res) {
     const [transactions, habits, logs, exactMemories, onThisDayMemories, assets] = await Promise.all([
       Transaction.find({ userId: user._id, date: { $gte: start, $lt: end } })
         .sort({ date: 1, time: 1 }).lean().limit(500).maxTimeMS(10000),
-      Habit.find({ userId: user._id, status: 'active' }).lean().limit(500).maxTimeMS(10000),
+      Habit.find({ userId: user._id }).lean().limit(500).maxTimeMS(10000),
       HabitLog.find({ userId: user._id, scheduledDate: date })
         .sort({ createdAt: 1 }).lean().limit(500).maxTimeMS(10000),
       MemoryEvent.find({ userId: user._id, date })
