@@ -231,7 +231,7 @@ module.exports = async function handler(req, res) {
         transactionCount: transactions.length, income, expenses, netCashFlow: income - expenses,
         habitsScheduled: scheduledHabits.length, habitsCompleted: completed,
         habitsSkipped: skipped, habitsMissed: missed,
-        habitsPending: Math.max(0, scheduledHabits.length - logs.length),
+        habitsPending: scheduledHabits.filter(habit => !logs.some(log => String(log.habitId) === String(habit._id))).length,
         memoryCount: exactMemories.length
       },
       activities,
