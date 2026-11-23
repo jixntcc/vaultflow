@@ -25,9 +25,11 @@ const vaultFileSchema = new mongoose.Schema({
   },
   storageProvider: {
     type: String,
-    enum: ['r2'],
+    trim: true,
+    lowercase: true,
     default: 'r2',
-    required: true
+    required: true,
+    maxlength: 40
   },
   objectKey: {
     type: String,
@@ -42,7 +44,7 @@ const vaultFileSchema = new mongoose.Schema({
     maxlength: 255,
     validate: {
       validator: value => typeof value === 'string' &&
-        value.length > 0 && !/[\\/\\u0000-\\u001f]/.test(value),
+        value.length > 0 && !/[\\/\\\\\\u0000-\\u001f]/.test(value),
       message: 'File name must not contain path separators or control characters'
     }
   },
