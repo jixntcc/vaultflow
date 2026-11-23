@@ -209,6 +209,11 @@ module.exports = async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
 
+  const pathname = String(req.url || '').split('?')[0];
+  if (!/^\\/api\\/vault\\/uploads(?:\\.js)?\\/?$/.test(pathname)) {
+    return sendJson(res, 404, { error: 'Vault endpoint not found' });
+  }
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return sendJson(res, 405, { error: 'Method not allowed' });
