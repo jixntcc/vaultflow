@@ -210,7 +210,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('Referrer-Policy', 'no-referrer');
 
   const pathname = String(req.url || '').split('?')[0];
-  if (!/^\\/api\\/vault\\/uploads(?:\\.js)?\\/?$/.test(pathname)) {
+  if (!/^\/api\/vault\/uploads(?:\.js)?\/?$/.test(pathname)) {
     return sendJson(res, 404, { error: 'Vault endpoint not found' });
   }
 
