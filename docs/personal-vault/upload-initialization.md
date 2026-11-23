@@ -58,7 +58,7 @@ The initial free quota is 2 GiB. A quota failure returns HTTP 409.
 - R2 remains private; the API does not expose bucket credentials or public object URLs.
 - Only `pending_upload` metadata is created here.
 - This endpoint does not mark a file `available`.
-- A later completion endpoint must HEAD the object, verify exact size and signed metadata, perform content-signature/scanning checks, then move the file into quarantine/available according to the security pipeline.
+- A later completion endpoint must HEAD the object, verify exact size and expected content type, perform content-signature/scanning checks, then move the file into quarantine/available according to the security pipeline.
 - Failed, expired, and abandoned uploads require a later cleanup/reconciliation job.
 
 ## Deployment notes
