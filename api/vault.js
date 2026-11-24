@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const VaultFile = require('../models/vault-file');
 const VaultUsage = require('../models/vault-usage');
 const VaultFolder = require('../models/vault-folder');
-const { createPresignedPutUrl } = require('../lib/storage/r2');
+const { createPresignedPutUrl, headR2Object, promoteR2Object, deleteR2Object } = require('../lib/storage/r2');
 
 const JWT_ISSUER = process.env.JWT_ISSUER || 'vaultflow';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'vaultflow-web';
@@ -204,19 +204,126 @@ async function releaseReservation(userId, sizeBytes) {
   ).maxTimeMS(10000);
 }
 
+function getCompletionFileId(pathname) {
+  const match = pathname.match(/^\\/api\\/vault\\/uploads\\/([a-f0-9]{24})\\/complete\\/?$/i);
+  return match ? match[1] : null;
+}
+
+async function failPendingUpload(file, reason) {
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const failed = await VaultFile.findOneAndUpdate(
+        { _id: file._id, userId: file.userId, status: 'pending_upload' },
+        { $set: { status: 'failed' } },
+        { new: true, session }
+      );
+      if (!failed) return;
+      const update = await VaultUsage.updateOne(
+        { userId: file.userId, reservedBytes: { $gte: file.sizeBytes } },
+        { $inc: { reservedBytes: -file.sizeBytes } },
+        { session }
+      );
+      if (update.modifiedCount !== 1) throw new Error('Unable to release failed upload reservation');
+    });
+  } finally { await session.endSession(); }
+  await deleteR2Object(file.uploadObjectKey).catch(error => console.error('Vault invalid staging cleanup failed:', error?.message || error));
+  console.warn('Vault upload rejected:', reason);
+}
+
+async function completeUpload(userId, fileId) {
+  const file = await VaultFile.findOne({ _id: fileId, userId }).lean().maxTimeMS(10000);
+  if (!file) return { status: 404, body: { error: 'File not found' } };
+  if (file.status === 'quarantined' || file.status === 'available') {
+    return { status: 200, body: { fileId: String(file._id), status: file.status, idempotent: true } };
+  }
+  if (file.status !== 'pending_upload') return { status: 409, body: { error: 'This upload cannot be completed', status: file.status } };
+
+  let sourceHead;
+  try { sourceHead = await headR2Object(file.uploadObjectKey); }
+  catch (error) {
+    if (error?.$metadata?.httpStatusCode === 404 || error?.name === 'NotFound' || error?.name === 'NoSuchKey') {
+      return { status: 409, body: { error: 'The uploaded object was not found in storage yet' } };
+    }
+    throw error;
+  }
+
+  if (Number(sourceHead.ContentLength) !== file.sizeBytes ||
+      String(sourceHead.ContentType || '').toLowerCase() !== String(file.mimeType).toLowerCase()) {
+    await failPendingUpload(file, 'Object size or content type mismatch');
+    return { status: 422, body: { error: 'Uploaded file does not match the declared size or content type' } };
+  }
+  if (!sourceHead.ETag) throw Object.assign(new Error('Storage did not return an object ETag'), { status: 503 });
+
+  await promoteR2Object({ sourceKey: file.uploadObjectKey, destinationKey: file.objectKey, sourceEtag: sourceHead.ETag, contentType: file.mimeType });
+  const finalHead = await headR2Object(file.objectKey);
+  if (Number(finalHead.ContentLength) !== file.sizeBytes ||
+      String(finalHead.ContentType || '').toLowerCase() !== String(file.mimeType).toLowerCase()) {
+    await deleteR2Object(file.objectKey).catch(() => {});
+    throw Object.assign(new Error('Promoted object failed verification'), { status: 503 });
+  }
+
+  const session = await mongoose.startSession();
+  let completedFile = null;
+  try {
+    await session.withTransaction(async () => {
+      completedFile = await VaultFile.findOneAndUpdate(
+        { _id: file._id, userId, status: 'pending_upload' },
+        { $set: { status: 'quarantined', etag: finalHead.ETag || sourceHead.ETag } },
+        { new: true, session }
+      ).lean();
+      if (!completedFile) {
+        const current = await VaultFile.findOne({ _id: file._id, userId }).session(session).lean();
+        if (current && ['quarantined', 'available'].includes(current.status)) { completedFile = current; return; }
+        throw Object.assign(new Error('Upload state changed before completion'), { status: 409 });
+      }
+      const usageUpdate = await VaultUsage.updateOne(
+        { userId, reservedBytes: { $gte: file.sizeBytes } },
+        { $inc: { reservedBytes: -file.sizeBytes, usedBytes: file.sizeBytes } },
+        { session }
+      );
+      if (usageUpdate.modifiedCount !== 1) throw new Error('Unable to reconcile upload quota reservation');
+    });
+  } catch (error) {
+    const current = await VaultFile.findOne({ _id: file._id, userId }).lean().catch(() => null);
+    if (!current || ['pending_upload', 'failed'].includes(current.status)) {
+      await deleteR2Object(file.objectKey).catch(cleanupError => console.error('Vault promoted cleanup failed:', cleanupError?.message || cleanupError));
+    }
+    throw error;
+  } finally { await session.endSession(); }
+
+  let stagingCleanupPending = false;
+  try { await deleteR2Object(file.uploadObjectKey); }
+  catch (error) { stagingCleanupPending = true; console.error('Vault staging cleanup failed:', error?.message || error); }
+  return { status: 200, body: { fileId: String(file._id), status: completedFile.status, sizeBytes: file.sizeBytes, stagingCleanupPending } };
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
 
   const pathname = String(req.url || '').split('?')[0];
-  if (!/^\/api\/vault\/uploads(?:\.js)?\/?$/.test(pathname)) {
-    return sendJson(res, 404, { error: 'Vault endpoint not found' });
-  }
+  const completionFileId = getCompletionFileId(pathname);
+  const isInitRoute = /^\\/api\\/vault\\/uploads(?:\\.js)?\\/?$/.test(pathname);
+  if (!isInitRoute && !completionFileId) return sendJson(res, 404, { error: 'Vault endpoint not found' });
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return sendJson(res, 405, { error: 'Method not allowed' });
+  }
+
+  if (completionFileId) {
+    try {
+      await connectToDatabase();
+      const user = await getAuthenticatedUser(req);
+      const result = await completeUpload(user._id, completionFileId);
+      return sendJson(res, result.status, result.body);
+    } catch (error) {
+      const status = Number(error?.status) || 500;
+      console.error('Vault upload completion error:', error?.message || error);
+      return sendJson(res, status, { error: status >= 500 ? 'Unable to verify uploaded file' : error.message });
+    }
   }
 
   let reserved = false;
@@ -249,6 +356,7 @@ module.exports = async function handler(req, res) {
     reserved = true;
 
     const objectKey = 'vault/' + crypto.randomUUID();
+    const uploadObjectKey = 'vault-staging/' + crypto.randomUUID();
     const expiresAt = new Date(Date.now() + UPLOAD_URL_TTL_SECONDS * 1000);
 
     const file = await VaultFile.create({
@@ -256,6 +364,7 @@ module.exports = async function handler(req, res) {
       folderId: upload.folderId,
       storageProvider: 'r2',
       objectKey,
+      uploadObjectKey,
       originalName: upload.originalName,
       mimeType: upload.mimeType,
       extension: upload.extension,
@@ -268,7 +377,7 @@ module.exports = async function handler(req, res) {
     createdFileId = file._id;
 
     const uploadUrl = await createPresignedPutUrl({
-      key: objectKey,
+      key: uploadObjectKey,
       contentType: upload.mimeType,
       contentLength: sizeBytes,
       expiresIn: UPLOAD_URL_TTL_SECONDS
