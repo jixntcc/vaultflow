@@ -37,6 +37,12 @@ const vaultFileSchema = new mongoose.Schema({
     immutable: true,
     trim: true
   },
+  uploadObjectKey: {
+    type: String,
+    required: true,
+    immutable: true,
+    trim: true
+  },
   originalName: {
     type: String,
     required: true,
@@ -134,6 +140,10 @@ const vaultFileSchema = new mongoose.Schema({
 vaultFileSchema.index(
   { objectKey: 1 },
   { unique: true, name: 'uniq_vault_file_object_key' }
+);
+vaultFileSchema.index(
+  { uploadObjectKey: 1 },
+  { unique: true, name: 'uniq_vault_file_upload_object_key' }
 );
 vaultFileSchema.index(
   { userId: 1, status: 1, createdAt: -1 },
