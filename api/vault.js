@@ -428,3 +428,4 @@ module.exports.MAX_FILE_BYTES = MAX_FILE_BYTES;
 module.exports.UPLOAD_URL_TTL_SECONDS = UPLOAD_URL_TTL_SECONDS;
 module.exports.MIME_TYPES = MIME_TYPES;
 module.exports.normalizeUploadRequest = normalizeUploadRequest;
+module.exports.getCompletionFileId = getCompletionFileId;
