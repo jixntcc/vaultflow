@@ -211,6 +211,7 @@ function getCompletionFileId(pathname) {
 
 async function failPendingUpload(file, reason) {
   const session = await mongoose.startSession();
+  let didFail = false;
   try {
     await session.withTransaction(async () => {
       const failed = await VaultFile.findOneAndUpdate(
@@ -219,6 +220,7 @@ async function failPendingUpload(file, reason) {
         { new: true, session }
       );
       if (!failed) return;
+      didFail = true;
       const update = await VaultUsage.updateOne(
         { userId: file.userId, reservedBytes: { $gte: file.sizeBytes } },
         { $inc: { reservedBytes: -file.sizeBytes } },
@@ -227,8 +229,10 @@ async function failPendingUpload(file, reason) {
       if (update.modifiedCount !== 1) throw new Error('Unable to release failed upload reservation');
     });
   } finally { await session.endSession(); }
-  await deleteR2Object(file.uploadObjectKey).catch(error => console.error('Vault invalid staging cleanup failed:', error?.message || error));
-  console.warn('Vault upload rejected:', reason);
+  if (didFail) {
+    await deleteR2Object(file.uploadObjectKey).catch(error => console.error('Vault invalid staging cleanup failed:', error?.message || error));
+    console.warn('Vault upload rejected:', reason);
+  }
 }
 
 async function completeUpload(userId, fileId) {
