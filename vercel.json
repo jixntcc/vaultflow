@@ -6,6 +6,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/vault.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/portfolio.js",
       "use": "@vercel/node"
     },
@@ -19,6 +23,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/api/vault(?:/.*)?",
+      "dest": "/api/vault.js"
+    },
     {
       "src": "/api/activity(?:/.*)?",
       "dest": "/api/activity.js"
