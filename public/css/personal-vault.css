@@ -1,0 +1,47 @@
+/* OS4.1D-1 — Personal Vault shell. All rules are scoped to this page. */
+#personalVaultPage { color: var(--text); }
+#personalVaultPage .pv-page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+#personalVaultPage .pv-header-actions { display:flex; gap:10px; flex-wrap:wrap; }
+#personalVaultPage button:disabled { opacity:.58; cursor:not-allowed; }
+#personalVaultPage .pv-storage-card { display:flex; align-items:center; gap:16px; padding:20px 22px; margin:8px 0 24px; }
+#personalVaultPage .pv-storage-icon { width:48px; height:48px; flex:0 0 48px; display:grid; place-items:center; border-radius:14px; background:rgba(99,102,241,.10); font-size:23px; }
+#personalVaultPage .pv-storage-copy { display:flex; flex-direction:column; gap:4px; min-width:0; }
+#personalVaultPage .pv-storage-copy strong { font-size:18px; }
+#personalVaultPage .pv-eyebrow, #personalVaultPage .pv-coming-soon { font-size:10px; letter-spacing:.09em; font-weight:800; color:var(--primary); }
+#personalVaultPage .pv-muted, #personalVaultPage .pv-card-heading p { color:var(--text-secondary); font-size:12px; }
+#personalVaultPage .pv-storage-status { margin-left:auto; display:flex; align-items:center; gap:8px; color:var(--text-secondary); font-size:12px; white-space:nowrap; }
+#personalVaultPage .pv-status-dot { width:8px; height:8px; border-radius:50%; background:#16a34a; }
+#personalVaultPage .pv-toolbar { display:flex; justify-content:space-between; align-items:center; gap:12px; margin:0 0 14px; flex-wrap:wrap; }
+#personalVaultPage .pv-section-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+#personalVaultPage .pv-tab { padding:8px 13px; border-radius:9px; color:var(--text-secondary); font-size:13px; font-weight:600; }
+#personalVaultPage .pv-tab.is-current { background:var(--surface); color:var(--primary); box-shadow:0 1px 4px var(--shadow); }
+#personalVaultPage .pv-count-label { color:var(--text-secondary); font-size:11px; }
+#personalVaultPage .pv-content-grid { display:grid; grid-template-columns:minmax(220px,.78fr) minmax(0,2fr); gap:16px; }
+#personalVaultPage .pv-folders-card, #personalVaultPage .pv-files-card { padding:20px; min-height:300px; }
+#personalVaultPage .pv-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+#personalVaultPage .pv-card-heading h2 { margin:0; font-size:16px; }
+#personalVaultPage .pv-card-heading p { margin:5px 0 0; }
+#personalVaultPage .pv-card-heading > span { font-size:20px; }
+#personalVaultPage .pv-empty-mini { min-height:205px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; text-align:center; color:var(--text-secondary); }
+#personalVaultPage .pv-empty-mini > span { font-size:28px; }
+#personalVaultPage .pv-empty-mini strong { color:var(--text); font-size:13px; }
+#personalVaultPage .pv-empty-mini small { max-width:210px; line-height:1.5; font-size:11px; }
+#personalVaultPage .pv-empty-state { min-height:235px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:22px 12px; }
+#personalVaultPage .pv-empty-art { position:relative; width:64px; height:64px; display:grid; place-items:center; border-radius:20px; background:rgba(99,102,241,.09); font-size:30px; margin-bottom:12px; }
+#personalVaultPage .pv-empty-art i { position:absolute; right:-5px; bottom:-4px; width:23px; height:23px; display:grid; place-items:center; border-radius:50%; background:var(--primary); color:#fff; font-size:16px; font-style:normal; }
+#personalVaultPage .pv-empty-state h3 { margin:0 0 7px; font-size:15px; }
+#personalVaultPage .pv-empty-state p { max-width:420px; margin:0 0 13px; color:var(--text-secondary); font-size:12px; line-height:1.6; }
+#personalVaultPage .pv-security-note { display:flex; align-items:center; gap:8px; margin:16px 2px 0; color:var(--text-secondary); font-size:11px; }
+@media (max-width:760px) {
+  #personalVaultPage .pv-storage-card { align-items:flex-start; flex-wrap:wrap; padding:16px; }
+  #personalVaultPage .pv-storage-status { width:100%; margin-left:64px; }
+  #personalVaultPage .pv-content-grid { grid-template-columns:1fr; }
+  #personalVaultPage .pv-folders-card { min-height:190px; }
+  #personalVaultPage .pv-empty-mini { min-height:110px; }
+  #personalVaultPage .pv-files-card { min-height:280px; }
+}
+@media (max-width:420px) {
+  #personalVaultPage .pv-header-actions { width:100%; }
+  #personalVaultPage .pv-header-actions .btn { flex:1; }
+  #personalVaultPage .pv-tab { padding:7px 9px; font-size:12px; }
+}
