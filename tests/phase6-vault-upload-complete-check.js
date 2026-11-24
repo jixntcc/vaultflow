@@ -22,15 +22,19 @@ function main() {
   assert.match(modelSource, /uniq_vault_file_upload_object_key/);
 
   const apiSource = fs.readFileSync(path.join(__dirname, '..', 'api', 'vault.js'), 'utf8');
-  assert.match(apiSource, /headR2Object\\(file\.uploadObjectKey\\)/);
-  assert.match(apiSource, /Number\\(sourceHead\.ContentLength\\) !== file\.sizeBytes/);
-  assert.match(apiSource, /sourceHead\.ContentType/);
-  assert.match(apiSource, /CopySourceIfMatch|sourceEtag/);
-  assert.match(apiSource, /status: 'quarantined'/);
-  assert.match(apiSource, /reservedBytes: \\{ \\$gte: file\.sizeBytes \\}/);
-  assert.match(apiSource, /reservedBytes: -file\.sizeBytes, usedBytes: file\.sizeBytes/);
-  assert.match(apiSource, /session\.withTransaction/);
-  assert.match(apiSource, /deleteR2Object\\(file\.uploadObjectKey\\)/);
+  for (const required of [
+    'headR2Object(file.uploadObjectKey)',
+    'Number(sourceHead.ContentLength) !== file.sizeBytes',
+    'sourceHead.ContentType',
+    'sourceEtag: sourceHead.ETag',
+    "status: 'quarantined'",
+    'reservedBytes: { $gte: file.sizeBytes }',
+    'reservedBytes: -file.sizeBytes, usedBytes: file.sizeBytes',
+    'session.withTransaction',
+    'deleteR2Object(file.uploadObjectKey)'
+  ]) {
+    assert.ok(apiSource.includes(required), `Missing completion contract: ${required}`);
+  }
 
   console.log('VaultFlow OS4.3 upload completion contract checks: PASS');
 }
