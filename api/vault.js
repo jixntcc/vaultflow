@@ -205,7 +205,7 @@ async function releaseReservation(userId, sizeBytes) {
 }
 
 function getCompletionFileId(pathname) {
-  const match = pathname.match(/^\\/api\\/vault\\/uploads\\/([a-f0-9]{24})\\/complete\\/?$/i);
+  const match = pathname.match(/^\/api\/vault\/uploads\/([a-f0-9]{24})\/complete\/?$/i);
   return match ? match[1] : null;
 }
 
@@ -305,7 +305,7 @@ module.exports = async function handler(req, res) {
 
   const pathname = String(req.url || '').split('?')[0];
   const completionFileId = getCompletionFileId(pathname);
-  const isInitRoute = /^\\/api\\/vault\\/uploads(?:\\.js)?\\/?$/.test(pathname);
+  const isInitRoute = /^\/api\/vault\/uploads(?:\\.js)?\/?$/.test(pathname);
   if (!isInitRoute && !completionFileId) return sendJson(res, 404, { error: 'Vault endpoint not found' });
 
   if (req.method !== 'POST') {
