@@ -34,7 +34,8 @@ async function main() {
 
   const file = new VaultFile({
     userId: ownerId,
-    objectKey: 'users/random-id/object',
+    objectKey: 'vault/final-object-id',
+    uploadObjectKey: 'vault-staging/upload-object-id',
     originalName: 'receipt.pdf',
     mimeType: 'application/pdf',
     sizeBytes: 1024
@@ -55,7 +56,8 @@ async function main() {
 
   const invalidFile = new VaultFile({
     userId: ownerId,
-    objectKey: 'users/random-id/bad',
+    objectKey: 'vault/final-bad-object-id',
+    uploadObjectKey: 'vault-staging/upload-bad-object-id',
     originalName: '../secret.pdf',
     mimeType: 'application/pdf',
     sizeBytes: 10
