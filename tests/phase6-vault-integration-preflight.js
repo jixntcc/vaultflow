@@ -64,16 +64,20 @@ async function checkR2() {
 
 async function main() {
   let failed = false;
+  let stage = 'environment configuration';
 
   try {
     await checkEnvironment();
+    stage = 'MongoDB connectivity and transaction support';
     await checkMongoAndTransactions();
+    stage = 'Cloudflare R2 connectivity';
     await checkR2();
   } catch (error) {
     failed = true;
     console.error('OS4.4 PREFLIGHT FAILED');
+    console.error('Failed stage:', stage);
     console.error('Error type:', error.name || 'Unknown');
-    console.error('Reason:', error.message || 'No additional details');
+    console.error('Details omitted to protect connection information.');
     if (error.$metadata?.httpStatusCode) {
       console.error('HTTP status:', error.$metadata.httpStatusCode);
     }
