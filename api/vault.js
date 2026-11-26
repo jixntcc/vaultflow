@@ -318,7 +318,7 @@ function parseOwnedParentId(value) {
 function normalizeFolderName(value) {
   if (typeof value !== 'string') throw Object.assign(new Error('Folder name is required'), { status: 400 });
   const name = value.trim();
-  if (!name || name.length > 80 || name === '.' || name === '..' || /[\\/\\\\\\u0000-\\u001f]/.test(name)) {
+  if (!name || name.length > 80 || name === '.' || name === '..' || /[\/\\\u0000-\u001f]/.test(name)) {
     throw Object.assign(new Error('Folder name must be 1–80 characters and cannot contain path separators'), { status: 400 });
   }
   return name;
