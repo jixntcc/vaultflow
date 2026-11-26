@@ -66,7 +66,8 @@ async function ensureVaultIndexes() {
   if (!indexesPromise) {
     indexesPromise = Promise.all([
       VaultUsage.createIndexes(),
-      VaultFile.createIndexes()
+      VaultFile.createIndexes(),
+      VaultFolder.createIndexes()
     ]).catch(error => {
       indexesPromise = null;
       throw error;
