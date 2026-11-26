@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const VaultFile = require('../models/vault-file');
 const VaultUsage = require('../models/vault-usage');
 const VaultFolder = require('../models/vault-folder');
-const { createPresignedPutUrl, headR2Object, promoteR2Object, deleteR2Object } = require('../lib/storage/r2');
+const { createPresignedPutUrl, createPresignedGetUrl, headR2Object, promoteR2Object, deleteR2Object } = require('../lib/storage/r2');
 
 const JWT_ISSUER = process.env.JWT_ISSUER || 'vaultflow';
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || 'vaultflow-web';
@@ -302,6 +302,148 @@ async function completeUpload(userId, fileId) {
   return { status: 200, body: { fileId: String(file._id), status: completedFile.status, sizeBytes: file.sizeBytes, stagingCleanupPending } };
 }
 
+
+const MAX_LIST_LIMIT = 100;
+const DEFAULT_LIST_LIMIT = 25;
+
+function parseOwnedParentId(value) {
+  if (value === undefined || value === null || value === '' || value === 'root') return null;
+  if (typeof value !== 'string' || !mongoose.isValidObjectId(value)) {
+    throw Object.assign(new Error('Invalid folder id'), { status: 400 });
+  }
+  return value;
+}
+
+function normalizeFolderName(value) {
+  if (typeof value !== 'string') throw Object.assign(new Error('Folder name is required'), { status: 400 });
+  const name = value.trim();
+  if (!name || name.length > 80 || name === '.' || name === '..' || /[\\/\\\\\\u0000-\\u001f]/.test(name)) {
+    throw Object.assign(new Error('Folder name must be 1–80 characters and cannot contain path separators'), { status: 400 });
+  }
+  return name;
+}
+
+function getManagerRoute(pathname) {
+  if (pathname === '/api/vault/files' || pathname === '/api/vault/files/') return 'files';
+  if (pathname === '/api/vault/folders' || pathname === '/api/vault/folders/') return 'folders';
+  if (pathname === '/api/vault/usage' || pathname === '/api/vault/usage/') return 'usage';
+  const download = pathname.match(/^\\/api\\/vault\\/files\\/([a-f0-9]{24})\\/download\\/?$/i);
+  if (download) return { type: 'download', id: download[1] };
+  const folder = pathname.match(/^\\/api\\/vault\\/folders\\/([a-f0-9]{24})\\/?$/i);
+  if (folder) return { type: 'folder', id: folder[1] };
+  return null;
+}
+
+async function handleFileManager(req, res, route, user) {
+  const url = new URL(req.url || '/', 'https://vaultflow.local');
+  if (route === 'usage') {
+    if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+    const usage = await ensureUsageRecord(user._id);
+    return sendJson(res, 200, {
+      quotaBytes: usage.quotaBytes,
+      usedBytes: usage.usedBytes,
+      reservedBytes: usage.reservedBytes,
+      availableBytes: Math.max(0, usage.quotaBytes - usage.usedBytes - usage.reservedBytes)
+    });
+  }
+
+  if (route === 'folders') {
+    if (req.method === 'GET') {
+      const parentId = parseOwnedParentId(url.searchParams.get('parentId'));
+      if (parentId) {
+        const parent = await VaultFolder.findOne({ _id: parentId, userId: user._id }).select('_id').lean().maxTimeMS(10000);
+        if (!parent) return sendJson(res, 404, { error: 'Parent folder not found' });
+      }
+      const folders = await VaultFolder.find({ userId: user._id, parentId })
+        .select('_id parentId name createdAt updatedAt')
+        .sort({ name: 1, _id: 1 }).lean().maxTimeMS(10000);
+      return sendJson(res, 200, { folders });
+    }
+    if (req.method === 'POST') {
+      const body = getRequestBody(req);
+      const name = normalizeFolderName(body.name);
+      const parentId = parseOwnedParentId(body.parentId);
+      if (parentId) {
+        const parent = await VaultFolder.findOne({ _id: parentId, userId: user._id }).select('_id').lean().maxTimeMS(10000);
+        if (!parent) return sendJson(res, 404, { error: 'Parent folder not found' });
+      }
+      try {
+        const folder = await VaultFolder.create({ userId: user._id, parentId, name });
+        return sendJson(res, 201, { folder: { id: String(folder._id), parentId: folder.parentId ? String(folder.parentId) : null, name: folder.name, createdAt: folder.createdAt, updatedAt: folder.updatedAt } });
+      } catch (error) {
+        if (error?.code === 11000) return sendJson(res, 409, { error: 'A folder with this name already exists here' });
+        throw error;
+      }
+    }
+    res.setHeader('Allow', 'GET, POST');
+    return sendJson(res, 405, { error: 'Method not allowed' });
+  }
+
+  if (route === 'files') {
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', 'GET');
+      return sendJson(res, 405, { error: 'Method not allowed' });
+    }
+    const folderId = parseOwnedParentId(url.searchParams.get('folderId'));
+    if (folderId) {
+      const folder = await VaultFolder.findOne({ _id: folderId, userId: user._id }).select('_id').lean().maxTimeMS(10000);
+      if (!folder) return sendJson(res, 404, { error: 'Folder not found' });
+    }
+    const rawLimit = Number(url.searchParams.get('limit') || DEFAULT_LIST_LIMIT);
+    const rawPage = Number(url.searchParams.get('page') || 1);
+    if (!Number.isInteger(rawLimit) || rawLimit < 1 || !Number.isInteger(rawPage) || rawPage < 1) {
+      return sendJson(res, 400, { error: 'page and limit must be positive integers' });
+    }
+    const limit = Math.min(rawLimit, MAX_LIST_LIMIT);
+    const filter = { userId: user._id, folderId, status: 'available' };
+    const [total, files] = await Promise.all([
+      VaultFile.countDocuments(filter).maxTimeMS(10000),
+      VaultFile.find(filter)
+        .select('_id folderId originalName mimeType extension sizeBytes category tags status createdAt updatedAt')
+        .sort({ createdAt: -1, _id: -1 }).skip((rawPage - 1) * limit).limit(limit)
+        .lean().maxTimeMS(10000)
+    ]);
+    return sendJson(res, 200, {
+      files: files.map(file => ({
+        id: String(file._id), folderId: file.folderId ? String(file.folderId) : null,
+        name: file.originalName, mimeType: file.mimeType, extension: file.extension,
+        sizeBytes: file.sizeBytes, category: file.category, tags: file.tags || [],
+        status: file.status, createdAt: file.createdAt, updatedAt: file.updatedAt
+      })),
+      pagination: { page: rawPage, limit, total, pages: Math.ceil(total / limit) }
+    });
+  }
+
+  if (route && typeof route === 'object' && route.type === 'folder') {
+    if (req.method !== 'PATCH') {
+      res.setHeader('Allow', 'PATCH');
+      return sendJson(res, 405, { error: 'Method not allowed' });
+    }
+    const body = getRequestBody(req);
+    const name = normalizeFolderName(body.name);
+    const folder = await VaultFolder.findOneAndUpdate(
+      { _id: route.id, userId: user._id },
+      { $set: { name } },
+      { new: true, runValidators: true }
+    ).select('_id parentId name createdAt updatedAt').lean().maxTimeMS(10000);
+    if (!folder) return sendJson(res, 404, { error: 'Folder not found' });
+    return sendJson(res, 200, { folder: { id: String(folder._id), parentId: folder.parentId ? String(folder.parentId) : null, name: folder.name, createdAt: folder.createdAt, updatedAt: folder.updatedAt } });
+  }
+
+  if (route && typeof route === 'object' && route.type === 'download') {
+    if (req.method !== 'GET') {
+      res.setHeader('Allow', 'GET');
+      return sendJson(res, 405, { error: 'Method not allowed' });
+    }
+    const file = await VaultFile.findOne({ _id: route.id, userId: user._id, status: 'available' })
+      .select('_id objectKey originalName mimeType').lean().maxTimeMS(10000);
+    if (!file) return sendJson(res, 404, { error: 'Available file not found' });
+    const downloadUrl = await createPresignedGetUrl({ key: file.objectKey, expiresIn: 60 });
+    return sendJson(res, 200, { downloadUrl, expiresInSeconds: 60, file: { id: String(file._id), name: file.originalName, mimeType: file.mimeType } });
+  }
+  return sendJson(res, 404, { error: 'Vault endpoint not found' });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -310,6 +452,19 @@ module.exports = async function handler(req, res) {
   const pathname = String(req.url || '').split('?')[0];
   const completionFileId = getCompletionFileId(pathname);
   const isInitRoute = /^\/api\/vault\/uploads(?:\.js)?\/?$/.test(pathname);
+  const managerRoute = getManagerRoute(pathname);
+  if (managerRoute) {
+    try {
+      await connectToDatabase();
+      await ensureVaultIndexes();
+      const user = await getAuthenticatedUser(req);
+      return await handleFileManager(req, res, managerRoute, user);
+    } catch (error) {
+      const status = Number(error?.status) || (error?.code === 11000 ? 409 : error?.name === 'ValidationError' ? 400 : 500);
+      console.error('Vault file manager error:', error?.message || error);
+      return sendJson(res, status, { error: status >= 500 ? 'Unable to process vault request' : error.message });
+    }
+  }
   if (!isInitRoute && !completionFileId) return sendJson(res, 404, { error: 'Vault endpoint not found' });
 
   if (req.method !== 'POST') {
@@ -433,3 +588,8 @@ module.exports.UPLOAD_URL_TTL_SECONDS = UPLOAD_URL_TTL_SECONDS;
 module.exports.MIME_TYPES = MIME_TYPES;
 module.exports.normalizeUploadRequest = normalizeUploadRequest;
 module.exports.getCompletionFileId = getCompletionFileId;
+
+module.exports.MAX_LIST_LIMIT = MAX_LIST_LIMIT;
+module.exports.normalizeFolderName = normalizeFolderName;
+module.exports.parseOwnedParentId = parseOwnedParentId;
+module.exports.getManagerRoute = getManagerRoute;
