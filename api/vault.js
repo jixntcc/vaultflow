@@ -424,7 +424,7 @@ async function handleFileManager(req, res, route, user) {
     const name = normalizeFolderName(body.name);
     const folder = await VaultFolder.findOneAndUpdate(
       { _id: route.id, userId: user._id },
-      { $set: { name } },
+      { $set: { name, normalizedName: name.toLocaleLowerCase('en-US') } },
       { new: true, runValidators: true }
     ).select('_id parentId name createdAt updatedAt').lean().maxTimeMS(10000);
     if (!folder) return sendJson(res, 404, { error: 'Folder not found' });
