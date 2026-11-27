@@ -328,9 +328,9 @@ function getManagerRoute(pathname) {
   if (pathname === '/api/vault/files' || pathname === '/api/vault/files/') return 'files';
   if (pathname === '/api/vault/folders' || pathname === '/api/vault/folders/') return 'folders';
   if (pathname === '/api/vault/usage' || pathname === '/api/vault/usage/') return 'usage';
-  const download = pathname.match(/^\\/api\\/vault\\/files\\/([a-f0-9]{24})\\/download\\/?$/i);
+  const download = pathname.match(/^\/api\/vault\/files\/([a-f0-9]{24})\/download\/?$/i);
   if (download) return { type: 'download', id: download[1] };
-  const folder = pathname.match(/^\\/api\\/vault\\/folders\\/([a-f0-9]{24})\\/?$/i);
+  const folder = pathname.match(/^\/api\/vault\/folders\/([a-f0-9]{24})\/?$/i);
   if (folder) return { type: 'folder', id: folder[1] };
   return null;
 }
