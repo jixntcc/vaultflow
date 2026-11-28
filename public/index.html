@@ -2316,22 +2316,42 @@ body { overscroll-behavior-y: auto; }
   <section id="personalVaultPage" aria-labelledby="personalVaultTitle">
     <div class="page-header pv-page-header">
       <div><h1 class="page-title" id="personalVaultTitle">Personal Vault</h1><p class="page-subtitle">A private space for your files and personal notes.</p></div>
-      <div class="pv-header-actions"><button class="btn btn-primary" type="button" disabled title="Secure uploads will be enabled in a later phase">＋ Upload files</button><button class="btn btn-secondary" type="button" disabled title="Folder creation will be enabled in a later phase">＋ New folder</button></div>
+      <div class="pv-header-actions">
+        <button class="btn btn-primary" id="pvUploadButton" type="button" disabled title="Secure upload workflow is being implemented">＋ Upload files</button>
+        <button class="btn btn-secondary" id="pvNewFolderButton" type="button">＋ New folder</button>
+      </div>
     </div>
-    <div class="pv-storage-card card">
+    <div class="pv-storage-card card" aria-live="polite">
       <div class="pv-storage-icon" aria-hidden="true">🔐</div>
-      <div class="pv-storage-copy"><span class="pv-eyebrow">YOUR PRIVATE STORAGE</span><strong>2 GiB total capacity</strong><span class="pv-muted">Used space will appear when the file listing API is connected.</span></div>
+      <div class="pv-storage-copy">
+        <span class="pv-eyebrow">YOUR PRIVATE STORAGE</span>
+        <strong id="pvStorageHeadline">Loading storage…</strong>
+        <span class="pv-muted" id="pvStorageDetail">Retrieving your private storage usage.</span>
+        <div class="pv-progress-track" role="progressbar" aria-label="Storage used" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="pvStorageProgress"><span id="pvStorageProgressFill"></span></div>
+      </div>
       <div class="pv-storage-status"><span class="pv-status-dot"></span>Private storage</div>
     </div>
-    <div class="pv-toolbar" aria-label="Vault sections">
-      <div class="pv-section-tabs"><span class="pv-tab is-current">All files</span><span class="pv-tab">Recent</span><span class="pv-tab">Starred</span><span class="pv-tab">Trash</span></div>
-      <span class="pv-count-label">File manager preview</span>
+    <div class="pv-toolbar">
+      <div class="pv-breadcrumbs" id="pvBreadcrumbs" aria-label="Folder location"><button type="button" data-pv-root>All files</button></div>
+      <span class="pv-count-label" id="pvFileCount">Loading files…</span>
     </div>
     <div class="pv-content-grid">
-      <section class="card pv-folders-card"><div class="pv-card-heading"><div><h2>Folders</h2><p>Organise your private documents</p></div><span aria-hidden="true">📁</span></div><div class="pv-empty-mini"><span>📂</span><strong>No folders yet</strong><small>Your folders will appear here once folder management is connected.</small></div></section>
-      <section class="card pv-files-card"><div class="pv-card-heading"><div><h2>Files</h2><p>Your uploaded documents and media</p></div><span aria-hidden="true">▤</span></div><div class="pv-empty-state"><div class="pv-empty-art" aria-hidden="true"><span>📄</span><i>＋</i></div><h3>Your vault is ready for its first file</h3><p>Secure upload and file browsing will be enabled in the next implementation steps. No sample files are shown here.</p><span class="pv-coming-soon">FILE MANAGEMENT NOT CONNECTED YET</span></div></section>
+      <section class="card pv-folders-card">
+        <div class="pv-card-heading"><div><h2>Folders</h2><p>Organise your private documents</p></div><span aria-hidden="true">📁</span></div>
+        <div id="pvFolderList" class="pv-folder-list" aria-live="polite"><p class="pv-loading">Loading folders…</p></div>
+      </section>
+      <section class="card pv-files-card">
+        <div class="pv-card-heading"><div><h2>Files</h2><p id="pvCurrentFolderLabel">Your uploaded documents and media</p></div><span aria-hidden="true">▤</span></div>
+        <div id="pvFileList" class="pv-file-list" aria-live="polite"><p class="pv-loading">Loading files…</p></div>
+        <div class="pv-pagination" id="pvPagination" hidden>
+          <button class="btn btn-secondary" id="pvPrevPage" type="button">Previous</button>
+          <span id="pvPageLabel"></span>
+          <button class="btn btn-secondary" id="pvNextPage" type="button">Next</button>
+        </div>
+      </section>
     </div>
-    <p class="pv-security-note"><span aria-hidden="true">🛡️</span> Your vault is designed for private, authenticated access. Files are not exposed through public links.</p>
+    <p class="pv-security-note"><span aria-hidden="true">🛡️</span> Your vault uses private, authenticated access. Files are not exposed through public links.</p>
+    <p class="pv-feedback" id="pvFeedback" role="status" aria-live="polite"></p>
   </section>
 </div>
 </main>
@@ -4276,6 +4296,7 @@ body { overscroll-behavior-y: auto; }
                     renderWalletsPage();
                     break;
                 case 'personalVault':
+                    window.PersonalVault?.load();
                     break;
                 case 'goals':
                     renderGoalsPage();
