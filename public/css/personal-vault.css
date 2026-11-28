@@ -75,3 +75,37 @@
   #personalVaultPage .pv-storage-status { margin-left:0; }
   #personalVaultPage .pv-pagination { gap:8px; }
 }
+
+/* OS4.1E — notes editor */
+#personalVaultPage .pv-notes-card { margin-top:18px; padding:20px; }
+#personalVaultPage .pv-notes-card > .pv-card-heading { align-items:center; }
+#personalVaultPage .pv-notes-list { margin-top:14px; }
+#personalVaultPage .pv-note-row { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:14px 2px; border-bottom:1px solid var(--border); }
+#personalVaultPage .pv-note-row:last-child { border-bottom:0; }
+#personalVaultPage .pv-note-main { min-width:0; flex:1; }
+#personalVaultPage .pv-note-main h3 { margin:0 0 5px; font-size:14px; }
+#personalVaultPage .pv-note-main p { margin:0 0 7px; color:var(--text-secondary); font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+#personalVaultPage .pv-note-main small { color:var(--text-secondary); font-size:11px; }
+#personalVaultPage .pv-note-tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+#personalVaultPage .pv-note-tags span { padding:3px 7px; border-radius:20px; background:var(--bg); color:var(--text-secondary); font-size:10px; }
+#personalVaultPage .pv-note-actions { display:flex; gap:6px; flex-wrap:wrap; }
+#personalVaultPage .pv-note-actions button, #personalVaultPage .pv-note-close { border:1px solid var(--border); border-radius:7px; padding:6px 9px; background:var(--surface); color:var(--text-secondary); font:inherit; font-size:11px; cursor:pointer; }
+#personalVaultPage .pv-note-modal[hidden] { display:none; }
+#personalVaultPage .pv-note-modal { position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(0,0,0,.55); }
+#personalVaultPage .pv-note-editor { width:min(680px,100%); max-height:min(90vh,900px); overflow:auto; padding:22px; display:flex; flex-direction:column; gap:9px; }
+#personalVaultPage .pv-note-editor label { color:var(--text); font-size:12px; font-weight:650; }
+#personalVaultPage .pv-note-editor label span { color:var(--text-secondary); font-weight:400; }
+#personalVaultPage .pv-note-editor input:not([type="checkbox"]), #personalVaultPage .pv-note-editor textarea { width:100%; border:1px solid var(--border); border-radius:8px; padding:10px 11px; background:var(--bg); color:var(--text); font:inherit; font-size:13px; }
+#personalVaultPage .pv-note-editor textarea { resize:vertical; line-height:1.55; }
+#personalVaultPage .pv-note-close { font-size:22px; line-height:1; }
+#personalVaultPage .pv-note-attachments { margin-top:8px; padding:12px; border:1px solid var(--border); border-radius:9px; }
+#personalVaultPage .pv-note-attachments > strong { display:block; margin-bottom:8px; font-size:12px; }
+#personalVaultPage .pv-attachment-choice { display:flex; align-items:center; gap:8px; padding:7px 0; border-top:1px solid var(--border); }
+#personalVaultPage .pv-attachment-choice span { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#personalVaultPage .pv-attachment-choice small { color:var(--text-secondary); font-size:10px; }
+#personalVaultPage .pv-note-editor-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+#personalVaultPage #pvNoteFeedback { min-height:16px; color:var(--danger); font-size:11px; }
+@media (max-width:600px) {
+  #personalVaultPage .pv-note-row { flex-direction:column; }
+  #personalVaultPage .pv-note-editor { padding:16px; }
+}
