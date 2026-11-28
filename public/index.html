@@ -2351,7 +2351,11 @@ body { overscroll-behavior-y: auto; }
       </section>
     </div>
     <section class="card pv-notes-card" aria-labelledby="pvNotesTitle">
-      <div class="pv-card-heading"><div><h2 id="pvNotesTitle">Personal notes</h2><p>Your private notes, saved securely with your Vault</p></div><button class="btn btn-primary" id="pvNewNoteButton" type="button">＋ New note</button></div>
+      <div class="pv-card-heading"><div><h2 id="pvNotesTitle">Notes</h2><p>Capture thoughts and keep important ideas close</p></div><span class="pv-count-label" id="pvNotesCount">0 notes</span></div>
+      <div class="pv-notes-toolbar">
+        <button class="pv-quick-note" id="pvQuickNote" type="button"><span class="pv-quick-note-mark">＋</span><span id="pvQuickNoteInput">Take a note…</span></button>
+        <input class="pv-note-search" id="pvNoteSearch" type="search" placeholder="Search your notes…" aria-label="Search notes">
+      </div>
       <div id="pvNotesList" class="pv-notes-list" aria-live="polite"><p class="pv-loading">Loading notes…</p></div>
     </section>
     <div class="pv-note-modal" id="pvNoteModal" hidden>
