@@ -2350,6 +2350,23 @@ body { overscroll-behavior-y: auto; }
         </div>
       </section>
     </div>
+    <section class="card pv-notes-card" aria-labelledby="pvNotesTitle">
+      <div class="pv-card-heading"><div><h2 id="pvNotesTitle">Personal notes</h2><p>Your private notes, saved securely with your Vault</p></div><button class="btn btn-primary" id="pvNewNoteButton" type="button">＋ New note</button></div>
+      <div id="pvNotesList" class="pv-notes-list" aria-live="polite"><p class="pv-loading">Loading notes…</p></div>
+    </section>
+    <div class="pv-note-modal" id="pvNoteModal" hidden>
+      <form class="card pv-note-editor" id="pvNoteForm">
+        <div class="pv-card-heading"><div><h2 id="pvNoteEditorTitle">New note</h2><p>Only you can access this note.</p></div><button class="pv-note-close" id="pvNoteClose" type="button" aria-label="Close editor">×</button></div>
+        <input type="hidden" id="pvNoteId">
+        <label for="pvNoteTitle">Title</label><input id="pvNoteTitle" maxlength="160" required placeholder="Note title">
+        <label for="pvNoteCategory">Category</label><input id="pvNoteCategory" maxlength="60" value="Personal" placeholder="Personal">
+        <label for="pvNoteTags">Tags <span>(comma separated)</span></label><input id="pvNoteTags" placeholder="ideas, finance, reminders">
+        <label for="pvNoteContent">Content</label><textarea id="pvNoteContent" maxlength="100000" rows="8" placeholder="Write your note…"></textarea>
+        <div class="pv-note-attachments"><strong>Attach available files</strong><div id="pvNoteAttachmentChoices"><small>Loading your available files…</small></div></div>
+        <div class="pv-note-editor-actions"><button class="btn btn-secondary" id="pvNoteCancel" type="button">Cancel</button><button class="btn btn-primary" type="submit" id="pvNoteSave">Save note</button></div>
+        <p id="pvNoteFeedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
     <p class="pv-security-note"><span aria-hidden="true">🛡️</span> Your vault uses private, authenticated access. Files are not exposed through public links.</p>
     <p class="pv-feedback" id="pvFeedback" role="status" aria-live="polite"></p>
   </section>
