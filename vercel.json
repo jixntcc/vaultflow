@@ -6,6 +6,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/notes.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/vault.js",
       "use": "@vercel/node"
     },
@@ -26,6 +30,10 @@
     {
       "src": "/api/vault(?:/.*)?",
       "dest": "/api/vault.js"
+    },
+    {
+      "src": "/api/notes(?:/.*)?",
+      "dest": "/api/notes.js"
     },
     {
       "src": "/api/activity(?:/.*)?",
