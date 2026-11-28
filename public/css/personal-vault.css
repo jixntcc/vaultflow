@@ -45,3 +45,33 @@
   #personalVaultPage .pv-header-actions .btn { flex:1; }
   #personalVaultPage .pv-tab { padding:7px 9px; font-size:12px; }
 }
+
+/* OS4.1D-3 — connected file manager controls */
+#personalVaultPage .pv-storage-copy { flex:1; }
+#personalVaultPage .pv-progress-track { height:8px; max-width:420px; margin-top:8px; overflow:hidden; border-radius:99px; background:var(--border); }
+#personalVaultPage .pv-progress-track span { display:block; width:0; height:100%; border-radius:inherit; background:var(--primary); transition:width .25s ease; }
+#personalVaultPage .pv-breadcrumbs { display:flex; align-items:center; gap:9px; flex-wrap:wrap; color:var(--text-secondary); font-size:13px; }
+#personalVaultPage .pv-breadcrumbs button { padding:0; border:0; background:transparent; color:var(--primary); font:inherit; cursor:pointer; }
+#personalVaultPage .pv-breadcrumbs [aria-current="page"] { color:var(--text); font-weight:650; }
+#personalVaultPage .pv-folder-list, #personalVaultPage .pv-file-list { margin-top:14px; }
+#personalVaultPage .pv-folder-row, #personalVaultPage .pv-file-row { display:flex; align-items:center; gap:10px; min-width:0; padding:11px 4px; border-bottom:1px solid var(--border); }
+#personalVaultPage .pv-folder-row:last-child, #personalVaultPage .pv-file-row:last-child { border-bottom:0; }
+#personalVaultPage .pv-folder-open { display:flex; align-items:center; gap:10px; flex:1; min-width:0; border:0; background:transparent; color:var(--text); text-align:left; font:inherit; cursor:pointer; }
+#personalVaultPage .pv-folder-open span:last-child, #personalVaultPage .pv-file-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#personalVaultPage .pv-folder-rename { border:1px solid var(--border); border-radius:7px; padding:5px 8px; background:var(--surface); color:var(--text-secondary); font-size:11px; cursor:pointer; }
+#personalVaultPage .pv-folder-rename:hover, #personalVaultPage .pv-breadcrumbs button:hover { color:var(--primary); }
+#personalVaultPage .pv-file-icon { flex:0 0 28px; font-size:20px; }
+#personalVaultPage .pv-file-name { flex:1; min-width:0; color:var(--text); font-size:13px; }
+#personalVaultPage .pv-file-name small { display:block; color:var(--text-secondary); font-size:11px; }
+#personalVaultPage .pv-file-date { color:var(--text-secondary); font-size:11px; white-space:nowrap; }
+#personalVaultPage .pv-pagination { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px; }
+#personalVaultPage .pv-pagination[hidden] { display:none; }
+#personalVaultPage .pv-pagination span, #personalVaultPage .pv-loading, #personalVaultPage .pv-error { color:var(--text-secondary); font-size:12px; }
+#personalVaultPage .pv-feedback { min-height:18px; margin-top:8px; color:var(--secondary); font-size:12px; }
+#personalVaultPage .pv-feedback.is-error, #personalVaultPage .pv-error { color:var(--danger); }
+#personalVaultPage .pv-empty-mini { min-height:150px; }
+@media (max-width:560px) {
+  #personalVaultPage .pv-file-date { display:none; }
+  #personalVaultPage .pv-storage-status { margin-left:0; }
+  #personalVaultPage .pv-pagination { gap:8px; }
+}
